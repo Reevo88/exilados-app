@@ -11,6 +11,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   const resetParam=params.get('reset');
   const temRetornoAuth=temRetornoPerfilAuth();
 
+  if(erroRetornoPerfilAuth()){
+    atualizarSaudacaoLogin();
+    await tratarRetornoPerfilAuth();
+    await carregarPerfilJogador({mostrarFormulario:false});
+    goTo('s-j-perfil');
+    return;
+  }
+
   if(!temRetornoAuth) await restaurarSessaoAdm();
   atualizarSaudacaoLogin();
   prepararNovaPelada();

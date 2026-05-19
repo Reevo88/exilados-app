@@ -132,6 +132,11 @@ function perfilAuthHash(){
   return new URLSearchParams((window.location.hash||'').replace(/^#/,''));
 }
 
+function erroRetornoPerfilAuth(){
+  const hash=perfilAuthHash();
+  return hash.get('error_code')||hash.get('error')||'';
+}
+
 function temRetornoPerfilAuth(){
   const params=new URLSearchParams(window.location.search);
   const hash=perfilAuthHash();
@@ -144,7 +149,7 @@ function limparUrlPerfil(){
 
 async function tratarRetornoPerfilAuth(){
   const hash=perfilAuthHash();
-  const erro=hash.get('error_code')||hash.get('error');
+  const erro=erroRetornoPerfilAuth();
   G.redefinindoSenha=false;
 
   if(erro){
