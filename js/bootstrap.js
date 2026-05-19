@@ -24,6 +24,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   atualizarSaudacaoLogin();
   prepararNovaPelada();
 
+  if(temRetornoAuth){
+    await abrirPerfilJogador(true);
+    return;
+  }
+
   // Carregar peladas do Supabase
   const jlista=document.getElementById('j-lista');
   jlista.innerHTML='<div class="empty" style="padding:40px 0;"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;font-size:28px;opacity:.5;"></i></div>';
@@ -46,11 +51,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible') verificarEncerramentoAutomaticoUI();
   });
-
-  if(temRetornoAuth){
-    await abrirPerfilJogador(true);
-    return;
-  }
 
   if(pSlug){
     const decodedId=decodeURIComponent(pSlug);

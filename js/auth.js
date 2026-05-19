@@ -120,6 +120,10 @@ async function abrirPerfilJogador(redirecionarAdm=false){
     goTo('s-j-perfil');
     return;
   }
+  if(G.redefinindoSenha){
+    mostrarResetSenhaPerfil();
+    return;
+  }
   await restaurarSessaoAdm();
   if(redirecionarAdm && !G.redefinindoSenha && abrirDestinoUsuarioLogado()) return;
   await carregarPerfilJogador({mostrarFormulario:!redirecionarAdm});
@@ -184,7 +188,7 @@ async function tratarRetornoPerfilAuth(){
   const hash=perfilAuthHash();
   const params=new URLSearchParams(window.location.search);
   const erro=erroRetornoPerfilAuth();
-  G.redefinindoSenha=false;
+  if(!G.redefinindoSenha) G.redefinindoSenha=false;
 
   if(erro){
     const msg=erro==='otp_expired'
@@ -196,6 +200,11 @@ async function tratarRetornoPerfilAuth(){
     setTimeout(()=>showToast(msg),80);
     limparUrlPerfil();
     return {erro:true};
+  }
+
+  if(G.redefinindoSenha){
+    mostrarResetSenhaPerfil();
+    return {erro:false, recovery:true};
   }
 
   const accessToken=hash.get('access_token');
