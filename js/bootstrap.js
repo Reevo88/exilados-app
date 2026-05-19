@@ -11,6 +11,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const perfilParam=params.get('perfil');
   const resetParam=params.get('reset');
   const temRetornoAuth=temRetornoPerfilAuth();
+  const temTokenRecovery=temTokenRecoveryAuth();
 
   if(erroRetornoPerfilAuth()){
     atualizarSaudacaoLogin();
@@ -24,7 +25,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   atualizarSaudacaoLogin();
   prepararNovaPelada();
 
-  if(temRetornoAuth){
+  if(temTokenRecovery){
     await abrirPerfilJogador(true);
     return;
   }
@@ -51,6 +52,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible') verificarEncerramentoAutomaticoUI();
   });
+
+  if(perfilParam || resetParam){
+    await abrirPerfilJogador(true);
+    return;
+  }
 
   if(pSlug){
     const decodedId=decodeURIComponent(pSlug);

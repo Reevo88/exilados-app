@@ -147,8 +147,14 @@ function temRetornoPerfilAuth(){
   return !!(params.get('perfil') || params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('error') || hash.get('error_code') || hash.get('type'));
 }
 
-function limparUrlPerfil(){
-  if(window.history && window.history.replaceState) window.history.replaceState(null,'',APP_BASE_URL+'/?perfil=1');
+function temTokenRecoveryAuth(){
+  const params=new URLSearchParams(window.location.search);
+  const hash=perfilAuthHash();
+  return !!(params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('type')==='recovery');
+}
+
+function limparUrlPerfil(destino=APP_BASE_URL+'/'){
+  if(window.history && window.history.replaceState) window.history.replaceState(null,'',destino);
 }
 
 function mostrarLoginPerfil(){
@@ -367,7 +373,8 @@ async function salvarNovaSenhaJogador(){
   G.redefinindoSenha=false;
   limparUrlPerfil();
   await restaurarSessaoAdm();
-  await carregarPerfilJogador();
+  await carregarPerfilJogador({mostrarFormulario:false});
+  if(!abrirDestinoPosLogin()) voltarLista();
   showToast('Senha alterada com sucesso!');
 }
 
@@ -375,7 +382,7 @@ async function voltarLoginPerfil(){
   G.redefinindoSenha=false;
   limparUrlPerfil();
   await _sbClient.auth.signOut().catch(()=>{});
-  await carregarPerfilJogador();
+  mostrarLoginPerfil();
 }
 
 function preencherMeuPerfil(j){
