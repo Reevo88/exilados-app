@@ -81,6 +81,8 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .htext p  { font-size:13px; color:var(--white); opacity:.86; margin-top:4px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .adm-badge { background:rgba(255,255,255,.15); border-radius:8px; padding:4px 10px; font-size:11px; color:var(--cream); display:flex; align-items:center; gap:4px; font-weight:600; white-space:nowrap; }
+.player-menu-btn { width:34px; height:34px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:var(--white); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; padding:0; }
+.player-menu-btn i { font-size:22px; }
 
 /* Badge ADM posicionado nas telas adm */
 #s-adm-conf .header, #s-adm-times .header, #s-adm-fin .header { position:relative; }
@@ -448,6 +450,23 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .adm-option i    { font-size:20px; color:#c0392b; width:26px; }
 .adm-option-name { font-size:15px; font-weight:600; color:#c0392b; }
 .adm-option-desc { font-size:12px; color:var(--text2); margin-top:1px; }
+
+/* -- ADM JOGADORES ------------------------- */
+#s-adm-jogadores .page-body { padding-left:12px; padding-right:12px; }
+.player-directory-card { padding:12px 14px; margin-bottom:10px; }
+.jog-row { display:flex; align-items:center; gap:10px; background:var(--surface); border:.5px solid var(--border2); border-radius:var(--radius); padding:10px 12px; margin-bottom:8px; cursor:pointer; box-shadow:0 1px 0 rgba(0,0,0,.02); }
+.jog-avatar, .player-photo-preview { width:38px; height:38px; border-radius:50%; background:var(--blue); color:var(--cream); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; flex-shrink:0; overflow:hidden; }
+.jog-avatar img, .player-photo-preview img { width:100%; height:100%; object-fit:cover; display:block; }
+.jog-info { flex:1; min-width:0; }
+.jog-name { font-size:14px; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.jog-name span { color:var(--text2); font-weight:600; font-size:12px; }
+.jog-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:4px; font-size:11px; color:var(--text2); }
+.jog-meta span { display:inline-flex; align-items:center; gap:3px; }
+.jog-badges { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.player-form-card { margin-top:12px; }
+.player-photo-editor { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.player-photo-preview { width:54px; height:54px; font-size:22px; }
+.photo-upload-btn { border:1px solid var(--border2); background:var(--surface2); color:var(--text); border-radius:var(--radius-sm); padding:9px 12px; display:inline-flex; align-items:center; justify-content:center; gap:7px; font-size:13px; font-weight:700; cursor:pointer; }
 
 /* -- TOAST --------------------------------- */
 .toast      { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--danger-text); color:var(--white); padding:10px 20px; border-radius:99px; font-size:13px; font-weight:600; z-index:999; opacity:0; transition:opacity .2s; pointer-events:none; white-space:nowrap; }
