@@ -1,0 +1,281 @@
+// Exilados da Bola
+// Core: estado, Supabase base, navegacao e utilitarios
+// Extraido de app.js para reduzir o monolito mantendo o comportamento global atual.
+
+// ==========================================
+// ESTADO
+// ==========================================
+// -- Supabase -------------------------------------------------------------
+const SUPABASE_URL = 'https://ksebcxtuwsdmoykgflmq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_2eq7EqQ1WW9auTHIueYecA_zqfwDKmG';
+const APP_BASE_URL = 'https://exiladosdabola.com';
+
+async function getSupabaseAccessToken(){
+  try{
+    const { data } = await _sbClient.auth.getSession();
+    return data && data.session && data.session.access_token ? data.session.access_token : SUPABASE_KEY;
+  }catch(e){
+    return SUPABASE_KEY;
+  }
+}
+
+async function sbHeaders(opts={}){
+  const token = await getSupabaseAccessToken();
+  return {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer '+token,
+    'Content-Type': 'application/json',
+    'Prefer': opts.prefer||'return=representation',
+  };
+}
+
+async function sbFetch(path, opts={}) {
+  const headers = await sbHeaders(opts);
+  const r = await fetch(SUPABASE_URL+'/rest/v1'+path, {
+    ...opts,
+    headers:{...headers, ...(opts.headers||{})},
+  });
+  if(!r.ok){ const e=await r.text(); console.error('SB erro:',e); throw new Error(e); }
+  const txt=await r.text(); return txt?JSON.parse(txt):null;
+}
+
+async function dbCarregarPeladas() {
+  const rows=await sbFetch('/peladas?order=data.desc');
+  G.peladas=rows.map(r=>({
+    id:r.id, nome:r.nome, data:r.data, hora:r.hora.slice(0,5),
+    local:r.local, valor:Number(r.valor), max:r.max_jogadores,
+    status:r.status, reaberta:r.reaberta||false,
+    temChurras:r.tem_churras||false, confirmados:[], jogadores:[], naoVao:[], espera:[],
+  }));
+  if(G.peladas.length){
+    const ids=G.peladas.map(p=>p.id).join(',');
+    const confs=await sbFetch('/confirmacoes?pelada_id=in.('+ids+')&order=ordem.asc,created_at.asc');
+    confs.forEach(c=>{
+      const p=G.peladas.find(x=>x.id===c.pelada_id); if(!p)return;
+      if(c.status==='nao_vai'){
+        p.naoVao.push({id:c.id, nome:c.nome});
+        return;
+      }
+      const j={id:c.id,nome:c.nome,pos:(c.posicao&&['?','GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?',time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
+      p.confirmados.push(j); p.jogadores.push({...j});
+    });
+  }
+}
+async function dbCriarPelada(p) {
+  const rows=await sbFetch('/peladas',{method:'POST',body:JSON.stringify({nome:p.nome,data:p.data,hora:p.hora,local:p.local,valor:p.valor,max_jogadores:p.max,status:'aberta',tem_churras:p.temChurras||false})});
+  return rows[0];
+}
+async function dbConfirmar(peladaId,nome,churras) {
+  const body={pelada_id:peladaId,nome,posicao:'?',time:'pool',pago:false,modalidade:'avulso',status:'confirmado'};
+  if(churras) body.churras=churras;
+  const rows=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify(body)});
+  return rows[0];
+}
+async function dbAtualizar(id,fields) {
+  await sbFetch('/confirmacoes?id=eq.'+id,{method:'PATCH',body:JSON.stringify(fields)});
+}
+async function dbDeletar(id) {
+  await sbFetch('/confirmacoes?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+}
+async function dbExcluirPelada(id) {
+  // Apaga primeiro as confirmações para evitar erro caso o Supabase não esteja com cascade configurado.
+  await sbFetch('/confirmacoes?pelada_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+  await sbFetch('/peladas?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+}
+async function dbAtualizarPelada(id,fields) {
+  await sbFetch('/peladas?id=eq.'+id,{method:'PATCH',body:JSON.stringify(fields),prefer:'return=minimal'});
+}
+
+const POSICOES = ['GOL','ZAG','LAT','MEI','ATA'];
+
+// -- Supabase Auth client --------------------------------------------------
+// Carregado via CDN no index.html (supabase-js UMD)
+const _sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Mapeamento email -> perfil (os emails são criados no painel do Supabase)
+// Formato: adm@exiladosdabola.com / presidente@exiladosdabola.com / escalador@exiladosdabola.com
+// Senhas iniciais mantidas: adm=321987 | presidente=#dede | escalador=#escalador
+const PERFIL_POR_EMAIL = {
+  'mr.guima@gmail.com':            'full',
+  'luizfelipegarcia25@gmail.com':  'full',
+  'tarcisiobregao@gmail.com':      'escalador',
+};
+
+const USERNAME_PARA_EMAIL = {
+  'adm':        'mr.guima@gmail.com',
+  'presidente': 'luizfelipegarcia25@gmail.com',
+  'escalador':  'tarcisiobregao@gmail.com',
+};
+
+function perfilPorEmail(email){
+  return PERFIL_POR_EMAIL[String(email||'').toLowerCase()] || null;
+}
+
+async function restaurarSessaoAdm(){
+  try{
+    const { data } = await _sbClient.auth.getSession();
+    const email = data && data.session && data.session.user ? data.session.user.email : null;
+    const perfil = perfilPorEmail(email);
+    G.isAdm = !!perfil;
+    G.perfil = perfil || 'full';
+    return G.isAdm;
+  }catch(e){
+    G.isAdm = false;
+    G.perfil = 'full';
+    return false;
+  }
+}
+
+let G = {
+  isAdm:   false,
+  perfil:  'full',  // 'full' | 'escalador'
+  peladas: [],
+  pelada:  null,
+  meuNome: '',
+  editandoPeladaId: null,
+};
+let uid = 100, drag = null;
+
+// Dados carregados do Supabase
+
+// ==========================================
+// LOGO
+// TODO: ao publicar no Cloudflare Pages, salvar logo.png na raiz e usar src='/logo.png'
+// ==========================================
+
+// ==========================================
+// NAV
+// ==========================================
+function goTo(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+
+function voltarLista(){ G.pelada=null; renderJLista(); goTo('s-j-lista'); }
+
+function admNav(aba){
+  // Escalador só acessa times
+  if(G.perfil==='escalador' && aba!=='times' && aba!=='fin-pelada'){
+    showToastDanger('Acesso restrito ao perfil escalador.'); return;
+  }
+  if(aba==='fin'){
+    renderCaixaGeral(); goTo('s-adm-fin'); return;
+  }
+  if(!G.pelada){ showToast('Selecione uma pelada primeiro'); goTo('s-adm-home'); renderAdmHome(); return; }
+  if(aba==='conf')     { renderAdmConf();  goTo('s-adm-conf'); }
+  if(aba==='times')    { renderAdmTimes(); goTo('s-adm-times'); }
+  if(aba==='fin-pelada'){ renderAdmFin(); goTo('s-adm-fin-pelada'); }
+}
+
+// ==========================================
+// UTILS
+// ==========================================
+function fmtData(d){ if(!d)return'—'; return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}); }
+function slug(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
+function normNome(s){ return (s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' '); }
+function escHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function money(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
+function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast show'; setTimeout(()=>t.classList.remove('show'),2200); }
+function showToastDanger(m){ showToast(m); }
+function copiarLink(btn){ const t=document.getElementById('aconf-link').textContent; if(navigator.clipboard)navigator.clipboard.writeText(t); btn.innerHTML='<i class="ti ti-check" style="color:var(--green);"></i>'; setTimeout(()=>btn.innerHTML='<i class="ti ti-copy"></i>',1500); showToast('Link copiado!'); }
+function posBadge(p){ if(!p||p==='?') return `<span class="pos-badge pos-pending">POS</span>`; const c=['GOL','ZAG','LAT','MEI','ATA'].includes(p)?p:'x'; return `<span class="pos-badge pos-${c}">${p}</span>`; }
+function posSelect(j){ const vp=j.pos&&['GOL','ZAG','LAT','MEI','ATA'].includes(j.pos)?j.pos:'?'; return `<select class="pos-select" onchange="setPos('${j.id}',this.value)"><option value="?"${vp==='?'?' selected':''}>POS</option><option value="GOL"${vp==='GOL'?' selected':''}>GOL</option><option value="ZAG"${vp==='ZAG'?' selected':''}>ZAG</option><option value="LAT"${vp==='LAT'?' selected':''}>LAT</option><option value="MEI"${vp==='MEI'?' selected':''}>MEI</option><option value="ATA"${vp==='ATA'?' selected':''}>ATA</option></select>`; }
+function peladaEncerrada(p){
+  return !!p && (p.status === 'encerrada' || p.status === 'fechada');
+}
+function peladaEhFutura(p){
+  if(!p || !p.data) return false;
+  const d = new Date(`${p.data}T12:00:00`);
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  d.setHours(0,0,0,0);
+  return d > hoje;
+}
+function encerradaAntesDoJogo(p){
+  return peladaEncerrada(p) && peladaEhFutura(p);
+}
+function limiteEncerramentoPelada(p){
+  if(!p || !p.data || !p.hora) return null;
+  return new Date(`${p.data}T${p.hora}:00`);
+}
+function votacaoDeadline(pelada) {
+  const limite = limiteEncerramentoPelada(pelada);
+  if(!limite) return null;
+  return new Date(limite.getTime() + 12 * 60 * 60 * 1000); // +12h
+}
+function deveEncerrarAutomaticamente(p){
+  if(!p || p.status !== 'aberta') return false;
+  if(p.reaberta) return false; // ADM reabriu manualmente após o horário - respeita até ele encerrar de novo
+  const limite = limiteEncerramentoPelada(p);
+  return limite && !Number.isNaN(limite.getTime()) && new Date() >= limite;
+}
+async function aplicarEncerramentoAutomatico(){
+  const alvos = (G.peladas || []).filter(deveEncerrarAutomaticamente);
+  for(const p of alvos){
+    try{
+      await dbAtualizarPelada(p.id,{status:'encerrada'});
+      p.status = 'encerrada';
+    }catch(e){ console.warn('Não foi possível encerrar automaticamente a pelada', p.id, e); }
+  }
+  return alvos.length;
+}
+async function verificarEncerramentoAutomaticoUI(){
+  const qtd = await aplicarEncerramentoAutomatico();
+  if(!qtd) return;
+  if(G.pelada && peladaEncerrada(G.pelada)){
+    const ativa = document.querySelector('.screen.active')?.id || '';
+    if(['s-j-conf','s-adm-conf','s-adm-times'].includes(ativa)){
+      showToast('Partida encerrada automaticamente às 20:30.');
+      if(ativa.startsWith('s-j-')) await abrirResumoPublico(G.pelada.id);
+      else renderAdmHome(), goTo('s-adm-home');
+      return;
+    }
+  }
+  renderJLista();
+  if(G.isAdm) renderAdmHome();
+}
+function pelAdaberta(p){
+  if(peladaEncerrada(p)) return false;
+  if(deveEncerrarAutomaticamente(p)) return false;
+  return p.status === 'aberta';
+}
+function peladaStatusInfo(p){
+  if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)) return {label:'Encerrada', cls:'badge-gray', aberta:false};
+  if(p.confirmados.length>=p.max) return {label:'Lotada', cls:'badge-red', aberta:false};
+  return {label:'Aberta', cls:'badge-green', aberta:true};
+}
+function bloquearSeEncerrada(msg='Partida encerrada. Não é possível alterar confirmações ou escalações.'){
+  if(peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada)){
+    showToast(msg);
+    return true;
+  }
+  return false;
+}
+function linkPelada(p){ return `${APP_BASE_URL}?p=${encodeURIComponent(String(p.id))}`; }
+function setPeladaAdm(id,aba){
+  G.pelada=G.peladas.find(x=>String(x.id)===String(id));
+  if(!G.pelada) return;
+  if(G.perfil === 'escalador' && (peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada))){
+    showToast('Partida encerrada. Escalador não pode manipular esta pelada.');
+    return;
+  }
+  if((aba === 'conf' || aba === 'times') && (peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada))){
+    // Se a pelada foi encerrada manualmente antes da data do jogo, ela deve seguir exibindo confirmações/escalações.
+    // Pós-jogo só faz sentido para partidas já realizadas.
+    if(!encerradaAntesDoJogo(G.pelada)){
+      abrirPosJogo(id);
+      return;
+    }
+  }
+  admNav(aba||'conf');
+}
+function copiarLinkPelada(id){ const p=G.peladas.find(x=>String(x.id)===String(id)); if(!p)return; const l=linkPelada(p); if(navigator.clipboard) navigator.clipboard.writeText(l); showToast('Link copiado!'); }
+function switchTab(show,hide,btnOn,btnOff){
+  document.getElementById(show).style.display='block';
+  document.getElementById(hide).style.display='none';
+  btnOn.classList.add('active'); btnOff.classList.remove('active');
+}
+function switchTabTimes(show,hide,btnOn){
+  document.querySelectorAll('#s-adm-times .tab').forEach(t=>t.classList.remove('active'));
+  btnOn.classList.add('active');
+  document.getElementById(show).style.display='block';
+  document.getElementById(hide).style.display='none';
+}
+
