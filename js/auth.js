@@ -114,7 +114,12 @@ function fecharMenuJogador(e){ if(!e||e.target===document.getElementById('player
 
 async function abrirPerfilJogador(redirecionarAdm=false){
   fecharMenuJogador();
-  await tratarRetornoPerfilAuth();
+  const retornoAuth=await tratarRetornoPerfilAuth();
+  if(retornoAuth?.erro){
+    await carregarPerfilJogador({mostrarFormulario:false});
+    goTo('s-j-perfil');
+    return;
+  }
   await restaurarSessaoAdm();
   if(redirecionarAdm && !G.redefinindoSenha && abrirDestinoUsuarioLogado()) return;
   await carregarPerfilJogador({mostrarFormulario:!redirecionarAdm});
@@ -140,14 +145,17 @@ async function tratarRetornoPerfilAuth(){
     const msg=erro==='otp_expired'
       ? 'Link de senha expirado ou invalido. Peca um novo link em Esqueci minha senha.'
       : 'Nao foi possivel validar o link. Peca um novo link em Esqueci minha senha.';
+    await _sbClient.auth.signOut().catch(()=>{});
+    G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
     setTimeout(()=>showToast(msg),80);
     limparUrlPerfil();
-    return;
+    return {erro:true};
   }
 
   if(hash.get('type')==='recovery'){
     G.redefinindoSenha=true;
   }
+  return {erro:false};
 }
 
 async function loginJogadorGoogle(){

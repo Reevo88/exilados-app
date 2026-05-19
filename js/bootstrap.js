@@ -6,7 +6,13 @@
 // INIT
 // ==========================================
 window.addEventListener('DOMContentLoaded', async () => {
-  await restaurarSessaoAdm();
+  const params=new URLSearchParams(window.location.search);
+  const perfilParam=params.get('perfil');
+  const resetParam=params.get('reset');
+  const hashParams=new URLSearchParams((window.location.hash||'').replace(/^#/,''));
+  const temRetornoAuth=!!(perfilParam || resetParam || hashParams.get('error') || hashParams.get('error_code') || hashParams.get('type'));
+
+  if(!temRetornoAuth) await restaurarSessaoAdm();
   atualizarSaudacaoLogin();
   prepararNovaPelada();
 
@@ -23,10 +29,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }catch(err){ console.error('Erro Supabase:',err); }
 
   // Verificar link de convite (?p=slug-shortid)
-  const params=new URLSearchParams(window.location.search);
   const pSlug=params.get('p');
-  const perfilParam=params.get('perfil');
-  const resetParam=params.get('reset');
   renderJLista();
   if(G.isAdm) renderAdmHome();
   setInterval(verificarEncerramentoAutomaticoUI, 60 * 1000);
