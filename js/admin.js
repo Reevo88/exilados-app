@@ -232,6 +232,7 @@ function validarCriarPelada(){
   const max=parseInt(document.getElementById('cp-max').value,10);
   const erros=[];
   if(!nome){ erros.push('nome'); campoErro('cp-nome'); }
+  if(nome.length>20){ erros.push('nome'); campoErro('cp-nome'); }
   if(!data){ erros.push('data'); campoErro('cp-data'); }
   if(!hora){ erros.push('horário'); campoErro('cp-hora'); }
   if(!local){ erros.push('local'); campoErro('cp-local'); }
