@@ -57,6 +57,10 @@ async function dbCarregarPeladas() {
         return;
       }
       const j={id:c.id,nome:c.nome,pos:(c.posicao&&['?','GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?',time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
+      if(c.status==='espera'){
+        p.espera.push(j);
+        return;
+      }
       p.confirmados.push(j);
       if(j.churras !== 'churras') p.jogadores.push({...j});
     });
@@ -66,8 +70,8 @@ async function dbCriarPelada(p) {
   const rows=await sbFetch('/peladas',{method:'POST',body:JSON.stringify({nome:p.nome,data:p.data,hora:p.hora,local:p.local,valor:p.valor,max_jogadores:p.max,status:'aberta',tem_churras:p.temChurras||false})});
   return rows[0];
 }
-async function dbConfirmar(peladaId,nome,churras) {
-  const body={pelada_id:peladaId,nome,posicao:'?',time:'pool',pago:false,modalidade:'avulso',status:'confirmado'};
+async function dbConfirmar(peladaId,nome,churras,status='confirmado') {
+  const body={pelada_id:peladaId,nome,posicao:'?',time:'pool',pago:false,modalidade:'avulso',status};
   if(churras) body.churras=churras;
   const rows=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify(body)});
   return rows[0];

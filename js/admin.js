@@ -349,7 +349,12 @@ function renderAdmConf(){
       + confSoChurrasAdm.map(j=>rowSoChurrasAdm(j,p.confirmados.indexOf(j))).join('')
       + `</div>`
     : '';
-  el.innerHTML = confJogoHtml + soChurrasAdmHtml;
+  const esperaAdmHtml = p.espera.length
+    ? `<div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);"><div class="section-title" style="margin-bottom:8px;">Lista de espera (${p.espera.length})</div>`
+      + p.espera.map((j,i)=>`<div class="player-row"><div class="avatar" style="background:var(--warn-bg);color:var(--warn-text);">${i+1}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-gray" style="font-size:10px;">Espera</span>${badgeChurrasAdm(j)}<div class="player-actions"><button class="btn-mini btn-mini-pay" onclick="promoverEspera(${i})"><i class="ti ti-user-plus" style="font-size:12px;"></i> Promover</button><button class="btn-mini btn-danger" onclick="remEspera(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join('')
+      + `</div>`
+    : '';
+  el.innerHTML = confJogoHtml + soChurrasAdmHtml + esperaAdmHtml;
   const nao=document.getElementById('aconf-nao-lista');
   const podeExcluirNaoVai = G.perfil === 'full';
   nao.innerHTML=p.naoVao.length
@@ -361,15 +366,19 @@ async function admAdd(){
   const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=input.value.trim();
   if(!nome){input.focus();return;}
   const n=normNome(nome);
-  if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
+  if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome ja esta na lista');return;}
   const churras = p.temChurras ? (document.querySelector('#adm-churras-sel .churras-pill.active')?.dataset.val || 'jogo') : null;
-  if(churras !== 'churras' && peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
+  const vaiParaEspera = churras !== 'churras' && peladaLotada(p);
   try{
-    const row=await dbConfirmar(p.id,nome,churras);
+    const row=await dbConfirmar(p.id,nome,churras,vaiParaEspera?'espera':'confirmado');
     const novo={id:row.id,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churras};
-    p.confirmados.push(novo);
-    if(churras !== 'churras') p.jogadores.push({...novo});
-    input.value=''; input.focus(); renderAdmConf(); showToast('Jogador adicionado!');
+    if(vaiParaEspera){
+      p.espera.push(novo);
+    } else {
+      p.confirmados.push(novo);
+      if(churras !== 'churras') p.jogadores.push({...novo});
+    }
+    input.value=''; input.focus(); renderAdmConf(); showToast(vaiParaEspera?'Jogador adicionado a espera!':'Jogador adicionado!');
   }catch(e){ showToast('Erro ao adicionar jogador.'); }
 }
 async function togglePago(i){
@@ -402,6 +411,31 @@ async function toggleIsento(i){
   catch(e){showToast('Erro ao salvar.');}
 }
 async function remConf(i){ if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return; const j=G.pelada.confirmados[i]; try{await dbDeletar(j.id); G.pelada.confirmados.splice(i,1); G.pelada.jogadores=G.pelada.jogadores.filter(jg=>jg.id!==j.id); renderAdmConf(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
+async function promoverEspera(i){
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar confirmações.')) return;
+  const p=G.pelada; p.espera=p.espera||[];
+  const j=p.espera[i]; if(!j)return;
+  if(peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
+  try{
+    await dbAtualizar(j.id,{status:'confirmado',time:'pool',posicao:'?'});
+    p.espera.splice(i,1);
+    p.confirmados.push(j);
+    p.jogadores.push({...j});
+    renderAdmConf(); renderAdmFin(); renderAdmHome();
+    showToast('Jogador promovido!');
+  }catch(e){showToast('Erro ao promover jogador.');}
+}
+async function remEspera(i){
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return;
+  const p=G.pelada; p.espera=p.espera||[];
+  const j=p.espera[i]; if(!j)return;
+  try{
+    await dbDeletar(j.id);
+    p.espera.splice(i,1);
+    renderAdmConf();
+    showToast('Removido da espera');
+  }catch(e){showToast('Erro ao remover.');}
+}
 async function remNaoVai(i){
   if(G.perfil !== 'full'){ showToast('Apenas ADM/Presidente pode excluir.'); return; }
   if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return;

@@ -224,6 +224,7 @@ function abrirJogador(id){
 function renderJConf(){
   const p=G.pelada;
   if(!p){ showToast('Selecione uma pelada primeiro!'); goTo('s-j-lista'); renderJLista(); return; }
+  p.espera=p.espera||[];
   document.getElementById('jc-nome-hero').textContent=p.nome;
   document.getElementById('jc-meta-hero').innerHTML=`${fmtData(p.data)}<br>${p.hora}<br>${p.local}`;
   document.getElementById('jc-conf').textContent=totalJogadoresConfirmados(p);
@@ -244,6 +245,7 @@ function renderJConf(){
   }
   inp.disabled = false;
 
+  p.espera=p.espera||[];
   const el=document.getElementById('jc-lista');
   const confJogo = p.temChurras ? p.confirmados.filter(j=>j.churras==='jogo'||j.churras==='jogo_churras') : p.confirmados;
   const confSoChurras = p.temChurras ? p.confirmados.filter(j=>j.churras==='churras') : [];
@@ -261,13 +263,18 @@ function renderJConf(){
       + confSoChurras.map(j=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-green" style="font-size:10px;">🍖 Churras</span></div>`).join('')
       + `</div>` : '';
 
+  const esperaHtml = p.espera.length
+    ? `<div style="margin-top:12px;padding-top:10px;border-top:.5px solid var(--border);"><div class="section-title" style="margin-bottom:8px;">Lista de espera (${p.espera.length})</div>`
+      + p.espera.map((j,i)=>`<div class="player-row"><div class="avatar" style="background:var(--warn-bg);color:var(--warn-text);">${i+1}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-gray" style="font-size:10px;">Espera</span>${badgeChurras(j)}</div>`).join('')
+      + `</div>` : '';
+
   const naoVao=p.naoVao||[];
   const naoVaoHtml=naoVao.length
     ?`<div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);">`
     +naoVao.map(j=>`<div class="player-row"><div class="avatar" style="background:var(--danger-bg);color:var(--danger-text);">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-red" style="font-size:10px;"><i class="ti ti-x" style="font-size:10px;"></i> Não vai</span></div>`).join('')
     +`</div>`
     :'';
-  el.innerHTML=confHtml+soChurrasHtml+naoVaoHtml;
+  el.innerHTML=confHtml+soChurrasHtml+esperaHtml+naoVaoHtml;
 
   // Botões de confirmação: redesenhar se tem churras
   const btnArea = document.querySelector('#s-j-conf .card');
@@ -307,31 +314,38 @@ async function jogadorVai(churrasOpt){
   }
 
   if(p.confirmados.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Você já está confirmado!'); return; }
+  p.espera=p.espera||[];
+  if(p.espera.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Voce ja esta na lista de espera!'); return; }
   const churrasVal = p.temChurras ? (churrasOpt||'jogo') : null;
-  if(churrasVal !== 'churras' && peladaLotada(p)){ showToast('Pelada lotada para jogo!'); return; }
+  const vaiParaEspera = churrasVal !== 'churras' && peladaLotada(p);
   showToast('Confirmando...');
   try{
-    const row=await dbConfirmar(p.id,nome,churrasVal);
+    const row=await dbConfirmar(p.id,nome,churrasVal,vaiParaEspera?'espera':'confirmado');
     const novo={id:row.id,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churrasVal};
-    p.confirmados.push(novo);
-    if(churrasVal !== 'churras') p.jogadores.push({...novo});
+    if(vaiParaEspera){
+      p.espera.push(novo);
+    } else {
+      p.confirmados.push(novo);
+      if(churrasVal !== 'churras') p.jogadores.push({...novo});
+    }
     G.meuNome=nome;
     // Salva identidade no dispositivo
     if(!G.isAdm){
       lsSetNome(nome);
       lsRegistrarConf(p.id, nome);
     }
-    showToast('Presença confirmada! ⚽');
+    showToast(vaiParaEspera?'Voce entrou na lista de espera!':'Presenca confirmada!');
     renderJConf();
   }catch(e){ showToast('Erro ao confirmar.'); }
 }
 
 async function jogadorNaoVai(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível alterar presença.')) return;
-  const p=G.pelada; p.naoVao=p.naoVao||[];
+  const p=G.pelada; p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
   const nome=document.getElementById('jc-input').value.trim();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(p.naoVao.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Ausência já registrada!'); return; }
+  const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
   const conf=p.confirmados.find(j=>normNome(j.nome)===normNome(nome));
   if(conf){
     try{
@@ -339,6 +353,13 @@ async function jogadorNaoVai(){
       p.confirmados=p.confirmados.filter(j=>j.id!==conf.id);
       p.jogadores=p.jogadores.filter(j=>j.id!==conf.id);
       p.naoVao.push({id:conf.id,nome});
+      if(!G.isAdm) lsLimparConf(p.id);
+    }catch(e){}
+  } else if(espera){
+    try{
+      await dbAtualizar(espera.id,{status:'nao_vai',pago:false,time:'pool'});
+      p.espera=p.espera.filter(j=>j.id!==espera.id);
+      p.naoVao.push({id:espera.id,nome});
       if(!G.isAdm) lsLimparConf(p.id);
     }catch(e){}
   } else {
@@ -353,16 +374,19 @@ async function jogadorNaoVai(){
 
 async function jogadorCancelar(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível cancelar presença.')) return;
-  const p=G.pelada;
+  const p=G.pelada; p.espera=p.espera||[];
   const nome=G.meuNome||document.getElementById('jc-input').value.trim();
   if(!nome){ document.getElementById('jc-input').focus(); showToast('Digite seu nome primeiro para cancelar.'); return; }
+  const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
   const conf=p.confirmados.find(j=>normNome(j.nome)===normNome(nome));
-  if(!conf){ showToast('Esse nome não está na lista de confirmados.'); return; }
+  if(!conf && !espera){ showToast('Esse nome não está na lista de confirmados.'); return; }
   try{
-    await dbAtualizar(conf.id,{status:'nao_vai',pago:false,time:'pool'});
-    p.confirmados=p.confirmados.filter(j=>j.nome!==conf.nome);
-    p.jogadores=p.jogadores.filter(j=>j.nome!==conf.nome);
-    p.naoVao.push({id:conf.id,nome:conf.nome});
+    const item=conf||espera;
+    await dbAtualizar(item.id,{status:'nao_vai',pago:false,time:'pool'});
+    p.confirmados=p.confirmados.filter(j=>j.id!==item.id);
+    p.jogadores=p.jogadores.filter(j=>j.id!==item.id);
+    p.espera=p.espera.filter(j=>j.id!==item.id);
+    p.naoVao.push({id:item.id,nome:item.nome});
     G.meuNome='';
     document.getElementById('jc-input').value=lsGetNome(); // mantém nome salvo, limpa só o bloqueio da pelada
     document.getElementById('jc-input').disabled=false;
