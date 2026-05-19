@@ -22,6 +22,7 @@ function renderAdmHome(){
             <div class="ahc-stats">
               <span><i class="ti ti-users" style="font-size:11px;"></i> ${p.confirmados.length}/${p.max}</span>
               <span class="badge ${st.cls}" style="font-size:10px;">${st.label}</span>
+              ${st.lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
             </div>
           </div>
           ${st.aberta ? '<i class="ti ti-chevron-right" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>' : '<i class="ti ti-lock" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>'}
@@ -55,6 +56,7 @@ function renderAdmHome(){
             <span><i class="ti ti-users" style="font-size:11px;"></i> ${p.confirmados.length}/${p.max}</span>
             <span><i class="ti ti-door-enter" style="font-size:11px;"></i> ${vagas} vagas</span>
             <span class="badge ${st.cls}" style="font-size:10px;">${st.label}</span>
+            ${st.lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
           </div>
         </div>
         <i class="ti ti-chevron-right" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>

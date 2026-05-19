@@ -238,8 +238,7 @@ function pelAdaberta(p){
 }
 function peladaStatusInfo(p){
   if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)) return {label:'Encerrada', cls:'badge-gray', aberta:false};
-  if(p.confirmados.length>=p.max) return {label:'Lotada', cls:'badge-red', aberta:false};
-  return {label:'Aberta', cls:'badge-green', aberta:true};
+  return {label:'Aberta', cls:'badge-green', aberta:true, lotada:p.confirmados.length>=p.max};
 }
 function bloquearSeEncerrada(msg='Partida encerrada. Não é possível alterar confirmações ou escalações.'){
   if(peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada)){

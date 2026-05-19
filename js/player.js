@@ -21,6 +21,7 @@ function renderJLista(){
     const ab=pelAdaberta(p);
     const encerrada=!ab;
     const antesDoJogo = encerradaAntesDoJogo(p);
+    const lotada = p.confirmados.length >= p.max;
     if(encerrada){
       if(antesDoJogo){
         return `<div class="pelada-card card-encerrada" style="cursor:default;">
@@ -83,6 +84,7 @@ function renderJLista(){
           <div class="pelada-stats">
             <span class="p-stat"><i class="ti ti-users" style="font-size:11px;"></i> ${p.confirmados.length}/${p.max}</span>
             <span class="badge badge-green" style="font-size:10px;">Aberta</span>
+            ${lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
           </div>
         </div>
         <i class="ti ti-chevron-right" style="color:var(--text3);font-size:18px;"></i>
