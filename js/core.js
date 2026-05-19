@@ -57,7 +57,8 @@ async function dbCarregarPeladas() {
         return;
       }
       const j={id:c.id,nome:c.nome,pos:(c.posicao&&['?','GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?',time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
-      p.confirmados.push(j); p.jogadores.push({...j});
+      p.confirmados.push(j);
+      if(j.churras !== 'churras') p.jogadores.push({...j});
     });
   }
 }
@@ -177,6 +178,17 @@ function showToastDanger(m){ showToast(m); }
 function copiarLink(btn){ const t=document.getElementById('aconf-link').textContent; if(navigator.clipboard)navigator.clipboard.writeText(t); btn.innerHTML='<i class="ti ti-check" style="color:var(--green);"></i>'; setTimeout(()=>btn.innerHTML='<i class="ti ti-copy"></i>',1500); showToast('Link copiado!'); }
 function posBadge(p){ if(!p||p==='?') return `<span class="pos-badge pos-pending">POS</span>`; const c=['GOL','ZAG','LAT','MEI','ATA'].includes(p)?p:'x'; return `<span class="pos-badge pos-${c}">${p}</span>`; }
 function posSelect(j){ const vp=j.pos&&['GOL','ZAG','LAT','MEI','ATA'].includes(j.pos)?j.pos:'?'; return `<select class="pos-select" onchange="setPos('${j.id}',this.value)"><option value="?"${vp==='?'?' selected':''}>POS</option><option value="GOL"${vp==='GOL'?' selected':''}>GOL</option><option value="ZAG"${vp==='ZAG'?' selected':''}>ZAG</option><option value="LAT"${vp==='LAT'?' selected':''}>LAT</option><option value="MEI"${vp==='MEI'?' selected':''}>MEI</option><option value="ATA"${vp==='ATA'?' selected':''}>ATA</option></select>`; }
+function jogadoresConfirmadosPelada(p){
+  if(!p) return [];
+  const confirmados = p.confirmados || [];
+  return p.temChurras ? confirmados.filter(j=>j.churras!=='churras') : confirmados;
+}
+function totalJogadoresConfirmados(p){
+  return jogadoresConfirmadosPelada(p).length;
+}
+function peladaLotada(p){
+  return !!p && totalJogadoresConfirmados(p) >= p.max;
+}
 function peladaEncerrada(p){
   return !!p && (p.status === 'encerrada' || p.status === 'fechada');
 }
@@ -238,7 +250,7 @@ function pelAdaberta(p){
 }
 function peladaStatusInfo(p){
   if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)) return {label:'Encerrada', cls:'badge-gray', aberta:false};
-  return {label:'Aberta', cls:'badge-green', aberta:true, lotada:p.confirmados.length>=p.max};
+  return {label:'Aberta', cls:'badge-green', aberta:true, lotada:peladaLotada(p)};
 }
 function bloquearSeEncerrada(msg='Partida encerrada. Não é possível alterar confirmações ou escalações.'){
   if(peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada)){

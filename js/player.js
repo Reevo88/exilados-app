@@ -21,7 +21,8 @@ function renderJLista(){
     const ab=pelAdaberta(p);
     const encerrada=!ab;
     const antesDoJogo = encerradaAntesDoJogo(p);
-    const lotada = p.confirmados.length >= p.max;
+    const confirmadosJogo = totalJogadoresConfirmados(p);
+    const lotada = peladaLotada(p);
     if(encerrada){
       if(antesDoJogo){
         return `<div class="pelada-card card-encerrada" style="cursor:default;">
@@ -82,7 +83,7 @@ function renderJLista(){
           <div class="pelada-nome">${escHtml(p.nome)}</div>
           <div class="pelada-meta">${fmtData(p.data)} · ${p.hora} · ${escHtml(p.local)}</div>
           <div class="pelada-stats">
-            <span class="p-stat"><i class="ti ti-users" style="font-size:11px;"></i> ${p.confirmados.length}/${p.max}</span>
+            <span class="p-stat"><i class="ti ti-users" style="font-size:11px;"></i> ${confirmadosJogo}/${p.max}</span>
             <span class="badge badge-green" style="font-size:10px;">Aberta</span>
             ${lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
           </div>
@@ -225,7 +226,7 @@ function renderJConf(){
   if(!p){ showToast('Selecione uma pelada primeiro!'); goTo('s-j-lista'); renderJLista(); return; }
   document.getElementById('jc-nome-hero').textContent=p.nome;
   document.getElementById('jc-meta-hero').innerHTML=`${fmtData(p.data)}<br>${p.hora}<br>${p.local}`;
-  document.getElementById('jc-conf').textContent=p.confirmados.length;
+  document.getElementById('jc-conf').textContent=totalJogadoresConfirmados(p);
   document.getElementById('jc-count').textContent=p.max||14;
 
   const inp = document.getElementById('jc-input');
@@ -306,13 +307,14 @@ async function jogadorVai(churrasOpt){
   }
 
   if(p.confirmados.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Você já está confirmado!'); return; }
-  if(p.confirmados.length>=p.max){ showToast('Pelada lotada!'); return; }
   const churrasVal = p.temChurras ? (churrasOpt||'jogo') : null;
+  if(churrasVal !== 'churras' && peladaLotada(p)){ showToast('Pelada lotada para jogo!'); return; }
   showToast('Confirmando...');
   try{
     const row=await dbConfirmar(p.id,nome,churrasVal);
     const novo={id:row.id,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churrasVal};
-    p.confirmados.push(novo); p.jogadores.push({...novo});
+    p.confirmados.push(novo);
+    if(churrasVal !== 'churras') p.jogadores.push({...novo});
     G.meuNome=nome;
     // Salva identidade no dispositivo
     if(!G.isAdm){

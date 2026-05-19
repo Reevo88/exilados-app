@@ -12,6 +12,7 @@ function renderAdmHome(){
     const ord=[...G.peladas].sort((a,b)=>new Date(b.data+'T'+b.hora)-new Date(a.data+'T'+a.hora));
     el.innerHTML=ord.map(p=>{
       const st=peladaStatusInfo(p);
+      const confirmadosJogo=totalJogadoresConfirmados(p);
       const clickTop = st.aberta ? `onclick="setPeladaAdm('${p.id}','times')"` : '';
       return `<div class="ahc${peladaEncerrada(p) || deveEncerrarAutomaticamente(p)?' fechada':''}">
         <div class="ahc-top" ${clickTop}>
@@ -20,7 +21,7 @@ function renderAdmHome(){
             <div class="ahc-nome">${escHtml(p.nome)}</div>
             <div class="ahc-meta">${fmtData(p.data)} · ${p.hora} · ${escHtml(p.local)}</div>
             <div class="ahc-stats">
-              <span><i class="ti ti-users" style="font-size:11px;"></i> ${p.confirmados.length}/${p.max}</span>
+              <span><i class="ti ti-users" style="font-size:11px;"></i> ${confirmadosJogo}/${p.max}</span>
               <span class="badge ${st.cls}" style="font-size:10px;">${st.label}</span>
               ${st.lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
             </div>
@@ -40,7 +41,8 @@ function renderAdmHome(){
     const arr=pagos*p.valor;
     const previsto=cobraveis.length*p.valor;
     const pend=Math.max(previsto-arr,0);
-    const vagas=Math.max(p.max-p.confirmados.length,0);
+    const confirmadosJogo=totalJogadoresConfirmados(p);
+    const vagas=Math.max(p.max-confirmadosJogo,0);
     const encerrada=peladaEncerrada(p) || deveEncerrarAutomaticamente(p);
     const btnPosJogo=encerrada?`<button class="ahc-sec blue" onclick="abrirPosJogo('${p.id}')"><i class="ti ti-trophy"></i> Pós-jogo</button>`:'';
     const btnEncerrar=encerrada
@@ -53,7 +55,7 @@ function renderAdmHome(){
           <div class="ahc-nome">${escHtml(p.nome)}</div>
           <div class="ahc-meta">${fmtData(p.data)} · ${p.hora} · ${escHtml(p.local)}</div>
           <div class="ahc-stats">
-            <span><i class="ti ti-users" style="font-size:11px;"></i> ${p.confirmados.length}/${p.max}</span>
+            <span><i class="ti ti-users" style="font-size:11px;"></i> ${confirmadosJogo}/${p.max}</span>
             <span><i class="ti ti-door-enter" style="font-size:11px;"></i> ${vagas} vagas</span>
             <span class="badge ${st.cls}" style="font-size:10px;">${st.label}</span>
             ${st.lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
@@ -310,12 +312,13 @@ function renderAdmConf(){
   document.getElementById('aconf-link').textContent=linkPelada(p);
   document.getElementById('aconf-max').textContent=p.max;
   const confirmados=p.confirmados.length;
-  const vagas=Math.max(0,p.max-confirmados);
+  const confirmadosJogo=totalJogadoresConfirmados(p);
+  const vagas=Math.max(0,p.max-confirmadosJogo);
   const cobraveis=p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento);
   const recebido=cobraveis.filter(j=>j.pago).length*p.valor;
   const previsto=cobraveis.length*p.valor;
   const pendente=Math.max(0,previsto-recebido);
-  document.getElementById('aconf-total').textContent=confirmados;
+  document.getElementById('aconf-total').textContent=confirmadosJogo;
   const tabConf=document.querySelector('#s-adm-conf .tabs .tab.active, #s-adm-conf .tabs .tab');
   const tabNao=document.getElementById('aconf-btn-nao');
   if(tabConf) tabConf.textContent=`Confirmados (${confirmados})`;
@@ -358,12 +361,13 @@ async function admAdd(){
   if(!nome){input.focus();return;}
   const n=normNome(nome);
   if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
-  if(p.confirmados.length>=p.max){showToast('Pelada lotada!');return;}
   const churras = p.temChurras ? (document.querySelector('#adm-churras-sel .churras-pill.active')?.dataset.val || 'jogo') : null;
+  if(churras !== 'churras' && peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
   try{
     const row=await dbConfirmar(p.id,nome,churras);
     const novo={id:row.id,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churras};
-    p.confirmados.push(novo); p.jogadores.push({...novo});
+    p.confirmados.push(novo);
+    if(churras !== 'churras') p.jogadores.push({...novo});
     input.value=''; input.focus(); renderAdmConf(); showToast('Jogador adicionado!');
   }catch(e){ showToast('Erro ao adicionar jogador.'); }
 }
@@ -426,7 +430,7 @@ async function moverParaNaoVai(i){
 async function voltarNaoVai(i){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar confirmações.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; const item=p.naoVao[i]; if(!item)return;
-  if(p.confirmados.length>=p.max){showToast('Pelada lotada!');return;}
+  if(peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
   if(p.confirmados.find(j=>normNome(j.nome)===normNome(item.nome))){showToast('Esse nome já está confirmado');return;}
   try{
     await dbAtualizar(item.id,{status:'confirmado',time:'pool',posicao:'?'});
