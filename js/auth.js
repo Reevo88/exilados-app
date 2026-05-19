@@ -132,6 +132,12 @@ function perfilAuthHash(){
   return new URLSearchParams((window.location.hash||'').replace(/^#/,''));
 }
 
+function temRetornoPerfilAuth(){
+  const params=new URLSearchParams(window.location.search);
+  const hash=perfilAuthHash();
+  return !!(params.get('perfil') || params.get('reset') || hash.get('error') || hash.get('error_code') || hash.get('type'));
+}
+
 function limparUrlPerfil(){
   if(window.history && window.history.replaceState) window.history.replaceState(null,'',APP_BASE_URL+'/?perfil=1');
 }
@@ -171,6 +177,7 @@ async function loginJogadorEmail(){
 }
 
 function abrirDestinoUsuarioLogado(){
+  if(temRetornoPerfilAuth()) return false;
   if(G.isAdm){
     const btnNova=document.getElementById('btn-nova-pelada');
     if(btnNova) btnNova.style.display=G.perfil==='escalador'?'none':'';

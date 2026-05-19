@@ -9,8 +9,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const params=new URLSearchParams(window.location.search);
   const perfilParam=params.get('perfil');
   const resetParam=params.get('reset');
-  const hashParams=new URLSearchParams((window.location.hash||'').replace(/^#/,''));
-  const temRetornoAuth=!!(perfilParam || resetParam || hashParams.get('error') || hashParams.get('error_code') || hashParams.get('type'));
+  const temRetornoAuth=temRetornoPerfilAuth();
 
   if(!temRetornoAuth) await restaurarSessaoAdm();
   atualizarSaudacaoLogin();
@@ -39,7 +38,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(document.visibilityState === 'visible') verificarEncerramentoAutomaticoUI();
   });
 
-  if(perfilParam || resetParam){
+  if(temRetornoAuth){
     await abrirPerfilJogador(true);
     return;
   }
