@@ -13,9 +13,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if(erroRetornoPerfilAuth()){
     atualizarSaudacaoLogin();
+    G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
+    mostrarLoginPerfil();
     await tratarRetornoPerfilAuth();
-    await carregarPerfilJogador({mostrarFormulario:false});
-    goTo('s-j-perfil');
     return;
   }
 

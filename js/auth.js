@@ -147,6 +147,16 @@ function limparUrlPerfil(){
   if(window.history && window.history.replaceState) window.history.replaceState(null,'',APP_BASE_URL+'/?perfil=1');
 }
 
+function mostrarLoginPerfil(){
+  const loginCard=document.getElementById('perfil-login-card');
+  const formCard=document.getElementById('perfil-form-card');
+  const resetCard=document.getElementById('perfil-reset-card');
+  if(loginCard) loginCard.style.display='block';
+  if(formCard) formCard.style.display='none';
+  if(resetCard) resetCard.style.display='none';
+  goTo('s-j-perfil');
+}
+
 async function tratarRetornoPerfilAuth(){
   const hash=perfilAuthHash();
   const erro=erroRetornoPerfilAuth();
@@ -156,8 +166,9 @@ async function tratarRetornoPerfilAuth(){
     const msg=erro==='otp_expired'
       ? 'Link de senha expirado ou invalido. Peca um novo link em Esqueci minha senha.'
       : 'Nao foi possivel validar o link. Peca um novo link em Esqueci minha senha.';
-    await _sbClient.auth.signOut().catch(()=>{});
     G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
+    mostrarLoginPerfil();
+    await _sbClient.auth.signOut().catch(()=>{});
     setTimeout(()=>showToast(msg),80);
     limparUrlPerfil();
     return {erro:true};
