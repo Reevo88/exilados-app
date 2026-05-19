@@ -198,6 +198,12 @@ async function tratarRetornoPerfilAuth(){
     return {erro:true};
   }
 
+  const accessToken=hash.get('access_token');
+  const refreshToken=hash.get('refresh_token');
+  if(accessToken && refreshToken && _sbClient?.auth?.setSession){
+    await _sbClient.auth.setSession({access_token:accessToken, refresh_token:refreshToken}).catch(()=>{});
+  }
+
   if(params.get('code') && _sbClient?.auth?.exchangeCodeForSession){
     await _sbClient.auth.exchangeCodeForSession(params.get('code')).catch(()=>{});
   }
