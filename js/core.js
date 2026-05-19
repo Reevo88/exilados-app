@@ -9,6 +9,7 @@
 const SUPABASE_URL = 'https://ksebcxtuwsdmoykgflmq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_2eq7EqQ1WW9auTHIueYecA_zqfwDKmG';
 const APP_BASE_URL = 'https://exiladosdabola.com';
+const SUPER_ADMIN_EMAIL = 'mr.guima@gmail.com';
 
 async function getSupabaseAccessToken(){
   try{
@@ -56,7 +57,7 @@ async function dbCarregarPeladas() {
         p.naoVao.push({id:c.id, nome:c.nome});
         return;
       }
-      const j={id:c.id,nome:c.nome,pos:(c.posicao&&['?','GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?',time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
+      const j={id:c.id,jogador_id:c.jogador_id||null,nome:c.nome,pos:(c.posicao&&['?','GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?',time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
       if(c.status==='espera'){
         p.espera.push(j);
         return;
@@ -70,9 +71,10 @@ async function dbCriarPelada(p) {
   const rows=await sbFetch('/peladas',{method:'POST',body:JSON.stringify({nome:p.nome,data:p.data,hora:p.hora,local:p.local,valor:p.valor,max_jogadores:p.max,status:'aberta',tem_churras:p.temChurras||false})});
   return rows[0];
 }
-async function dbConfirmar(peladaId,nome,churras,status='confirmado') {
+async function dbConfirmar(peladaId,nome,churras,status='confirmado',jogadorId=null) {
   const body={pelada_id:peladaId,nome,posicao:'?',time:'pool',pago:false,modalidade:'avulso',status};
   if(churras) body.churras=churras;
+  if(jogadorId) body.jogador_id=jogadorId;
   const rows=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify(body)});
   return rows[0];
 }
@@ -89,6 +91,24 @@ async function dbExcluirPelada(id) {
 }
 async function dbAtualizarPelada(id,fields) {
   await sbFetch('/peladas?id=eq.'+id,{method:'PATCH',body:JSON.stringify(fields),prefer:'return=minimal'});
+}
+async function dbListarJogadores() {
+  return await sbFetch('/jogadores?order=nome.asc');
+}
+async function dbAtualizarJogador(id,fields) {
+  await sbFetch('/jogadores?id=eq.'+id,{method:'PATCH',body:JSON.stringify(fields),prefer:'return=minimal'});
+}
+async function dbCriarJogador(fields) {
+  const rows=await sbFetch('/jogadores',{method:'POST',body:JSON.stringify(fields)});
+  return rows[0];
+}
+async function dbJogadorPorAuth(userId) {
+  const rows=await sbFetch('/jogadores?auth_user_id=eq.'+encodeURIComponent(userId)+'&limit=1');
+  return rows && rows[0] ? rows[0] : null;
+}
+async function dbJogadorPorEmail(email) {
+  const rows=await sbFetch('/jogadores?email=eq.'+encodeURIComponent(email)+'&limit=1');
+  return rows && rows[0] ? rows[0] : null;
 }
 
 const POSICOES = ['GOL','ZAG','LAT','MEI','ATA'];
@@ -131,10 +151,62 @@ async function restaurarSessaoAdm(){
   }
 }
 
+function perfilInterno(perfilApp){
+  if(perfilApp==='adm' || perfilApp==='presidente') return 'full';
+  if(perfilApp==='escalador') return 'escalador';
+  return 'jogador';
+}
+
+async function restaurarPermissoesUsuario(){
+  try{
+    const { data } = await _sbClient.auth.getSession();
+    const user = data && data.session && data.session.user ? data.session.user : null;
+    const email = String(user?.email||'').toLowerCase();
+    let jogador = user ? await dbJogadorPorAuth(user.id).catch(()=>null) : null;
+    if(!jogador && user && email){
+      const porEmail = await dbJogadorPorEmail(email).catch(()=>null);
+      if(porEmail){
+        jogador = porEmail;
+        if(!porEmail.auth_user_id) await dbAtualizarJogador(porEmail.id,{auth_user_id:user.id, updated_at:new Date().toISOString()}).catch(()=>{});
+      }
+    }
+    let perfilApp = jogador?.perfil_app || 'jogador';
+    if(jogador && email === SUPER_ADMIN_EMAIL && perfilApp !== 'adm'){
+      await dbAtualizarJogador(jogador.id,{perfil_app:'adm', updated_at:new Date().toISOString()}).catch(()=>{});
+      jogador.perfil_app = 'adm';
+      perfilApp = 'adm';
+    }
+    if(email === SUPER_ADMIN_EMAIL && perfilApp === 'jogador') perfilApp = 'adm';
+    const perfil = perfilInterno(perfilApp);
+    G.isAdm = perfil === 'full' || perfil === 'escalador';
+    G.perfil = perfil;
+    G.perfilApp = perfilApp;
+    G.superAdmin = email === SUPER_ADMIN_EMAIL && perfilApp === 'adm';
+    G.usuario = user;
+    G.jogadorLogado = jogador;
+    return G.isAdm;
+  }catch(e){
+    G.isAdm = false;
+    G.perfil = 'jogador';
+    G.perfilApp = 'jogador';
+    G.superAdmin = false;
+    G.usuario = null;
+    G.jogadorLogado = null;
+    return false;
+  }
+}
+
+restaurarSessaoAdm = restaurarPermissoesUsuario;
+
 let G = {
   isAdm:   false,
-  perfil:  'full',  // 'full' | 'escalador'
+  perfil:  'jogador',  // 'jogador' | 'full' | 'escalador'
+  perfilApp: 'jogador',
+  superAdmin: false,
+  usuario: null,
+  jogadorLogado: null,
   peladas: [],
+  jogadores: [],
   pelada:  null,
   meuNome: '',
   editandoPeladaId: null,

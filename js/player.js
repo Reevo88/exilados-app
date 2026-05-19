@@ -203,6 +203,10 @@ function lsNomeConfirmadoNaPelada(peladaId) {
   return lsGetConfs()[String(peladaId)] || null;
 }
 
+function apelidoJogadorLogado(){
+  return (G.jogadorLogado && G.jogadorLogado.apelido ? G.jogadorLogado.apelido : '').trim();
+}
+
 function abrirJogador(id){
   G.pelada=G.peladas.find(p=>String(p.id)===String(id));
   if(peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada)){
@@ -235,12 +239,13 @@ function renderJConf(){
   // Prioridade: já confirmado nesta pelada > nome do localStorage > G.meuNome
   const nomeConfirmado = lsNomeConfirmadoNaPelada(p.id);
   const jaConf = nomeConfirmado && p.confirmados.find(j=>normNome(j.nome)===normNome(nomeConfirmado));
+  const apelidoLogado = apelidoJogadorLogado();
 
   if(jaConf){
     G.meuNome = jaConf.nome;
     inp.value = jaConf.nome;
   } else {
-    const nomeSalvo = G.isAdm ? (G.meuNome || '') : (lsGetNome() || G.meuNome || '');
+    const nomeSalvo = apelidoLogado || (G.isAdm ? (G.meuNome || '') : (lsGetNome() || G.meuNome || ''));
     inp.value = nomeSalvo;
   }
   inp.disabled = false;
@@ -302,6 +307,11 @@ async function jogadorVai(churrasOpt){
   const p=G.pelada;
   const nome=document.getElementById('jc-input').value.trim();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
+  if(G.jogadorLogado && !apelidoJogadorLogado()){
+    showToast('Cadastre seu apelido antes de confirmar.');
+    await abrirPerfilJogador();
+    return;
+  }
 
   // Bloqueio: dispositivo já confirmou outro nome nesta pelada (ignora se ADM)
   if(!G.isAdm){
@@ -315,13 +325,13 @@ async function jogadorVai(churrasOpt){
 
   if(p.confirmados.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Você já está confirmado!'); return; }
   p.espera=p.espera||[];
-  if(p.espera.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Voce ja esta na lista de espera!'); return; }
+  if(p.espera.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Você já está na lista de espera!'); return; }
   const churrasVal = p.temChurras ? (churrasOpt||'jogo') : null;
   const vaiParaEspera = churrasVal !== 'churras' && peladaLotada(p);
   showToast('Confirmando...');
   try{
-    const row=await dbConfirmar(p.id,nome,churrasVal,vaiParaEspera?'espera':'confirmado');
-    const novo={id:row.id,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churrasVal};
+    const row=await dbConfirmar(p.id,nome,churrasVal,vaiParaEspera?'espera':'confirmado',G.jogadorLogado?.id||null);
+    const novo={id:row.id,jogador_id:G.jogadorLogado?.id||null,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churrasVal};
     if(vaiParaEspera){
       p.espera.push(novo);
     } else {
@@ -334,7 +344,7 @@ async function jogadorVai(churrasOpt){
       lsSetNome(nome);
       lsRegistrarConf(p.id, nome);
     }
-    showToast(vaiParaEspera?'Voce entrou na lista de espera!':'Presenca confirmada!');
+    showToast(vaiParaEspera?'Voc\u00ea entrou na lista de espera!':'Presen\u00e7a confirmada!');
     renderJConf();
   }catch(e){ showToast('Erro ao confirmar.'); }
 }

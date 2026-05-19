@@ -143,6 +143,13 @@ function proximaDataSemanal(dataBase){
   while(d<hoje) d.setDate(d.getDate()+7);
   return d.toISOString().slice(0,10);
 }
+function normalizarDataPelada(valor){
+  const v=String(valor||'').trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  const br=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(br) return `${br[3]}-${br[2]}-${br[1]}`;
+  return v;
+}
 function ultimaPeladaBase(){
   return [...G.peladas].sort((a,b)=>new Date(b.data+'T'+b.hora)-new Date(a.data+'T'+a.hora))[0]||null;
 }
@@ -225,7 +232,7 @@ function duplicarUltimaPelada(){
 function validarCriarPelada(){
   limparErrosCriarPelada();
   const nome=document.getElementById('cp-nome').value.trim();
-  const data=document.getElementById('cp-data').value;
+  const data=normalizarDataPelada(document.getElementById('cp-data').value);
   const hora=document.getElementById('cp-hora').value;
   const local=document.getElementById('cp-local').value.trim();
   const valor=Number(document.getElementById('cp-valor').value);
@@ -233,7 +240,7 @@ function validarCriarPelada(){
   const erros=[];
   if(!nome){ erros.push('nome'); campoErro('cp-nome'); }
   if(nome.length>20){ erros.push('nome'); campoErro('cp-nome'); }
-  if(!data){ erros.push('data'); campoErro('cp-data'); }
+  if(!data || !/^\d{4}-\d{2}-\d{2}$/.test(data)){ erros.push('data'); campoErro('cp-data'); }
   if(!hora){ erros.push('horário'); campoErro('cp-hora'); }
   if(!local){ erros.push('local'); campoErro('cp-local'); }
   if(!Number.isFinite(valor)||valor<1){ erros.push('valor'); campoErro('cp-valor'); }
@@ -253,7 +260,7 @@ async function criarPelada(){
     G.editandoPeladaId=null;
     showToast('Pelada criada! ⚽');
     renderAdmConf(); goTo('s-adm-conf');
-  }catch(e){ showToast('Erro ao criar pelada.'); }
+  }catch(e){ console.error('Erro ao criar pelada:', e); showToast('Erro ao criar pelada: '+(e.message||'verifique o Supabase.')); }
   finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
 }
 async function editarPelada(){
@@ -484,6 +491,147 @@ function compartilharWhatsApp(){
   const p=G.pelada; if(!p)return;
   const msg=`⚽ ${p.nome}\n${fmtData(p.data)} · ${p.hora} · ${p.local}\n\nConfirme presença aqui:\n${linkPelada(p)}`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ==========================================
+// ADM - JOGADORES
+// ==========================================
+function jogadorIniciais(j){
+  const base=(j.apelido||j.nome||'?').trim();
+  return escHtml((base[0]||'?').toUpperCase());
+}
+function jogadorInstagram(v){
+  return String(v||'').trim().replace(/^@+/,'').replace(/\s+/g,'');
+}
+function jogadorBadge(j){
+  const mod=j.modalidade==='mensalista'?'Mensalista':'Avulso';
+  const cls=j.modalidade==='mensalista'?'badge-green':'badge-gray';
+  const perfil=j.perfil_app&&j.perfil_app!=='jogador'?` <span class="badge badge-red" style="font-size:10px;">${escHtml(j.perfil_app)}</span>`:'';
+  return `<span class="badge ${cls}" style="font-size:10px;">${mod}</span>${perfil}${j.ativo===false?' <span class="badge badge-red" style="font-size:10px;">Inativo</span>':''}`;
+}
+async function abrirJogadoresAdm(){
+  fecharMenu();
+  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  goTo('s-adm-jogadores');
+  await carregarJogadoresAdm();
+}
+async function carregarJogadoresAdm(){
+  const el=document.getElementById('jog-lista');
+  if(el) el.innerHTML='<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i>Carregando jogadores</div>';
+  try{
+    G.jogadores=await dbListarJogadores();
+    renderJogadoresLista();
+  }catch(e){
+    if(el) el.innerHTML='<div class="empty"><i class="ti ti-user-x"></i>Erro ao carregar jogadores</div>';
+  }
+}
+function renderJogadoresLista(){
+  const el=document.getElementById('jog-lista'); if(!el)return;
+  const busca=normNome(document.getElementById('jog-busca')?.value||'');
+  const arr=(G.jogadores||[]).filter(j=>{
+    const texto=normNome([j.nome,j.apelido,j.instagram,j.email,j.telefone].filter(Boolean).join(' '));
+    return !busca || texto.includes(busca);
+  });
+  if(!arr.length){ el.innerHTML='<div class="empty"><i class="ti ti-users"></i>Nenhum jogador encontrado</div>'; return; }
+  el.innerHTML=arr.map(j=>{
+    const insta=j.instagram?`<span><i class="ti ti-brand-instagram" style="font-size:11px;"></i> @${escHtml(j.instagram)}</span>`:'';
+    const pos=j.posicao_favorita?`<span>${posBadge(j.posicao_favorita)}</span>`:'';
+    const contato=j.telefone?`<span><i class="ti ti-brand-whatsapp" style="font-size:11px;"></i> ${escHtml(j.telefone)}</span>`:'';
+    const foto=j.foto_url ? `<img src="${escHtml(j.foto_url)}" alt="" />` : jogadorIniciais(j);
+    return `<div class="jog-row" onclick="editarJogadorAdm('${j.id}')">
+      <div class="jog-avatar">${foto}</div>
+      <div class="jog-info">
+        <div class="jog-name">${escHtml(j.nome)}${j.apelido?` <span>${escHtml(j.apelido)}</span>`:''}</div>
+        <div class="jog-meta">${[insta,contato,pos].filter(Boolean).join('')}</div>
+      </div>
+      <div class="jog-badges">${jogadorBadge(j)}</div>
+    </div>`;
+  }).join('');
+}
+function preencherFormJogador(j){
+  document.getElementById('jog-id').value=j?.id||'';
+  document.getElementById('jog-nome').value=j?.nome||'';
+  document.getElementById('jog-apelido').value=j?.apelido||'';
+  document.getElementById('jog-instagram').value=j?.instagram?`@${j.instagram}`:'';
+  document.getElementById('jog-email').value=j?.email||'';
+  document.getElementById('jog-telefone').value=j?.telefone||'';
+  document.getElementById('jog-foto').value=j?.foto_url||'';
+  document.getElementById('jog-nascimento').value=j?.data_nascimento||'';
+  document.getElementById('jog-pos').value=j?.posicao_favorita||'';
+  document.getElementById('jog-modalidade').value=j?.modalidade||'avulso';
+  document.getElementById('jog-ativo').value=String(j?.ativo!==false);
+  document.getElementById('jog-perfil-app').value=j?.perfil_app||'jogador';
+  document.getElementById('jog-perfil-wrap').style.display=G.superAdmin?'block':'none';
+  document.getElementById('jog-form-title').textContent=j?.id?'Editar jogador':'Novo jogador';
+  atualizarPreviewJogador();
+}
+function atualizarPreviewJogador(){
+  const box=document.getElementById('jog-foto-preview'); if(!box)return;
+  const url=document.getElementById('jog-foto')?.value.trim();
+  const nome=document.getElementById('jog-nome')?.value.trim()||'?';
+  box.innerHTML=url?`<img src="${escHtml(url)}" alt="" />`:escHtml((nome[0]||'?').toUpperCase());
+}
+async function uploadFotoJogadorAdm(file){
+  if(!file) return;
+  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de ate 3 MB.'); return; }
+  const id=document.getElementById('jog-id').value || 'novo';
+  const nome=document.getElementById('jog-nome').value.trim() || 'jogador';
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const slug=normNome(nome).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'jogador';
+  const path=`adm/${id}-${slug}-${Date.now()}.${ext}`;
+  showToast('Enviando foto...');
+  const { error } = await _sbClient.storage.from('jogador-fotos').upload(path,file,{upsert:true,contentType:file.type||'image/jpeg'});
+  if(error){ showToast('Erro ao enviar foto.'); return; }
+  const { data:pub } = _sbClient.storage.from('jogador-fotos').getPublicUrl(path);
+  document.getElementById('jog-foto').value=pub.publicUrl;
+  atualizarPreviewJogador();
+  showToast('Foto enviada. Salve o jogador para gravar.');
+}
+function novoJogadorAdm(){
+  preencherFormJogador(null);
+  document.getElementById('jog-form-card').style.display='block';
+  document.getElementById('jog-nome').focus();
+}
+function editarJogadorAdm(id){
+  const j=(G.jogadores||[]).find(x=>String(x.id)===String(id));
+  if(!j)return;
+  preencherFormJogador(j);
+  document.getElementById('jog-form-card').style.display='block';
+  document.getElementById('jog-form-card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function fecharFormJogador(){
+  document.getElementById('jog-form-card').style.display='none';
+}
+async function salvarJogadorAdm(){
+  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  const id=document.getElementById('jog-id').value;
+  const nome=document.getElementById('jog-nome').value.trim();
+  if(!nome){ document.getElementById('jog-nome').focus(); showToast('Informe o nome do jogador.'); return; }
+  const fields={
+    nome,
+    apelido:document.getElementById('jog-apelido').value.trim()||null,
+    instagram:jogadorInstagram(document.getElementById('jog-instagram').value)||null,
+    email:document.getElementById('jog-email').value.trim()||null,
+    telefone:document.getElementById('jog-telefone').value.trim()||null,
+    foto_url:document.getElementById('jog-foto').value.trim()||null,
+    data_nascimento:document.getElementById('jog-nascimento').value||null,
+    posicao_favorita:document.getElementById('jog-pos').value||null,
+    modalidade:document.getElementById('jog-modalidade').value||'avulso',
+    ativo:document.getElementById('jog-ativo').value==='true',
+    updated_at:new Date().toISOString(),
+  };
+  if(G.superAdmin) fields.perfil_app=document.getElementById('jog-perfil-app').value||'jogador';
+  showToast('Salvando...');
+  try{
+    if(id) await dbAtualizarJogador(id,fields);
+    else await dbCriarJogador(fields);
+    await carregarJogadoresAdm();
+    fecharFormJogador();
+    showToast('Jogador salvo!');
+  }catch(e){
+    showToast('Erro ao salvar jogador.');
+  }
 }
 
 // ==========================================

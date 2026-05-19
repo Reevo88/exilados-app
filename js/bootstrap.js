@@ -25,6 +25,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Verificar link de convite (?p=slug-shortid)
   const params=new URLSearchParams(window.location.search);
   const pSlug=params.get('p');
+  const perfilParam=params.get('perfil');
+  const resetParam=params.get('reset');
   renderJLista();
   if(G.isAdm) renderAdmHome();
   setInterval(verificarEncerramentoAutomaticoUI, 60 * 1000);
@@ -33,6 +35,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible') verificarEncerramentoAutomaticoUI();
   });
+
+  if(perfilParam || resetParam){
+    await abrirPerfilJogador(true);
+    return;
+  }
 
   if(pSlug){
     const decodedId=decodeURIComponent(pSlug);

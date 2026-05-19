@@ -410,8 +410,8 @@ async function renderResumo(peladaId, pjCache){
   estats = estats || [];
 
   // -- Placar ------------------------------
-  document.getElementById('resumo-gols-azul').textContent = resultado ? (resultado.gols_azul   ?? '–') : '–';
-  document.getElementById('resumo-gols-verm').textContent = resultado ? (resultado.gols_vermelho ?? '–') : '–';
+  document.getElementById('resumo-gols-azul').textContent = resultado ? (resultado.gols_azul ?? 0) : '\u2013';
+  document.getElementById('resumo-gols-verm').textContent = resultado ? (resultado.gols_vermelho ?? 0) : '\u2013';
 
   // -- Escalações --------------------------
   // Usa p.jogadores (fonte que o ADM atualiza com times e posições)
