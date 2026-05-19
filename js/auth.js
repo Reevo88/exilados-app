@@ -140,7 +140,7 @@ function erroRetornoPerfilAuth(){
 function temRetornoPerfilAuth(){
   const params=new URLSearchParams(window.location.search);
   const hash=perfilAuthHash();
-  return !!(params.get('perfil') || params.get('reset') || hash.get('error') || hash.get('error_code') || hash.get('type'));
+  return !!(params.get('perfil') || params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('error') || hash.get('error_code') || hash.get('type'));
 }
 
 function limparUrlPerfil(){
@@ -157,8 +157,32 @@ function mostrarLoginPerfil(){
   goTo('s-j-perfil');
 }
 
+function mostrarResetSenhaPerfil(){
+  const loginCard=document.getElementById('perfil-login-card');
+  const formCard=document.getElementById('perfil-form-card');
+  const resetCard=document.getElementById('perfil-reset-card');
+  G.redefinindoSenha=true;
+  if(loginCard) loginCard.style.display='none';
+  if(formCard) formCard.style.display='none';
+  if(resetCard) resetCard.style.display='block';
+  goTo('s-j-perfil');
+}
+
+let authRecoveryListenerAtivo=false;
+function inicializarAuthRecoveryListener(){
+  if(authRecoveryListenerAtivo || !_sbClient?.auth?.onAuthStateChange) return;
+  authRecoveryListenerAtivo=true;
+  _sbClient.auth.onAuthStateChange((event, session)=>{
+    if(event==='PASSWORD_RECOVERY'){
+      G.usuario=session?.user||null;
+      mostrarResetSenhaPerfil();
+    }
+  });
+}
+
 async function tratarRetornoPerfilAuth(){
   const hash=perfilAuthHash();
+  const params=new URLSearchParams(window.location.search);
   const erro=erroRetornoPerfilAuth();
   G.redefinindoSenha=false;
 
@@ -174,8 +198,12 @@ async function tratarRetornoPerfilAuth(){
     return {erro:true};
   }
 
+  if(params.get('code') && _sbClient?.auth?.exchangeCodeForSession){
+    await _sbClient.auth.exchangeCodeForSession(params.get('code')).catch(()=>{});
+  }
+
   if(hash.get('type')==='recovery'){
-    G.redefinindoSenha=true;
+    mostrarResetSenhaPerfil();
   }
   return {erro:false};
 }
