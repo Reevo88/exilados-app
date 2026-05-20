@@ -495,8 +495,8 @@ function preencherMeuPerfil(j){
   document.getElementById('perfil-nome').value=j.nome||'';
   document.getElementById('perfil-apelido').value=j.apelido||'';
   document.getElementById('perfil-instagram').value=j.instagram?`@${j.instagram}`:'';
-  document.getElementById('perfil-telefone').value=j.telefone||'';
-  document.getElementById('perfil-nascimento').value=j.data_nascimento||'';
+  document.getElementById('perfil-telefone').value=formatarTelefone(j.telefone||'');
+  document.getElementById('perfil-nascimento').value=dataIsoParaBr(j.data_nascimento||'');
   document.getElementById('perfil-pos').value=j.posicao_favorita||'';
   atualizarPreviewMeuPerfil();
 }
@@ -531,14 +531,17 @@ async function salvarMeuPerfil(){
   const apelido=document.getElementById('perfil-apelido').value.trim();
   if(!id || !nome){ showToast('Informe seu nome.'); return; }
   if(!apelido){ document.getElementById('perfil-apelido').focus(); showToast('Informe seu apelido.'); return; }
+  const nascimento=document.getElementById('perfil-nascimento').value.trim();
+  const dataNascimento=nascimento?dataBrParaIso(nascimento):null;
+  if(nascimento && !dataNascimento){ document.getElementById('perfil-nascimento').focus(); showToast('Informe a data no formato DD/MM/AAAA.'); return; }
   const fields={
     nome,
     apelido,
     instagram:jogadorInstagram(document.getElementById('perfil-instagram').value)||null,
-    telefone:document.getElementById('perfil-telefone').value.trim()||null,
+    telefone:formatarTelefone(document.getElementById('perfil-telefone').value)||null,
     email:document.getElementById('perfil-email').value.trim()||G.usuario?.email||null,
     foto_url:document.getElementById('perfil-foto-url').value.trim()||null,
-    data_nascimento:document.getElementById('perfil-nascimento').value||null,
+    data_nascimento:dataNascimento,
     posicao_favorita:document.getElementById('perfil-pos').value||null,
     updated_at:new Date().toISOString(),
   };

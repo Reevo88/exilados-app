@@ -250,6 +250,51 @@ function escHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<
 function money(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
 function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast show'; setTimeout(()=>t.classList.remove('show'),2200); }
 function showToastDanger(m){ showToast(m); }
+function apenasDigitos(s){ return String(s||'').replace(/\D/g,''); }
+function formatarTelefone(v){
+  const d=apenasDigitos(v).slice(0,11);
+  if(d.length<=2) return d;
+  return d.slice(0,2)+'-'+d.slice(2);
+}
+function mascararTelefoneInput(input){ input.value=formatarTelefone(input.value); }
+function dataIsoParaBr(v){
+  const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : String(v||'');
+}
+function dataBrParaIso(v){
+  const d=apenasDigitos(v);
+  if(d.length!==8) return null;
+  const dia=d.slice(0,2), mes=d.slice(2,4), ano=d.slice(4,8);
+  const dt=new Date(`${ano}-${mes}-${dia}T12:00:00`);
+  if(Number.isNaN(dt.getTime()) || dt.getFullYear()!==Number(ano) || dt.getMonth()+1!==Number(mes) || dt.getDate()!==Number(dia)) return null;
+  return `${ano}-${mes}-${dia}`;
+}
+function formatarDataNascimento(v){
+  const d=apenasDigitos(v).slice(0,8);
+  if(d.length<=2) return d;
+  if(d.length<=4) return d.slice(0,2)+'/'+d.slice(2);
+  return d.slice(0,2)+'/'+d.slice(2,4)+'/'+d.slice(4);
+}
+function mascararDataInput(input){ input.value=formatarDataNascimento(input.value); }
+function abrirZoomFotoUrl(url){
+  if(!url){ showToast('Nenhuma foto cadastrada.'); return; }
+  const modal=document.getElementById('photo-zoom');
+  const img=document.getElementById('photo-zoom-img');
+  if(!modal||!img)return;
+  img.src=url;
+  modal.classList.add('open');
+}
+function abrirZoomFotoPerfil(tipo){
+  const input=document.getElementById(tipo==='jog'?'jog-foto':'perfil-foto-url');
+  abrirZoomFotoUrl(input?.value?.trim()||'');
+}
+function fecharZoomFoto(e){
+  if(e && e.target?.id !== 'photo-zoom') return;
+  const modal=document.getElementById('photo-zoom');
+  const img=document.getElementById('photo-zoom-img');
+  if(img) img.src='';
+  if(modal) modal.classList.remove('open');
+}
 function copiarLink(btn){ const t=document.getElementById('aconf-link').textContent; if(navigator.clipboard)navigator.clipboard.writeText(t); btn.innerHTML='<i class="ti ti-check" style="color:var(--green);"></i>'; setTimeout(()=>btn.innerHTML='<i class="ti ti-copy"></i>',1500); showToast('Link copiado!'); }
 function posBadge(p){ if(!p||p==='?') return `<span class="pos-badge pos-pending">POS</span>`; const c=['GOL','ZAG','LAT','MEI','ATA'].includes(p)?p:'x'; return `<span class="pos-badge pos-${c}">${p}</span>`; }
 function posSelect(j){ const vp=j.pos&&['GOL','ZAG','LAT','MEI','ATA'].includes(j.pos)?j.pos:'?'; return `<select class="pos-select" onchange="setPos('${j.id}',this.value)"><option value="?"${vp==='?'?' selected':''}>POS</option><option value="GOL"${vp==='GOL'?' selected':''}>GOL</option><option value="ZAG"${vp==='ZAG'?' selected':''}>ZAG</option><option value="LAT"${vp==='LAT'?' selected':''}>LAT</option><option value="MEI"${vp==='MEI'?' selected':''}>MEI</option><option value="ATA"${vp==='ATA'?' selected':''}>ATA</option></select>`; }

@@ -592,9 +592,9 @@ function preencherFormJogador(j){
   document.getElementById('jog-apelido').value=j?.apelido||'';
   document.getElementById('jog-instagram').value=j?.instagram?`@${j.instagram}`:'';
   document.getElementById('jog-email').value=j?.email||'';
-  document.getElementById('jog-telefone').value=j?.telefone||'';
+  document.getElementById('jog-telefone').value=formatarTelefone(j?.telefone||'');
   document.getElementById('jog-foto').value=j?.foto_url||'';
-  document.getElementById('jog-nascimento').value=j?.data_nascimento||'';
+  document.getElementById('jog-nascimento').value=dataIsoParaBr(j?.data_nascimento||'');
   document.getElementById('jog-pos').value=j?.posicao_favorita||'';
   document.getElementById('jog-modalidade').value=j?.modalidade||'avulso';
   document.getElementById('jog-ativo').value=String(j?.ativo!==false);
@@ -648,16 +648,19 @@ async function salvarJogadorAdm(){
   const id=document.getElementById('jog-id').value;
   const nome=document.getElementById('jog-nome').value.trim();
   const apelido=document.getElementById('jog-apelido').value.trim();
+  const nascimento=document.getElementById('jog-nascimento').value.trim();
+  const dataNascimento=nascimento?dataBrParaIso(nascimento):null;
   if(!nome){ document.getElementById('jog-nome').focus(); showToast('Informe o nome do jogador.'); return; }
   if(!apelido){ document.getElementById('jog-apelido').focus(); showToast('Informe o apelido do jogador.'); return; }
+  if(nascimento && !dataNascimento){ document.getElementById('jog-nascimento').focus(); showToast('Informe a data no formato DD/MM/AAAA.'); return; }
   const fields={
     nome,
     apelido,
     instagram:jogadorInstagram(document.getElementById('jog-instagram').value)||null,
     email:document.getElementById('jog-email').value.trim()||null,
-    telefone:document.getElementById('jog-telefone').value.trim()||null,
+    telefone:formatarTelefone(document.getElementById('jog-telefone').value)||null,
     foto_url:document.getElementById('jog-foto').value.trim()||null,
-    data_nascimento:document.getElementById('jog-nascimento').value||null,
+    data_nascimento:dataNascimento,
     posicao_favorita:document.getElementById('jog-pos').value||null,
     modalidade:document.getElementById('jog-modalidade').value||'avulso',
     ativo:document.getElementById('jog-ativo').value==='true',
