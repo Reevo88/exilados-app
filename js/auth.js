@@ -299,6 +299,10 @@ function credenciaisPerfil(){
   return {email,password};
 }
 
+function msgAuthErro(e){
+  return [e?.status, e?.code || e?.name, e?.message].filter(Boolean).join(' - ') || 'erro desconhecido';
+}
+
 async function entrarJogadorSenha(){
   const cred=credenciaisPerfil(); if(!cred)return;
   const { error } = await _sbClient.auth.signInWithPassword(cred);
@@ -323,6 +327,7 @@ async function criarContaJogadorSenha(){
   let signupOk=false;
   let resendOk=false;
   let precisaReenviar=false;
+  let ultimoErro=null;
   async function reenviarConfirmacaoCadastro(){
     if(!_sbClient?.auth?.resend) return false;
     const { error } = await _sbClient.auth.resend({
@@ -330,6 +335,7 @@ async function criarContaJogadorSenha(){
       email:cred.email,
       options:{ emailRedirectTo:appRootUrl() },
     }).catch(err=>({error:err}));
+    if(error) ultimoErro=error;
     return !error;
   }
   try{
@@ -343,12 +349,14 @@ async function criarContaJogadorSenha(){
     const identities=data?.user?.identities;
     precisaReenviar=Array.isArray(identities) && identities.length===0;
   }catch(e){
+    ultimoErro=e;
     precisaReenviar=true;
   }
-  if(precisaReenviar){
+  if(precisaReenviar || signupOk){
       resendOk=await reenviarConfirmacaoCadastro();
       if(!resendOk){
-        showToast('Nao foi possivel enviar o e-mail de cadastro agora.');
+        showToast('Falha ao enviar cadastro: '+msgAuthErro(ultimoErro));
+        console.error('Falha ao enviar/reenviar cadastro:', ultimoErro);
         if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
         return;
       }
@@ -360,7 +368,7 @@ async function criarContaJogadorSenha(){
     await carregarPerfilJogador({mostrarFormulario:true});
     goTo('s-j-perfil');
   }
-  showToast(resendOk?'E-mail de cadastro reenviado. Verifique sua caixa de entrada.':(signupOk?'Conta criada. Verifique seu e-mail se solicitado.':'Verifique seu e-mail para confirmar o cadastro.'));
+  showToast(resendOk?'E-mail de cadastro enviado/re enviado. Verifique caixa de entrada e spam.':'Verifique seu e-mail para confirmar o cadastro.');
   if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
 }
 
@@ -372,8 +380,11 @@ async function recuperarSenhaJogador(){
   try{
     const { error } = await _sbClient.auth.resetPasswordForEmail(email,{redirectTo:appRootUrl()});
     if(error) throw error;
-    showToast('E-mail de redefinicao enviado!');
-  }catch(e){ showToast('Erro ao enviar redefinicao.'); }
+    showToast('Se o e-mail existir e o envio nao estiver limitado, voce recebera o link em instantes.');
+  }catch(e){
+    console.error('Falha ao enviar redefinicao:', e);
+    showToast('Falha ao enviar redefinicao: '+msgAuthErro(e));
+  }
   finally{ if(btn){ btn.disabled=false; btn.textContent='Esqueci minha senha'; } }
 }
 
