@@ -238,9 +238,12 @@ function peladeiroIdade(j){
   return idade>0 && idade<120 ? `${idade} anos` : '';
 }
 
-function peladeiroEhAdm(j){
-  const perfil=String(j.perfil_app||'').toLowerCase();
-  return ['adm','presidente'].includes(perfil);
+function peladeiroSeloPerfil(j){
+  const perfil=String(j.perfil_app||'jogador').toLowerCase();
+  if(perfil==='adm') return '<span class="peladeiro-chip peladeiro-chip-role peladeiro-chip-adm"><i class="ti ti-shield"></i> ADM</span>';
+  if(perfil==='presidente') return '<span class="peladeiro-chip peladeiro-chip-role peladeiro-chip-presidente"><i class="ti ti-star"></i> Presidente</span>';
+  if(perfil==='escalador') return '<span class="peladeiro-chip peladeiro-chip-role peladeiro-chip-escalador"><i class="ti ti-clipboard-list"></i> Escalador</span>';
+  return '';
 }
 
 function setPeladeirosSort(tipo){
@@ -305,7 +308,7 @@ function renderPeladeirosLista(){
     const modalidade=j.modalidade==='mensalista'?'Mensalista':'Avulso';
     const zoom=j.foto_url?'abrirZoomFotoUrl(this.dataset.url)':'return false';
     const tema=i%2===0?'blue':'red';
-    const adm=peladeiroEhAdm(j)?'<span class="peladeiro-chip peladeiro-chip-adm"><i class="ti ti-shield"></i> ADM</span>':'';
+    const seloPerfil=peladeiroSeloPerfil(j);
     const apelidoLen=apelido.length;
     const apelidoSize=apelidoLen>13?'xlong':apelidoLen>10?'long':apelidoLen>7?'medium':'short';
     return `<div class="peladeiro-card peladeiro-card-${tema} peladeiro-name-${apelidoSize}">
@@ -319,7 +322,7 @@ function renderPeladeirosLista(){
         <div class="peladeiro-meta">
           <span class="peladeiro-chip peladeiro-chip-pos">${pos}</span>
           <span class="peladeiro-chip peladeiro-chip-mod"><i class="ti ti-crown"></i> ${modalidade}</span>
-          ${adm}
+          ${seloPerfil}
         </div>
       </div>
       <img class="peladeiro-logo" src="logo.png" alt="Exilados da Bola"/>
