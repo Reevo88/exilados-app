@@ -634,10 +634,11 @@ async function abrirResumoPublico(id){
 }
 
 // Voltar para lista
-function voltarLista(){
+async function voltarLista(){
   G.pelada = null;
   const admBack = document.getElementById('resumo-adm-back');
   if(admBack) admBack.style.display = 'none';
+  if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario();
   renderJLista();
   goTo('s-j-lista');
 }

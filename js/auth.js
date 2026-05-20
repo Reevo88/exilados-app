@@ -70,7 +70,7 @@ async function sair(){
   G.isAdm = false; G.perfil = 'jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
   fecharMenu();
   await _sbClient.auth.signOut().catch(()=>{});
-  goTo('s-j-lista'); renderJLista();
+  await voltarLista();
 }
 function atualizarOpcaoPerfilAdm(){
   const nome=document.getElementById('adm-profile-option-name');
@@ -216,10 +216,11 @@ async function tratarRetornoPerfilAuth(){
       ? 'Link de senha expirado ou invalido. Peca um novo link em Esqueci minha senha.'
       : 'Nao foi possivel validar o link. Peca um novo link em Esqueci minha senha.';
     G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
-    mostrarLoginPerfil();
     await _sbClient.auth.signOut().catch(()=>{});
-    setTimeout(()=>showToast(msg),80);
     limparUrlPerfil();
+    await carregarBaseAppSeNecessario();
+    mostrarLoginPerfil();
+    setTimeout(()=>showToast(msg),80);
     return {erro:true};
   }
 
@@ -381,7 +382,7 @@ async function carregarPerfilJogador(opts={}){
 
 async function carregarBaseAppSeNecessario(){
   const precisaCarregar = !Array.isArray(G.peladas) || !G.peladas.length;
-  if(!precisaCarregar) return;
+  if(!precisaCarregar) return true;
   const jlista=document.getElementById('j-lista');
   if(jlista) jlista.innerHTML='<div class="empty" style="padding:40px 0;"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;font-size:28px;opacity:.5;"></i></div>';
   try{
@@ -390,9 +391,12 @@ async function carregarBaseAppSeNecessario(){
     const cfg = await dbGetConfig();
     G.valorChurras = cfg ? (Number(cfg.valor_churras)||0) : 0;
     renderJLista();
+    return true;
   }catch(e){
     console.error('Erro ao carregar base do app:', e);
     renderJLista();
+    showToast('Nao foi possivel carregar as peladas. Tente atualizar a pagina.');
+    return false;
   }
 }
 

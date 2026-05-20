@@ -231,7 +231,12 @@ let uid = 100, drag = null;
 // ==========================================
 function goTo(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
 
-function voltarLista(){ G.pelada=null; renderJLista(); goTo('s-j-lista'); }
+async function voltarLista(){
+  G.pelada=null;
+  if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario();
+  renderJLista();
+  goTo('s-j-lista');
+}
 
 function admNav(aba){
   // Escalador só acessa times
