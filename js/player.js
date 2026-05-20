@@ -227,7 +227,7 @@ function abrirJogador(id){
 // ==========================================
 function renderJConf(){
   const p=G.pelada;
-  if(!p){ showToast('Selecione uma pelada primeiro!'); goTo('s-j-lista'); renderJLista(); return; }
+  if(!p){ showToast('Selecione uma pelada primeiro!'); voltarLista(); return; }
   p.espera=p.espera||[];
   document.getElementById('jc-nome-hero').textContent=p.nome;
   document.getElementById('jc-meta-hero').innerHTML=`${fmtData(p.data)}<br>${p.hora}<br>${p.local}`;
@@ -412,7 +412,7 @@ async function jogadorCancelar(){
 // ==========================================
 function renderJTimes(){
   const p=G.pelada;
-  if(!p){ showToast('Selecione uma pelada primeiro!'); goTo('s-j-lista'); renderJLista(); return; }
+  if(!p){ showToast('Selecione uma pelada primeiro!'); voltarLista(); return; }
   document.getElementById('jt-nome-header').textContent=p.nome;
   document.getElementById('jt-meta-header').innerHTML=`${fmtData(p.data)}<br>${p.hora}<br>${p.local}`;
   const pool=p.jogadores.filter(j=>j.time==='pool');

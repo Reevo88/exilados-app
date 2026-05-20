@@ -114,6 +114,7 @@ function fecharMenuJogador(e){ if(!e||e.target===document.getElementById('player
 
 async function abrirPerfilJogador(redirecionarAdm=false){
   fecharMenuJogador();
+  const retornoCadastro=temRetornoPerfilAuth() && !temTokenRecoveryAuth() && !erroRetornoPerfilAuth();
   const retornoAuth=await tratarRetornoPerfilAuth();
   if(retornoAuth?.erro){
     await carregarPerfilJogador({mostrarFormulario:false});
@@ -125,10 +126,10 @@ async function abrirPerfilJogador(redirecionarAdm=false){
     return;
   }
   await restaurarSessaoAdm();
-  if(redirecionarAdm && !G.redefinindoSenha && abrirDestinoUsuarioLogado()) return;
+  if(redirecionarAdm && !retornoCadastro && !G.redefinindoSenha && abrirDestinoUsuarioLogado()) return;
   await carregarPerfilJogador({mostrarFormulario:!redirecionarAdm});
   await restaurarSessaoAdm();
-  if(redirecionarAdm && !G.redefinindoSenha && abrirDestinoPosLogin()) return;
+  if(redirecionarAdm && !retornoCadastro && !G.redefinindoSenha && abrirDestinoPosLogin()) return;
   if(redirecionarAdm) await carregarPerfilJogador({mostrarFormulario:true});
   goTo('s-j-perfil');
 }
@@ -368,7 +369,7 @@ async function criarContaJogadorSenha(){
     await carregarPerfilJogador({mostrarFormulario:true});
     goTo('s-j-perfil');
   }
-  showToast(resendOk?'E-mail de cadastro enviado/re enviado. Verifique caixa de entrada e spam.':'Verifique seu e-mail para confirmar o cadastro.');
+  showToast(resendOk?'E-mail de cadastro enviado. Verifique caixa de entrada e spam.':'Verifique seu e-mail para confirmar o cadastro.');
   if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
 }
 
