@@ -98,6 +98,39 @@
   </div>
 </div>
 
+<!-- J1C: PELADEIROS (SOMENTE LEITURA) -->
+<div class="screen" id="s-j-peladeiros">
+  <div class="header">
+    <img class="logo-img" alt="Exilados da Bola" src="logo.png" onclick="voltarLista()" style="cursor:pointer;"/>
+    <div class="htext" style="text-align:center;"><h1>PELADEIROS</h1><p>Elenco cadastrado</p></div>
+    <div style="width:34px;flex-shrink:0;"></div>
+  </div>
+  <div class="page-body">
+    <button class="btn btn-danger" onclick="voltarLista()" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
+    <div class="card peladeiros-intro-card">
+      <div>
+        <div class="card-title">Quem joga com a gente</div>
+        <div class="peladeiros-intro-text">Consulta rápida dos peladeiros inscritos.</div>
+      </div>
+      <div class="peladeiros-total"><span id="peladeiros-total">0</span><small>ativos</small></div>
+    </div>
+    <div class="card player-directory-card peladeiros-filter-card">
+      <div class="field" style="margin-bottom:10px;"><input type="text" id="peladeiros-busca" placeholder="Buscar peladeiro" autocomplete="off" oninput="renderPeladeirosLista()"/></div>
+      <div class="jog-sort-control" aria-label="Ordenacao da lista de peladeiros">
+        <span>Ordenar por</span>
+        <button class="active" id="peladeiros-sort-apelido" onclick="setPeladeirosSort('apelido')">Apelido</button>
+        <button id="peladeiros-sort-nome" onclick="setPeladeirosSort('nome')">Nome</button>
+      </div>
+    </div>
+    <div id="peladeiros-lista"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+    <button class="nav-btn active"><i class="ti ti-users-group"></i><span>Peladeiros</span></button>
+    <button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+  </div>
+</div>
+
 <!-- J2: CONFIRMAR (JOGADOR) -->
 <div class="screen" id="s-j-conf">
   <div class="header">
@@ -593,6 +626,7 @@
   <div class="adm-sheet">
     <div class="adm-sheet-title" id="player-menu-title">Perfil</div>
     <div class="adm-option" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><div><div class="adm-option-name" id="player-menu-login-name">Login</div></div></div>
+    <div class="adm-option" onclick="abrirPeladeirosPublico()"><i class="ti ti-users-group"></i><div><div class="adm-option-name">Peladeiros</div><div class="adm-option-desc">Ver elenco cadastrado</div></div></div>
     <div class="adm-option" id="player-menu-sair" onclick="sairJogador()" style="display:none;"><i class="ti ti-logout"></i><div><div class="adm-option-name">Sair</div><div class="adm-option-desc">Encerrar sessão</div></div></div>
     <div class="adm-option" onclick="fecharMenuJogador()"><i class="ti ti-x"></i><div><div class="adm-option-name">Fechar</div></div></div>
   </div>
