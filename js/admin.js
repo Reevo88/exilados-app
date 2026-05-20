@@ -524,6 +524,22 @@ function jogadorBadge(j){
   const perfil=j.perfil_app&&j.perfil_app!=='jogador'?` <span class="badge badge-red" style="font-size:10px;">${escHtml(j.perfil_app)}</span>`:'';
   return `<span class="badge ${cls}" style="font-size:10px;">${mod}</span>${perfil}${j.ativo===false?' <span class="badge badge-red" style="font-size:10px;">Inativo</span>':''}`;
 }
+let jogadoresSort='apelido';
+function setJogadoresSort(tipo){
+  jogadoresSort = tipo === 'nome' ? 'nome' : 'apelido';
+  renderJogadoresLista();
+}
+function atualizarJogadoresSortUI(){
+  const btnApelido=document.getElementById('jog-sort-apelido');
+  const btnNome=document.getElementById('jog-sort-nome');
+  if(btnApelido) btnApelido.classList.toggle('active',jogadoresSort==='apelido');
+  if(btnNome) btnNome.classList.toggle('active',jogadoresSort==='nome');
+}
+function chaveOrdenacaoJogador(j){
+  const prim = jogadoresSort === 'nome' ? j.nome : (j.apelido||j.nome);
+  const sec = jogadoresSort === 'nome' ? (j.apelido||'') : (j.nome||'');
+  return [normNome(prim||''), normNome(sec||'')];
+}
 async function abrirJogadoresAdm(){
   fecharMenu();
   if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
@@ -542,10 +558,15 @@ async function carregarJogadoresAdm(){
 }
 function renderJogadoresLista(){
   const el=document.getElementById('jog-lista'); if(!el)return;
+  atualizarJogadoresSortUI();
   const busca=normNome(document.getElementById('jog-busca')?.value||'');
   const arr=(G.jogadores||[]).filter(j=>{
     const texto=normNome([j.nome,j.apelido,j.instagram,j.email,j.telefone].filter(Boolean).join(' '));
     return !busca || texto.includes(busca);
+  }).sort((a,b)=>{
+    const ka=chaveOrdenacaoJogador(a);
+    const kb=chaveOrdenacaoJogador(b);
+    return ka[0].localeCompare(kb[0],'pt-BR') || ka[1].localeCompare(kb[1],'pt-BR');
   });
   if(!arr.length){ el.innerHTML='<div class="empty"><i class="ti ti-users"></i>Nenhum jogador encontrado</div>'; return; }
   el.innerHTML=arr.map(j=>{
