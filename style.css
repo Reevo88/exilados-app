@@ -127,7 +127,11 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .btn-outline:hover { background:var(--surface2); }
 .btn-danger    { background:var(--danger-bg); color:var(--danger-text); border:1px solid var(--danger-border); }
 .btn-sm        { padding:6px 12px; font-size:12px; font-weight:600; border:none; border-radius:var(--radius-xs); cursor:pointer; font-family:'Inter',sans-serif; }
-#btn-nova-pelada { background:var(--uni-red); color:var(--white); }
+#btn-nova-pelada {
+  background:var(--danger-bg);
+  color:var(--danger-text);
+  border:1px solid var(--danger-border);
+}
 
 .btn-mini { border:1px solid var(--border2); border-radius:var(--radius-xs); background:var(--surface2); padding:5px 8px; font-size:11px; font-family:'Inter',sans-serif; font-weight:700; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
 .btn-mini-blue  { background:var(--uni-blue);    color:var(--uni-yellow);     border-color:var(--uni-blue); }
