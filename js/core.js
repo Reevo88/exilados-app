@@ -102,6 +102,9 @@ async function dbCriarJogador(fields) {
   const rows=await sbFetch('/jogadores',{method:'POST',body:JSON.stringify(fields)});
   return rows[0];
 }
+async function dbExcluirJogador(id) {
+  await sbFetch('/jogadores?id=eq.'+encodeURIComponent(id),{method:'DELETE',prefer:'return=minimal'});
+}
 async function dbJogadorPorAuth(userId) {
   const rows=await sbFetch('/jogadores?auth_user_id=eq.'+encodeURIComponent(userId)+'&limit=1');
   return rows && rows[0] ? rows[0] : null;

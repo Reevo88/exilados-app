@@ -563,6 +563,8 @@ function preencherFormJogador(j){
   document.getElementById('jog-perfil-app').value=j?.perfil_app||'jogador';
   document.getElementById('jog-perfil-wrap').style.display=G.superAdmin?'block':'none';
   document.getElementById('jog-form-title').textContent=j?.id?'Editar jogador':'Novo jogador';
+  const excluirBtn=document.getElementById('jog-excluir-btn');
+  if(excluirBtn) excluirBtn.style.display=j?.id?'flex':'none';
   atualizarPreviewJogador();
 }
 function atualizarPreviewJogador(){
@@ -631,6 +633,24 @@ async function salvarJogadorAdm(){
     showToast('Jogador salvo!');
   }catch(e){
     showToast('Erro ao salvar jogador.');
+  }
+}
+async function excluirJogadorAdm(){
+  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  const id=document.getElementById('jog-id')?.value;
+  if(!id){ showToast('Selecione um jogador para excluir.'); return; }
+  const j=(G.jogadores||[]).find(x=>String(x.id)===String(id));
+  const nome=j?.nome||document.getElementById('jog-nome')?.value.trim()||'este jogador';
+  if(!confirm(`Excluir ${nome} da base de jogadores? Essa ação não pode ser desfeita.`)) return;
+  showToast('Excluindo jogador...');
+  try{
+    await dbExcluirJogador(id);
+    await carregarJogadoresAdm();
+    fecharFormJogador();
+    showToast('Jogador excluído!');
+  }catch(e){
+    console.error('Erro ao excluir jogador', e);
+    showToast('Erro ao excluir jogador.');
   }
 }
 
