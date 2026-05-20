@@ -318,12 +318,37 @@ async function entrarJogadorSenha(){
 
 async function criarContaJogadorSenha(){
   const cred=credenciaisPerfil(); if(!cred)return;
+  const btn=document.querySelector('#perfil-login-card .btn-outline[onclick="criarContaJogadorSenha()"]');
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i> Enviando...'; }
+  let signupOk=false;
+  let resendOk=false;
+  try{
   const { error } = await _sbClient.auth.signUp({
     email:cred.email,
     password:cred.password,
     options:{ emailRedirectTo:appRootUrl() },
   });
-  if(error){ showToast('Erro ao criar conta.'); return; }
+    if(error) throw error;
+    signupOk=true;
+  }catch(e){
+    if(_sbClient?.auth?.resend){
+      const { error: resendError } = await _sbClient.auth.resend({
+        type:'signup',
+        email:cred.email,
+        options:{ emailRedirectTo:appRootUrl() },
+      }).catch(err=>({error:err}));
+      if(resendError){
+        showToast('Nao foi possivel enviar o e-mail de cadastro agora.');
+        if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
+        return;
+      }
+      resendOk=true;
+    }else{
+      showToast('Erro ao criar conta.');
+      if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
+      return;
+    }
+  }
   await restaurarSessaoAdm();
   await carregarPerfilJogador({mostrarFormulario:false});
   await restaurarSessaoAdm();
@@ -331,7 +356,8 @@ async function criarContaJogadorSenha(){
     await carregarPerfilJogador({mostrarFormulario:true});
     goTo('s-j-perfil');
   }
-  showToast('Conta criada. Verifique seu e-mail se solicitado.');
+  showToast(resendOk?'E-mail de cadastro reenviado. Verifique sua caixa de entrada.':(signupOk?'Conta criada. Verifique seu e-mail se solicitado.':'Verifique seu e-mail para confirmar o cadastro.'));
+  if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
 }
 
 async function recuperarSenhaJogador(){
