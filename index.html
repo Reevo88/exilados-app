@@ -53,7 +53,7 @@
     <div class="htext" style="text-align:center;"><h1>ENTRAR OU CADASTRAR</h1><p>Acesso do Jogador</p></div>
   </div>
   <div class="page-body">
-    <button class="btn btn-danger" onclick="voltarLista()" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
+    <button class="btn btn-danger" id="perfil-btn-voltar-lista" onclick="voltarLista()" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
     <div id="perfil-login-card" class="card">
       <div class="card-title">Entrar ou cadastrar</div>
       <button class="btn btn-outline" onclick="loginJogadorGoogle()" style="margin-bottom:10px;"><i class="ti ti-brand-google"></i> Entrar com Google</button>
@@ -68,7 +68,7 @@
       <div class="card-title">Criar nova senha</div>
       <div class="field"><label>Nova senha</label><input type="password" id="perfil-nova-senha" placeholder="mínimo 6 caracteres" autocomplete="new-password"/></div>
       <button class="btn btn-primary" onclick="salvarNovaSenhaJogador()" style="margin-bottom:8px;"><i class="ti ti-key"></i> Salvar nova senha</button>
-      <button class="btn btn-outline" onclick="voltarLoginPerfil()"><i class="ti ti-arrow-left"></i> Voltar para login</button>
+      <button class="btn btn-danger" onclick="voltarLoginPerfil()"><i class="ti ti-arrow-left"></i> Voltar para login</button>
     </div>
     <div id="perfil-form-card" class="card player-form-card" style="display:none;">
       <div class="card-title">Dados do jogador</div>
