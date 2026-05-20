@@ -723,8 +723,18 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   background:#050505;
   color:#fff;
 }
-.peladeiro-chip-adm { font-size:clamp(9px,2.25vw,12px); }
-.peladeiro-chip-adm i { color:var(--team-accent); }
+.peladeiro-chip-role { font-size:clamp(8px,2.05vw,11px); }
+.peladeiro-chip-role i { color:var(--team-accent); }
+.peladeiro-chip-presidente {
+  border-color:#050505;
+  background:#050505;
+  color:#fff;
+}
+.peladeiro-chip-escalador {
+  border-color:var(--team-dark);
+  background:var(--team-dark);
+  color:#fff;
+}
 .peladeiro-social {
   display:none;
 }
@@ -805,7 +815,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   .peladeiro-real-name { font-size:clamp(11px,3.25vw,14px); }
   .peladeiro-meta { gap:4px; margin-top:8px; }
   .peladeiro-chip { min-height:17px; padding:2px 5px; font-size:clamp(8px,2.25vw,10px); border-radius:7px; }
-  .peladeiro-chip-adm { font-size:clamp(8px,2.1vw,9px); }
+  .peladeiro-chip-role { font-size:clamp(7px,1.85vw,8px); }
   .peladeiro-logo { width:12.2%; right:3.8%; top:8%; opacity:.92; }
   .peladeiro-field { width:32%; height:40%; opacity:.24; }
 }
