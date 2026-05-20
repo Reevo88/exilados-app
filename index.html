@@ -56,7 +56,7 @@
     <button class="btn btn-danger" id="perfil-btn-voltar-lista" onclick="voltarLista()" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
     <div id="perfil-login-card" class="card">
       <div class="card-title">Entrar ou cadastrar</div>
-      <button class="btn btn-outline" onclick="loginJogadorGoogle()" style="margin-bottom:10px;"><i class="ti ti-brand-google"></i> Entrar com Google</button>
+      <button class="btn btn-outline" onclick="loginJogadorGoogle()" style="margin-bottom:10px;display:none;"><i class="ti ti-brand-google"></i> Entrar com Google</button>
       <div class="field"><label>E-mail</label><input type="email" id="perfil-email-login" placeholder="voce@email.com" autocomplete="email"/></div>
       <div class="field"><label>Senha</label><input type="password" id="perfil-senha-login" placeholder="mínimo 6 caracteres" autocomplete="current-password"/></div>
       <button class="btn btn-primary" onclick="entrarJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-lock-open"></i> Entrar</button>
@@ -199,7 +199,7 @@
 <div class="screen" id="s-adm-home">
   <div class="header">
     <button onclick="voltarLista()" style="background:none;border:none;padding:0;cursor:pointer;flex-shrink:0;"><img class="logo-img" alt="Exilados da Bola" src="logo.png"/></button>
-    <div class="htext" style="text-align:center;"><h1>MINHAS PELADAS</h1><p>Painel do Administrador</p></div>
+    <div class="htext" style="text-align:center;"><h1>GESTÃO DAS PELADAS</h1><p>Painel do Administrador</p></div>
     <div style="margin-left:auto;">
       <button onclick="abrirMenu()" aria-label="Abrir menu do administrador" title="Menu do administrador" style="width:32px;height:32px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--cream);cursor:pointer;padding:0;"><i class="ti ti-settings" style="font-size:20px;"></i></button>
     </div>
