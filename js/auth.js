@@ -230,8 +230,8 @@ async function tratarRetornoPerfilAuth(){
 
   if(erro){
     const msg=erro==='otp_expired'
-      ? 'Link de senha expirado ou invalido. Peca um novo link em Esqueci minha senha.'
-      : 'Nao foi possivel validar o link. Peca um novo link em Esqueci minha senha.';
+      ? 'Link de senha expirado ou inválido. Peça um novo link em Esqueci minha senha.'
+      : 'Não foi possível validar o link. Peça um novo link em Esqueci minha senha.';
     G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
     await _sbClient.auth.signOut().catch(()=>{});
     limparUrlPerfil();
@@ -257,7 +257,7 @@ async function tratarRetornoPerfilAuth(){
     if(error){
       await carregarBaseAppSeNecessario();
       mostrarLoginPerfil();
-      showToast('Link invalido ou expirado. Tente entrar ou solicite um novo link.');
+      showToast('Link inválido ou expirado. Tente entrar ou solicite um novo link.');
       limparUrlPerfil();
       return {erro:true};
     }
@@ -271,7 +271,7 @@ async function tratarRetornoPerfilAuth(){
 }
 
 async function loginJogadorGoogle(){
-  showToast('Login Google ainda nao esta habilitado no Supabase.');
+  showToast('Login Google ainda não está habilitado no Supabase.');
   return;
   const { error } = await _sbClient.auth.signInWithOAuth({
     provider:'google',
@@ -312,8 +312,8 @@ function abrirDestinoPosLogin(){
 function credenciaisPerfil(){
   const email=(document.getElementById('perfil-email-login').value||'').trim().toLowerCase();
   const password=document.getElementById('perfil-senha-login').value;
-  if(!email || !email.includes('@')){ showToast('Digite um e-mail valido.'); return null; }
-  if(!password || password.length<6){ showToast('Use uma senha com no minimo 6 caracteres.'); return null; }
+  if(!email || !email.includes('@')){ showToast('Digite um e-mail válido.'); return null; }
+  if(!password || password.length<6){ showToast('Use uma senha com no mínimo 6 caracteres.'); return null; }
   return {email,password};
 }
 
@@ -364,7 +364,7 @@ async function criarContaJogadorSenha(){
     const identities=data?.user?.identities;
     if(Array.isArray(identities) && identities.length===0){
       resendOk=await reenviarConfirmacaoCadastro();
-      if(!resendOk) throw (ultimoErro || new Error('Nao foi possivel reenviar confirmacao.'));
+      if(!resendOk) throw (ultimoErro || new Error('Não foi possível reenviar confirmação.'));
     }
   }catch(e){
     ultimoErro=e;
@@ -395,10 +395,10 @@ async function recuperarSenhaJogador(){
   try{
     const { error } = await _sbClient.auth.resetPasswordForEmail(email,{redirectTo:appResetUrl()});
     if(error) throw error;
-    showToast('Se o e-mail existir e o envio nao estiver limitado, voce recebera o link em instantes.');
+    showToast('Se o e-mail existir e o envio não estiver limitado, você receberá o link em instantes.');
   }catch(e){
-    console.error('Falha ao enviar redefinicao:', e);
-    showToast('Falha ao enviar redefinicao: '+msgAuthErro(e));
+    console.error('Falha ao enviar redefinição:', e);
+    showToast('Falha ao enviar redefinição: '+msgAuthErro(e));
   }
   finally{ if(btn){ btn.disabled=false; btn.textContent='Esqueci minha senha'; } }
 }
@@ -460,16 +460,16 @@ async function carregarBaseAppSeNecessario(){
   }catch(e){
     console.error('Erro ao carregar base do app:', e);
     renderJLista();
-    showToast('Nao foi possivel carregar as peladas. Tente atualizar a pagina.');
+    showToast('Não foi possível carregar as peladas. Tente atualizar a página.');
     return false;
   }
 }
 
 async function salvarNovaSenhaJogador(){
   const senha=(document.getElementById('perfil-nova-senha')?.value||'').trim();
-  if(!senha || senha.length<6){ showToast('Use uma senha com no minimo 6 caracteres.'); return; }
+  if(!senha || senha.length<6){ showToast('Use uma senha com no mínimo 6 caracteres.'); return; }
   const { error } = await _sbClient.auth.updateUser({ password:senha });
-  if(error){ showToast('Nao foi possivel salvar a nova senha. Peca outro link.'); return; }
+  if(error){ showToast('Não foi possível salvar a nova senha. Peça outro link.'); return; }
   document.getElementById('perfil-nova-senha').value='';
   G.redefinindoSenha=false;
   limparUrlPerfil();
@@ -513,7 +513,7 @@ async function uploadFotoPerfil(file){
   const { data } = await _sbClient.auth.getSession();
   const user=data && data.session && data.session.user ? data.session.user : null;
   if(!user){ showToast('Entre antes de enviar foto.'); return; }
-  if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de ate 3 MB.'); return; }
+  if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de até 3 MB.'); return; }
   const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
   const path=`${user.id}/${Date.now()}.${ext}`;
   showToast('Enviando foto...');
@@ -553,7 +553,7 @@ async function sairJogador(){
   fecharMenuJogador();
   await _sbClient.auth.signOut().catch(()=>{});
   G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
-  showToast('Sessao encerrada.');
+  showToast('Sessão encerrada.');
   voltarLista();
 }
 

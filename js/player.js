@@ -344,7 +344,7 @@ async function jogadorVai(churrasOpt){
       lsSetNome(nome);
       lsRegistrarConf(p.id, nome);
     }
-    showToast(vaiParaEspera?'Voc\u00ea entrou na lista de espera!':'Presen\u00e7a confirmada!');
+    showToast(vaiParaEspera?'Você entrou na lista de espera!':'Presença confirmada!');
     renderJConf();
   }catch(e){ showToast('Erro ao confirmar.'); }
 }

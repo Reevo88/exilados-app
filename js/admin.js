@@ -373,7 +373,7 @@ async function admAdd(){
   const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=input.value.trim();
   if(!nome){input.focus();return;}
   const n=normNome(nome);
-  if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome ja esta na lista');return;}
+  if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
   const churras = p.temChurras ? (document.querySelector('#adm-churras-sel .churras-pill.active')?.dataset.val || 'jogo') : null;
   const vaiParaEspera = churras !== 'churras' && peladaLotada(p);
   try{
@@ -385,7 +385,7 @@ async function admAdd(){
       p.confirmados.push(novo);
       if(churras !== 'churras') p.jogadores.push({...novo});
     }
-    input.value=''; input.focus(); renderAdmConf(); showToast(vaiParaEspera?'Jogador adicionado a espera!':'Jogador adicionado!');
+    input.value=''; input.focus(); renderAdmConf(); showToast(vaiParaEspera?'Jogador adicionado à espera!':'Jogador adicionado!');
   }catch(e){ showToast('Erro ao adicionar jogador.'); }
 }
 async function togglePago(i){
@@ -576,7 +576,7 @@ function atualizarPreviewJogador(){
 async function uploadFotoJogadorAdm(file){
   if(!file) return;
   if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
-  if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de ate 3 MB.'); return; }
+  if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de até 3 MB.'); return; }
   const id=document.getElementById('jog-id').value || 'novo';
   const nome=document.getElementById('jog-nome').value.trim() || 'jogador';
   const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
