@@ -513,16 +513,32 @@ async function uploadFotoPerfil(file){
   const { data } = await _sbClient.auth.getSession();
   const user=data && data.session && data.session.user ? data.session.user : null;
   if(!user){ showToast('Entre antes de enviar foto.'); return; }
-  if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de até 3 MB.'); return; }
-  const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
-  const path=`${user.id}/${Date.now()}.${ext}`;
-  showToast('Enviando foto...');
-  const { error } = await _sbClient.storage.from('jogador-fotos').upload(path,file,{upsert:true,contentType:file.type||'image/jpeg'});
-  if(error){ showToast('Erro ao enviar foto.'); return; }
-  const { data:pub } = _sbClient.storage.from('jogador-fotos').getPublicUrl(path);
-  document.getElementById('perfil-foto-url').value=pub.publicUrl;
-  atualizarPreviewMeuPerfil();
-  showToast('Foto enviada!');
+  showToast('Preparando foto...');
+  try{
+    const foto=await prepararFotoUpload(file);
+    const path=`${user.id}/${Date.now()}.${extensaoFotoUpload(foto)}`;
+    showToast('Enviando foto...');
+    const { error } = await _sbClient.storage.from('jogador-fotos').upload(path,foto,{upsert:false,contentType:contentTypeFotoUpload(foto)});
+    if(error) throw error;
+    const { data:pub } = _sbClient.storage.from('jogador-fotos').getPublicUrl(path);
+    document.getElementById('perfil-foto-url').value=pub.publicUrl;
+    atualizarPreviewMeuPerfil();
+    showToast('Foto enviada! Toque em Salvar perfil.');
+  }catch(e){
+    console.error('Erro ao enviar foto do perfil:', e);
+    if(erroStoragePolicy(e)){
+      try{
+        const dataUrl=await fotoParaDataUrl(file);
+        document.getElementById('perfil-foto-url').value=dataUrl;
+        atualizarPreviewMeuPerfil();
+        showToast('Foto preparada. Toque em Salvar perfil.');
+        return;
+      }catch(fallbackErr){
+        console.error('Erro no fallback da foto do perfil:', fallbackErr);
+      }
+    }
+    showToast(e?.message || 'Erro ao enviar foto.');
+  }
 }
 
 async function salvarMeuPerfil(){

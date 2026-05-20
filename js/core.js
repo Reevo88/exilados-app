@@ -295,6 +295,93 @@ function fecharZoomFoto(e){
   if(img) img.src='';
   if(modal) modal.classList.remove('open');
 }
+async function prepararFotoUpload(file){
+  if(!file) return null;
+  const tipo=String(file.type||'').toLowerCase();
+  const nome=String(file.name||'foto').toLowerCase();
+  if(tipo.includes('heic') || tipo.includes('heif') || /\.(heic|heif)$/i.test(nome)){
+    throw new Error('Formato HEIC/HEIF ainda nao e suportado. Envie JPG ou PNG.');
+  }
+  if(tipo && !tipo.startsWith('image/')) throw new Error('Envie um arquivo de imagem.');
+  if(file.size <= 3 * 1024 * 1024) return file;
+
+  const img=new Image();
+  const url=URL.createObjectURL(file);
+  try{
+    await new Promise((resolve,reject)=>{
+      img.onload=resolve;
+      img.onerror=()=>reject(new Error('Nao foi possivel ler a imagem.'));
+      img.src=url;
+    });
+  }finally{
+    URL.revokeObjectURL(url);
+  }
+
+  const maxSide=1200;
+  const scale=Math.min(1, maxSide/Math.max(img.naturalWidth||img.width, img.naturalHeight||img.height));
+  const w=Math.max(1, Math.round((img.naturalWidth||img.width)*scale));
+  const h=Math.max(1, Math.round((img.naturalHeight||img.height)*scale));
+  const canvas=document.createElement('canvas');
+  canvas.width=w;
+  canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(img,0,0,w,h);
+
+  async function blobJpeg(q){
+    return await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',q));
+  }
+  let blob=await blobJpeg(.86);
+  for(const q of [.78,.70,.62]){
+    if(blob && blob.size <= 2 * 1024 * 1024) break;
+    blob=await blobJpeg(q);
+  }
+  if(!blob) throw new Error('Nao foi possivel preparar a foto.');
+  if(blob.size > 3 * 1024 * 1024) throw new Error('A foto ficou grande demais. Tente uma imagem menor.');
+  return new File([blob], 'foto-perfil.jpg', {type:'image/jpeg'});
+}
+async function fotoParaDataUrl(file){
+  if(!file) return '';
+  const tipo=String(file.type||'').toLowerCase();
+  const nome=String(file.name||'foto').toLowerCase();
+  if(tipo.includes('heic') || tipo.includes('heif') || /\.(heic|heif)$/i.test(nome)){
+    throw new Error('Formato HEIC/HEIF ainda nao e suportado. Envie JPG ou PNG.');
+  }
+  const img=new Image();
+  const url=URL.createObjectURL(file);
+  try{
+    await new Promise((resolve,reject)=>{
+      img.onload=resolve;
+      img.onerror=()=>reject(new Error('Nao foi possivel ler a imagem.'));
+      img.src=url;
+    });
+  }finally{
+    URL.revokeObjectURL(url);
+  }
+  const maxSide=720;
+  const scale=Math.min(1, maxSide/Math.max(img.naturalWidth||img.width, img.naturalHeight||img.height));
+  const w=Math.max(1, Math.round((img.naturalWidth||img.width)*scale));
+  const h=Math.max(1, Math.round((img.naturalHeight||img.height)*scale));
+  const canvas=document.createElement('canvas');
+  canvas.width=w;
+  canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(img,0,0,w,h);
+  return canvas.toDataURL('image/jpeg', .74);
+}
+function erroStoragePolicy(e){
+  const msg=String(e?.message||e?.error_description||e||'').toLowerCase();
+  return msg.includes('row-level security') || msg.includes('violates row-level') || msg.includes('rls') || msg.includes('policy');
+}
+function extensaoFotoUpload(file){
+  const tipo=String(file?.type||'').toLowerCase();
+  if(tipo.includes('png')) return 'png';
+  if(tipo.includes('webp')) return 'webp';
+  return 'jpg';
+}
+function contentTypeFotoUpload(file){
+  const tipo=String(file?.type||'').toLowerCase();
+  return tipo.startsWith('image/') ? tipo : 'image/jpeg';
+}
 function copiarLink(btn){ const t=document.getElementById('aconf-link').textContent; if(navigator.clipboard)navigator.clipboard.writeText(t); btn.innerHTML='<i class="ti ti-check" style="color:var(--green);"></i>'; setTimeout(()=>btn.innerHTML='<i class="ti ti-copy"></i>',1500); showToast('Link copiado!'); }
 function posBadge(p){ if(!p||p==='?') return `<span class="pos-badge pos-pending">POS</span>`; const c=['GOL','ZAG','LAT','MEI','ATA'].includes(p)?p:'x'; return `<span class="pos-badge pos-${c}">${p}</span>`; }
 function posSelect(j){ const vp=j.pos&&['GOL','ZAG','LAT','MEI','ATA'].includes(j.pos)?j.pos:'?'; return `<select class="pos-select" onchange="setPos('${j.id}',this.value)"><option value="?"${vp==='?'?' selected':''}>POS</option><option value="GOL"${vp==='GOL'?' selected':''}>GOL</option><option value="ZAG"${vp==='ZAG'?' selected':''}>ZAG</option><option value="LAT"${vp==='LAT'?' selected':''}>LAT</option><option value="MEI"${vp==='MEI'?' selected':''}>MEI</option><option value="ATA"${vp==='ATA'?' selected':''}>ATA</option></select>`; }

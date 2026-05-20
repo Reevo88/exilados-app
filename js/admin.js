@@ -614,19 +614,36 @@ function atualizarPreviewJogador(){
 async function uploadFotoJogadorAdm(file){
   if(!file) return;
   if(!G.podeGerirJogadores){ showToast('Acesso restrito ao ADM/Presidente.'); return; }
-  if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de até 3 MB.'); return; }
   const id=document.getElementById('jog-id').value || 'novo';
   const nome=document.getElementById('jog-nome').value.trim() || 'jogador';
-  const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
   const slug=normNome(nome).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'jogador';
-  const path=`adm/${id}-${slug}-${Date.now()}.${ext}`;
-  showToast('Enviando foto...');
-  const { error } = await _sbClient.storage.from('jogador-fotos').upload(path,file,{upsert:true,contentType:file.type||'image/jpeg'});
-  if(error){ showToast('Erro ao enviar foto.'); return; }
-  const { data:pub } = _sbClient.storage.from('jogador-fotos').getPublicUrl(path);
-  document.getElementById('jog-foto').value=pub.publicUrl;
-  atualizarPreviewJogador();
-  showToast('Foto enviada. Salve o jogador para gravar.');
+  const owner=G.usuario?.id || 'adm';
+  showToast('Preparando foto...');
+  try{
+    const foto=await prepararFotoUpload(file);
+    const path=`${owner}/adm-${id}-${slug}-${Date.now()}.${extensaoFotoUpload(foto)}`;
+    showToast('Enviando foto...');
+    const { error } = await _sbClient.storage.from('jogador-fotos').upload(path,foto,{upsert:false,contentType:contentTypeFotoUpload(foto)});
+    if(error) throw error;
+    const { data:pub } = _sbClient.storage.from('jogador-fotos').getPublicUrl(path);
+    document.getElementById('jog-foto').value=pub.publicUrl;
+    atualizarPreviewJogador();
+    showToast('Foto enviada. Salve o jogador para gravar.');
+  }catch(e){
+    console.error('Erro ao enviar foto do jogador:', e);
+    if(erroStoragePolicy(e)){
+      try{
+        const dataUrl=await fotoParaDataUrl(file);
+        document.getElementById('jog-foto').value=dataUrl;
+        atualizarPreviewJogador();
+        showToast('Foto preparada. Salve o jogador para gravar.');
+        return;
+      }catch(fallbackErr){
+        console.error('Erro no fallback da foto do jogador:', fallbackErr);
+      }
+    }
+    showToast(e?.message || 'Erro ao enviar foto.');
+  }
 }
 function novoJogadorAdm(){
   preencherFormJogador(null);

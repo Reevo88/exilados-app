@@ -207,6 +207,126 @@ function apelidoJogadorLogado(){
   return (G.jogadorLogado && G.jogadorLogado.apelido ? G.jogadorLogado.apelido : '').trim();
 }
 
+// ==========================================
+// JOGADOR - PELADEIROS (somente leitura)
+// ==========================================
+let peladeirosSort = 'apelido';
+
+function peladeiroIniciais(j){
+  const base=(j.apelido||j.nome||'?').trim();
+  return escHtml((base[0]||'?').toUpperCase());
+}
+
+function peladeiroInstagram(v){
+  return String(v||'').trim().replace(/^@+/,'').replace(/\s+/g,'');
+}
+
+function peladeiroPrimeiroNome(j){
+  return String(j.nome||'').trim().split(/\s+/)[0] || 'Exilado';
+}
+
+function peladeiroIdade(j){
+  const raw=String(j.data_nascimento||'');
+  const m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m) return '';
+  const nasc=new Date(`${m[1]}-${m[2]}-${m[3]}T12:00:00`);
+  if(Number.isNaN(nasc.getTime())) return '';
+  const hoje=new Date();
+  let idade=hoje.getFullYear()-nasc.getFullYear();
+  const jaFezAniversario=(hoje.getMonth()>nasc.getMonth()) || (hoje.getMonth()===nasc.getMonth() && hoje.getDate()>=nasc.getDate());
+  if(!jaFezAniversario) idade--;
+  return idade>0 && idade<120 ? `${idade} anos` : '';
+}
+
+function peladeiroEhAdm(j){
+  const perfil=String(j.perfil_app||'').toLowerCase();
+  return ['adm','presidente'].includes(perfil);
+}
+
+function setPeladeirosSort(tipo){
+  peladeirosSort = tipo === 'nome' ? 'nome' : 'apelido';
+  renderPeladeirosLista();
+}
+
+function atualizarPeladeirosSortUI(){
+  const btnApelido=document.getElementById('peladeiros-sort-apelido');
+  const btnNome=document.getElementById('peladeiros-sort-nome');
+  if(btnApelido) btnApelido.classList.toggle('active',peladeirosSort==='apelido');
+  if(btnNome) btnNome.classList.toggle('active',peladeirosSort==='nome');
+}
+
+function chaveOrdenacaoPeladeiro(j){
+  const prim = peladeirosSort === 'nome' ? j.nome : (j.apelido||j.nome);
+  const sec = peladeirosSort === 'nome' ? (j.apelido||'') : (j.nome||'');
+  return [normNome(prim||''), normNome(sec||'')];
+}
+
+async function abrirPeladeirosPublico(){
+  fecharMenuJogador();
+  goTo('s-j-peladeiros');
+  await carregarPeladeirosPublico();
+}
+
+async function carregarPeladeirosPublico(){
+  const el=document.getElementById('peladeiros-lista');
+  if(el) el.innerHTML='<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i>Carregando peladeiros</div>';
+  try{
+    G.jogadores=await sbFetch('/jogadores?select=id,nome,apelido,instagram,foto_url,posicao_favorita,modalidade,perfil_app,data_nascimento,ativo&order=apelido.asc');
+    renderPeladeirosLista();
+  }catch(e){
+    if(el) el.innerHTML='<div class="empty"><i class="ti ti-user-x"></i>Nao foi possivel carregar os peladeiros</div>';
+  }
+}
+
+function renderPeladeirosLista(){
+  const el=document.getElementById('peladeiros-lista'); if(!el)return;
+  atualizarPeladeirosSortUI();
+  const busca=normNome(document.getElementById('peladeiros-busca')?.value||'');
+  const ativos=(G.jogadores||[]).filter(j=>j.ativo!==false);
+  const total=document.getElementById('peladeiros-total');
+  if(total) total.textContent=ativos.length;
+  const arr=ativos.filter(j=>{
+    const texto=normNome([j.nome,j.apelido,j.instagram,j.posicao_favorita,j.modalidade].filter(Boolean).join(' '));
+    return !busca || texto.includes(busca);
+  }).sort((a,b)=>{
+    const ka=chaveOrdenacaoPeladeiro(a);
+    const kb=chaveOrdenacaoPeladeiro(b);
+    return ka[0].localeCompare(kb[0],'pt-BR') || ka[1].localeCompare(kb[1],'pt-BR');
+  });
+  if(!arr.length){ el.innerHTML='<div class="empty"><i class="ti ti-users"></i>Nenhum peladeiro encontrado</div>'; return; }
+  el.innerHTML=arr.map((j,i)=>{
+    const insta=peladeiroInstagram(j.instagram);
+    const foto=j.foto_url ? `<img src="${escHtml(j.foto_url)}" alt="" />` : peladeiroIniciais(j);
+    const apelido=(j.apelido||j.nome||'Peladeiro').toUpperCase();
+    const primeiroNome=peladeiroPrimeiroNome(j);
+    const idade=peladeiroIdade(j);
+    const linhaNome=[escHtml(primeiroNome), idade ? escHtml(idade) : ''].filter(Boolean).join(' <span class="peladeiro-sep">|</span> ');
+    const pos=escHtml(j.posicao_favorita||'POS');
+    const modalidade=j.modalidade==='mensalista'?'Mensalista':'Avulso';
+    const zoom=j.foto_url?'abrirZoomFotoUrl(this.dataset.url)':'return false';
+    const tema=i%2===0?'blue':'red';
+    const adm=peladeiroEhAdm(j)?'<span class="peladeiro-chip peladeiro-chip-adm"><i class="ti ti-shield"></i> ADM</span>':'';
+    const apelidoLen=apelido.length;
+    const apelidoSize=apelidoLen>13?'xlong':apelidoLen>10?'long':apelidoLen>7?'medium':'short';
+    return `<div class="peladeiro-card peladeiro-card-${tema} peladeiro-name-${apelidoSize}">
+      <div class="peladeiro-sash"></div>
+      <div class="peladeiro-field" aria-hidden="true"><span></span><span></span><span></span></div>
+      <button class="peladeiro-avatar" type="button" data-url="${escHtml(j.foto_url||'')}" onclick="${zoom}" title="${j.foto_url?'Ampliar foto':'Sem foto cadastrada'}">${foto}</button>
+      <div class="peladeiro-info">
+        <div class="peladeiro-brand">EXILADOS DA BOLA</div>
+        <div class="peladeiro-name" title="${escHtml(apelido)}">${escHtml(apelido)}</div>
+        <div class="peladeiro-real-name">${linhaNome}</div>
+        <div class="peladeiro-meta">
+          <span class="peladeiro-chip peladeiro-chip-pos">${pos}</span>
+          <span class="peladeiro-chip peladeiro-chip-mod"><i class="ti ti-crown"></i> ${modalidade}</span>
+          ${adm}
+        </div>
+      </div>
+      <img class="peladeiro-logo" src="logo.png" alt="Exilados da Bola"/>
+    </div>`;
+  }).join('');
+}
+
 function abrirJogador(id){
   G.pelada=G.peladas.find(p=>String(p.id)===String(id));
   if(peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada)){
