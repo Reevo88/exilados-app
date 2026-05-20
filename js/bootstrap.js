@@ -5,6 +5,11 @@
 // ==========================================
 // INIT
 // ==========================================
+window.__exiladosAuthUrlSnapshot = {
+  hash: window.location.hash || '',
+  search: window.location.search || '',
+};
+
 window.addEventListener('DOMContentLoaded', async () => {
   limparHashVazio();
   inicializarAuthRecoveryListener();
@@ -13,10 +18,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const resetParam=params.get('reset');
   const temRetornoAuth=temRetornoPerfilAuth();
   const temTokenRecovery=temTokenRecoveryAuth();
-
-  if(perfilParam && !temRetornoAuth && !temTokenRecovery && !erroRetornoPerfilAuth()){
-    limparUrlPerfil();
-  }
 
   if(erroRetornoPerfilAuth()){
     atualizarSaudacaoLogin();
@@ -32,6 +33,21 @@ window.addEventListener('DOMContentLoaded', async () => {
   if(temRetornoAuth){
     await abrirPerfilJogador(true);
     return;
+  }
+
+  if(perfilParam || resetParam){
+    await abrirPerfilJogador(true);
+    return;
+  }
+
+  if(G.usuario && !G.isAdm){
+    await carregarPerfilJogador({mostrarFormulario:false});
+    await restaurarSessaoAdm();
+    if(!perfilJogadorCompleto(G.jogadorLogado)){
+      await carregarPerfilJogador({mostrarFormulario:true});
+      goTo('s-j-perfil');
+      return;
+    }
   }
 
   // Carregar peladas do Supabase
@@ -56,11 +72,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible') verificarEncerramentoAutomaticoUI();
   });
-
-  if(perfilParam || resetParam){
-    await abrirPerfilJogador(true);
-    return;
-  }
 
   if(pSlug){
     const decodedId=decodeURIComponent(pSlug);

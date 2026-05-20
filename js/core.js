@@ -11,6 +11,21 @@ const SUPABASE_KEY = 'sb_publishable_2eq7EqQ1WW9auTHIueYecA_zqfwDKmG';
 const APP_BASE_URL = 'https://exiladosdabola.com';
 const SUPER_ADMIN_EMAIL = 'mr.guima@gmail.com';
 
+let G = {
+  isAdm:   false,
+  perfil:  'jogador',  // 'jogador' | 'full' | 'escalador'
+  perfilApp: 'jogador',
+  superAdmin: false,
+  usuario: null,
+  jogadorLogado: null,
+  peladas: [],
+  jogadores: [],
+  pelada:  null,
+  meuNome: '',
+  editandoPeladaId: null,
+};
+let uid = 100, drag = null;
+
 async function getSupabaseAccessToken(){
   try{
     const { data } = await _sbClient.auth.getSession();
@@ -128,7 +143,6 @@ const _sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 // Mapeamento email -> perfil (os emails são criados no painel do Supabase)
 // Formato: adm@exiladosdabola.com / presidente@exiladosdabola.com / escalador@exiladosdabola.com
-// Senhas iniciais mantidas: adm=321987 | presidente=#dede | escalador=#escalador
 const PERFIL_POR_EMAIL = {
   'mr.guima@gmail.com':            'full',
   'luizfelipegarcia25@gmail.com':  'full',
@@ -145,28 +159,13 @@ function perfilPorEmail(email){
   return PERFIL_POR_EMAIL[String(email||'').toLowerCase()] || null;
 }
 
-async function restaurarSessaoAdm(){
-  try{
-    const { data } = await _sbClient.auth.getSession();
-    const email = data && data.session && data.session.user ? data.session.user.email : null;
-    const perfil = perfilPorEmail(email);
-    G.isAdm = !!perfil;
-    G.perfil = perfil || 'full';
-    return G.isAdm;
-  }catch(e){
-    G.isAdm = false;
-    G.perfil = 'full';
-    return false;
-  }
-}
-
 function perfilInterno(perfilApp){
   if(perfilApp==='adm' || perfilApp==='presidente') return 'full';
   if(perfilApp==='escalador') return 'escalador';
   return 'jogador';
 }
 
-async function restaurarPermissoesUsuario(){
+async function restaurarSessaoAdm(){
   try{
     const { data } = await _sbClient.auth.getSession();
     const user = data && data.session && data.session.user ? data.session.user : null;
@@ -204,23 +203,6 @@ async function restaurarPermissoesUsuario(){
     return false;
   }
 }
-
-restaurarSessaoAdm = restaurarPermissoesUsuario;
-
-let G = {
-  isAdm:   false,
-  perfil:  'jogador',  // 'jogador' | 'full' | 'escalador'
-  perfilApp: 'jogador',
-  superAdmin: false,
-  usuario: null,
-  jogadorLogado: null,
-  peladas: [],
-  jogadores: [],
-  pelada:  null,
-  meuNome: '',
-  editandoPeladaId: null,
-};
-let uid = 100, drag = null;
 
 // Dados carregados do Supabase
 

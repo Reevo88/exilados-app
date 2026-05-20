@@ -134,8 +134,14 @@ async function abrirPerfilJogador(redirecionarAdm=false){
   goTo('s-j-perfil');
 }
 
+function perfilAuthSearch(){
+  const snap=window.__exiladosAuthUrlSnapshot;
+  return new URLSearchParams((snap?.search || window.location.search || '').replace(/^\?/,''));
+}
+
 function perfilAuthHash(){
-  return new URLSearchParams((window.location.hash||'').replace(/^#/,''));
+  const snap=window.__exiladosAuthUrlSnapshot;
+  return new URLSearchParams((snap?.hash || window.location.hash || '').replace(/^#/,''));
 }
 
 function erroRetornoPerfilAuth(){
@@ -144,19 +150,27 @@ function erroRetornoPerfilAuth(){
 }
 
 function temRetornoPerfilAuth(){
-  const params=new URLSearchParams(window.location.search);
+  const params=perfilAuthSearch();
   const hash=perfilAuthHash();
   return !!(params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('error') || hash.get('error_code') || hash.get('type'));
 }
 
 function temTokenRecoveryAuth(){
-  const params=new URLSearchParams(window.location.search);
+  const params=perfilAuthSearch();
   const hash=perfilAuthHash();
   return !!(params.get('reset') || hash.get('access_token') || hash.get('refresh_token') || hash.get('type')==='recovery');
 }
 
 function appRootUrl(){
   return window.location.origin;
+}
+
+function appPerfilUrl(){
+  return `${appRootUrl()}?perfil=1`;
+}
+
+function appResetUrl(){
+  return `${appRootUrl()}?reset=1`;
 }
 
 function limparHashVazio(){
@@ -166,6 +180,7 @@ function limparHashVazio(){
 }
 
 function limparUrlPerfil(destino=appRootUrl()){
+  window.__exiladosAuthUrlSnapshot = { hash:'', search:'' };
   if(window.history && window.history.replaceState) window.history.replaceState(null,'',destino);
   limparHashVazio();
 }
@@ -209,7 +224,7 @@ function inicializarAuthRecoveryListener(){
 
 async function tratarRetornoPerfilAuth(){
   const hash=perfilAuthHash();
-  const params=new URLSearchParams(window.location.search);
+  const params=perfilAuthSearch();
   const erro=erroRetornoPerfilAuth();
   if(!G.redefinindoSenha) G.redefinindoSenha=false;
 
@@ -256,6 +271,8 @@ async function tratarRetornoPerfilAuth(){
 }
 
 async function loginJogadorGoogle(){
+  showToast('Login Google ainda nao esta habilitado no Supabase.');
+  return;
   const { error } = await _sbClient.auth.signInWithOAuth({
     provider:'google',
     options:{ redirectTo:appRootUrl() },
@@ -325,42 +342,39 @@ async function criarContaJogadorSenha(){
   const cred=credenciaisPerfil(); if(!cred)return;
   const btn=document.querySelector('#perfil-login-card .btn-outline[onclick="criarContaJogadorSenha()"]');
   if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i> Enviando...'; }
-  let signupOk=false;
   let resendOk=false;
-  let precisaReenviar=false;
   let ultimoErro=null;
   async function reenviarConfirmacaoCadastro(){
     if(!_sbClient?.auth?.resend) return false;
     const { error } = await _sbClient.auth.resend({
       type:'signup',
       email:cred.email,
-      options:{ emailRedirectTo:appRootUrl() },
+      options:{ emailRedirectTo:appPerfilUrl() },
     }).catch(err=>({error:err}));
     if(error) ultimoErro=error;
     return !error;
   }
   try{
-  const { data, error } = await _sbClient.auth.signUp({
-    email:cred.email,
-    password:cred.password,
-    options:{ emailRedirectTo:appRootUrl() },
-  });
+    const { data, error } = await _sbClient.auth.signUp({
+      email:cred.email,
+      password:cred.password,
+      options:{ emailRedirectTo:appPerfilUrl() },
+    });
     if(error) throw error;
-    signupOk=true;
     const identities=data?.user?.identities;
-    precisaReenviar=Array.isArray(identities) && identities.length===0;
+    if(Array.isArray(identities) && identities.length===0){
+      resendOk=await reenviarConfirmacaoCadastro();
+      if(!resendOk) throw (ultimoErro || new Error('Nao foi possivel reenviar confirmacao.'));
+    }
   }catch(e){
     ultimoErro=e;
-    precisaReenviar=true;
-  }
-  if(precisaReenviar || signupOk){
-      resendOk=await reenviarConfirmacaoCadastro();
-      if(!resendOk){
-        showToast('Falha ao enviar cadastro: '+msgAuthErro(ultimoErro));
-        console.error('Falha ao enviar/reenviar cadastro:', ultimoErro);
-        if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
-        return;
-      }
+    resendOk=await reenviarConfirmacaoCadastro();
+    if(!resendOk){
+      showToast('Falha ao enviar cadastro: '+msgAuthErro(ultimoErro));
+      console.error('Falha ao enviar/reenviar cadastro:', ultimoErro);
+      if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
+      return;
+    }
   }
   await restaurarSessaoAdm();
   await carregarPerfilJogador({mostrarFormulario:false});
@@ -379,7 +393,7 @@ async function recuperarSenhaJogador(){
   const btn=document.getElementById('perfil-btn-esqueci');
   if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
   try{
-    const { error } = await _sbClient.auth.resetPasswordForEmail(email,{redirectTo:appRootUrl()});
+    const { error } = await _sbClient.auth.resetPasswordForEmail(email,{redirectTo:appResetUrl()});
     if(error) throw error;
     showToast('Se o e-mail existir e o envio nao estiver limitado, voce recebera o link em instantes.');
   }catch(e){
