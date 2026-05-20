@@ -154,11 +154,12 @@ function temTokenRecoveryAuth(){
 }
 
 function appRootUrl(){
-  return window.location.origin + '/';
+  return window.location.origin;
 }
 
 function limparUrlPerfil(destino=appRootUrl()){
   if(window.history && window.history.replaceState) window.history.replaceState(null,'',destino);
+  if(window.location.hash==='#') window.history.replaceState(null,'',destino);
 }
 
 function mostrarLoginPerfil(){
