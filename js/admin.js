@@ -553,10 +553,12 @@ function renderJogadoresLista(){
     const pos=j.posicao_favorita?`<span>${posBadge(j.posicao_favorita)}</span>`:'';
     const contato=j.telefone?`<span><i class="ti ti-brand-whatsapp" style="font-size:11px;"></i> ${escHtml(j.telefone)}</span>`:'';
     const foto=j.foto_url ? `<img src="${escHtml(j.foto_url)}" alt="" />` : jogadorIniciais(j);
+    const nomePrincipal=j.apelido||j.nome||'Jogador';
+    const nomeCompleto=j.apelido&&j.nome&&normNome(j.nome)!==normNome(j.apelido)?` <span>${escHtml(j.nome)}</span>`:'';
     return `<div class="jog-row" onclick="editarJogadorAdm('${j.id}')">
       <div class="jog-avatar">${foto}</div>
       <div class="jog-info">
-        <div class="jog-name">${escHtml(j.nome)}${j.apelido?` <span>${escHtml(j.apelido)}</span>`:''}</div>
+        <div class="jog-name">${escHtml(nomePrincipal)}${nomeCompleto}</div>
         <div class="jog-meta">${[insta,contato,pos].filter(Boolean).join('')}</div>
       </div>
       <div class="jog-badges">${jogadorBadge(j)}</div>
@@ -624,10 +626,12 @@ async function salvarJogadorAdm(){
   if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
   const id=document.getElementById('jog-id').value;
   const nome=document.getElementById('jog-nome').value.trim();
+  const apelido=document.getElementById('jog-apelido').value.trim();
   if(!nome){ document.getElementById('jog-nome').focus(); showToast('Informe o nome do jogador.'); return; }
+  if(!apelido){ document.getElementById('jog-apelido').focus(); showToast('Informe o apelido do jogador.'); return; }
   const fields={
     nome,
-    apelido:document.getElementById('jog-apelido').value.trim()||null,
+    apelido,
     instagram:jogadorInstagram(document.getElementById('jog-instagram').value)||null,
     email:document.getElementById('jog-email').value.trim()||null,
     telefone:document.getElementById('jog-telefone').value.trim()||null,
