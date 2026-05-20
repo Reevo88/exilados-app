@@ -322,32 +322,36 @@ async function criarContaJogadorSenha(){
   if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i> Enviando...'; }
   let signupOk=false;
   let resendOk=false;
+  let precisaReenviar=false;
+  async function reenviarConfirmacaoCadastro(){
+    if(!_sbClient?.auth?.resend) return false;
+    const { error } = await _sbClient.auth.resend({
+      type:'signup',
+      email:cred.email,
+      options:{ emailRedirectTo:appRootUrl() },
+    }).catch(err=>({error:err}));
+    return !error;
+  }
   try{
-  const { error } = await _sbClient.auth.signUp({
+  const { data, error } = await _sbClient.auth.signUp({
     email:cred.email,
     password:cred.password,
     options:{ emailRedirectTo:appRootUrl() },
   });
     if(error) throw error;
     signupOk=true;
+    const identities=data?.user?.identities;
+    precisaReenviar=Array.isArray(identities) && identities.length===0;
   }catch(e){
-    if(_sbClient?.auth?.resend){
-      const { error: resendError } = await _sbClient.auth.resend({
-        type:'signup',
-        email:cred.email,
-        options:{ emailRedirectTo:appRootUrl() },
-      }).catch(err=>({error:err}));
-      if(resendError){
+    precisaReenviar=true;
+  }
+  if(precisaReenviar){
+      resendOk=await reenviarConfirmacaoCadastro();
+      if(!resendOk){
         showToast('Nao foi possivel enviar o e-mail de cadastro agora.');
         if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
         return;
       }
-      resendOk=true;
-    }else{
-      showToast('Erro ao criar conta.');
-      if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
-      return;
-    }
   }
   await restaurarSessaoAdm();
   await carregarPerfilJogador({mostrarFormulario:false});
