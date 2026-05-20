@@ -460,6 +460,36 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 /* -- ADM JOGADORES ------------------------- */
 #s-adm-jogadores .page-body { padding-left:12px; padding-right:12px; }
 .player-directory-card { padding:12px 14px; margin-bottom:10px; }
+.jog-sort-control {
+  display:grid;
+  grid-template-columns:auto 1fr 1fr;
+  align-items:center;
+  gap:6px;
+  margin:-2px 0 10px;
+  padding:3px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+}
+.jog-sort-control span {
+  padding:0 8px;
+  font-size:11px;
+  font-weight:700;
+  color:var(--text2);
+  white-space:nowrap;
+}
+.jog-sort-control button {
+  border:none;
+  border-radius:8px;
+  background:transparent;
+  color:var(--text2);
+  font-family:'Inter',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  padding:7px 8px;
+  cursor:pointer;
+}
+.jog-sort-control button.active { background:var(--blue); color:var(--cream); }
 .player-directory-card .invite-whatsapp-btn {
   margin-top:8px;
   padding:9px;

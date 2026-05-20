@@ -227,6 +227,11 @@
     <button class="btn btn-danger" onclick="goTo('s-adm-home');renderAdmHome();" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
     <div class="card player-directory-card">
       <div class="field" style="margin-bottom:10px;"><input type="text" id="jog-busca" placeholder="Buscar jogador" autocomplete="off" oninput="renderJogadoresLista()"/></div>
+      <div class="jog-sort-control" aria-label="Ordenação da lista de jogadores">
+        <span>Ordenar por</span>
+        <button class="active" id="jog-sort-apelido" onclick="setJogadoresSort('apelido')">Apelido</button>
+        <button id="jog-sort-nome" onclick="setJogadoresSort('nome')">Nome</button>
+      </div>
       <button class="btn btn-primary" onclick="novoJogadorAdm()" style="padding:9px;font-size:13px;"><i class="ti ti-user-plus"></i> Novo jogador</button>
       <button class="btn invite-whatsapp-btn" onclick="compartilharConviteCadastroApp()"><i class="ti ti-brand-whatsapp"></i> Convidar pelo WhatsApp</button>
     </div>
