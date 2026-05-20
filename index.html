@@ -50,7 +50,7 @@
 <div class="screen" id="s-j-perfil">
   <div class="header">
     <img class="logo-img" alt="Exilados da Bola" src="logo.png" onclick="voltarLista()" style="cursor:pointer;"/>
-    <div class="htext" style="text-align:center;"><h1>ENTRAR OU CADASTRAR</h1><p>Acesso do Jogador</p></div>
+    <div class="htext" style="text-align:center;"><h1>ENTRAR OU CADASTRAR</h1><p>Acesso do peladeiro</p></div>
   </div>
   <div class="page-body">
     <button class="btn btn-danger" id="perfil-btn-voltar-lista" onclick="voltarLista()" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
@@ -62,8 +62,8 @@
       <button class="btn btn-primary" onclick="entrarJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-lock-open"></i> Entrar</button>
       <button class="btn btn-outline" onclick="criarContaJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-user-plus"></i> Criar conta</button>
       <button id="perfil-btn-esqueci" onclick="recuperarSenhaJogador()" style="width:100%;background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);padding:4px 8px;font-family:'Inter',sans-serif;">Esqueci minha senha</button>
-      <div style="font-size:12px;color:var(--text2);line-height:1.35;margin-top:10px;">Você ainda pode confirmar presença sem login.</div>
     </div>
+    <div id="perfil-login-readonly-note" class="readonly-badge"><i class="ti ti-eye" style="font-size:14px;"></i> Você ainda pode confirmar presença sem login.</div>
     <div id="perfil-reset-card" class="card" style="display:none;">
       <div class="card-title">Criar nova senha</div>
       <div class="field"><label>Nova senha</label><input type="password" id="perfil-nova-senha" placeholder="mínimo 6 caracteres" autocomplete="new-password"/></div>
