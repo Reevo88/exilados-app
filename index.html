@@ -259,6 +259,7 @@
         <div class="field"><label>Status</label><select id="jog-ativo"><option value="true">Ativo</option><option value="false">Inativo</option></select></div>
       </div>
       <div class="field" id="jog-perfil-wrap" style="display:none;"><label>Perfil do app</label><select id="jog-perfil-app"><option value="jogador">Jogador</option><option value="escalador">Escalador</option><option value="presidente">Presidente</option><option value="adm">ADM</option></select></div>
+      <button id="jog-excluir-btn" class="btn btn-danger player-delete-btn" onclick="excluirJogadorAdm()" style="display:none;"><i class="ti ti-trash"></i> Excluir jogador</button>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <button class="btn btn-outline" onclick="fecharFormJogador()">Cancelar</button>
         <button class="btn btn-primary" onclick="salvarJogadorAdm()"><i class="ti ti-device-floppy"></i> Salvar</button>
