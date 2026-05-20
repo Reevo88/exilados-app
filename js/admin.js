@@ -493,6 +493,21 @@ function compartilharWhatsApp(){
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
+function compartilharConviteCadastroApp(){
+  const msg=`Fala, Exilado! ⚽
+
+Agora o cadastro dos jogadores está sendo feito pelo app oficial do Exilados da Bola.
+
+Acesse o link abaixo, crie sua conta e complete seu perfil com nome, apelido, posição e foto:
+
+${appPerfilUrl()}
+
+Depois do cadastro, você já consegue confirmar presença nas próximas peladas com seu usuário identificado.
+
+Bora! 🔴⚫`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
 // ==========================================
 // ADM - JOGADORES
 // ==========================================
