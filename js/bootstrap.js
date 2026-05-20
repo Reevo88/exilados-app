@@ -21,7 +21,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   if(erroRetornoPerfilAuth()){
     atualizarSaudacaoLogin();
     G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
-    mostrarLoginPerfil();
     await tratarRetornoPerfilAuth();
     return;
   }
@@ -30,7 +29,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   atualizarSaudacaoLogin();
   prepararNovaPelada();
 
-  if(temTokenRecovery){
+  if(temRetornoAuth){
     await abrirPerfilJogador(true);
     return;
   }

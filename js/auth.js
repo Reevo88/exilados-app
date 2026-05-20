@@ -129,6 +129,7 @@ async function abrirPerfilJogador(redirecionarAdm=false){
   await carregarPerfilJogador({mostrarFormulario:!redirecionarAdm});
   await restaurarSessaoAdm();
   if(redirecionarAdm && !G.redefinindoSenha && abrirDestinoPosLogin()) return;
+  if(redirecionarAdm) await carregarPerfilJogador({mostrarFormulario:true});
   goTo('s-j-perfil');
 }
 
@@ -150,7 +151,7 @@ function temRetornoPerfilAuth(){
 function temTokenRecoveryAuth(){
   const params=new URLSearchParams(window.location.search);
   const hash=perfilAuthHash();
-  return !!(params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('type')==='recovery');
+  return !!(params.get('reset') || hash.get('access_token') || hash.get('refresh_token') || hash.get('type')==='recovery');
 }
 
 function appRootUrl(){
@@ -236,7 +237,15 @@ async function tratarRetornoPerfilAuth(){
   }
 
   if(params.get('code') && _sbClient?.auth?.exchangeCodeForSession){
-    await _sbClient.auth.exchangeCodeForSession(params.get('code')).catch(()=>{});
+    const { error } = await _sbClient.auth.exchangeCodeForSession(params.get('code')).catch(e=>({error:e}));
+    if(error){
+      await carregarBaseAppSeNecessario();
+      mostrarLoginPerfil();
+      showToast('Link invalido ou expirado. Tente entrar ou solicite um novo link.');
+      limparUrlPerfil();
+      return {erro:true};
+    }
+    if(!G.redefinindoSenha) limparUrlPerfil();
   }
 
   if(hash.get('type')==='recovery'){
