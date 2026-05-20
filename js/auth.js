@@ -114,6 +114,7 @@ function fecharMenuJogador(e){ if(!e||e.target===document.getElementById('player
 
 async function abrirPerfilJogador(redirecionarAdm=false){
   fecharMenuJogador();
+  const abrirEdicaoPerfil = redirecionarAdm && !!G.usuario && !temRetornoPerfilAuth();
   const retornoCadastro=temRetornoPerfilAuth() && !temTokenRecoveryAuth() && !erroRetornoPerfilAuth();
   const retornoAuth=await tratarRetornoPerfilAuth();
   if(retornoAuth?.erro){
@@ -126,10 +127,10 @@ async function abrirPerfilJogador(redirecionarAdm=false){
     return;
   }
   await restaurarSessaoAdm();
-  if(redirecionarAdm && !retornoCadastro && !G.redefinindoSenha && abrirDestinoUsuarioLogado()) return;
-  await carregarPerfilJogador({mostrarFormulario:!redirecionarAdm});
+  if(!abrirEdicaoPerfil && redirecionarAdm && !retornoCadastro && !G.redefinindoSenha && abrirDestinoUsuarioLogado()) return;
+  await carregarPerfilJogador({mostrarFormulario:abrirEdicaoPerfil || !redirecionarAdm});
   await restaurarSessaoAdm();
-  if(redirecionarAdm && !retornoCadastro && !G.redefinindoSenha && abrirDestinoPosLogin()) return;
+  if(!abrirEdicaoPerfil && redirecionarAdm && !retornoCadastro && !G.redefinindoSenha && abrirDestinoPosLogin()) return;
   if(redirecionarAdm) await carregarPerfilJogador({mostrarFormulario:true});
   goTo('s-j-perfil');
 }
