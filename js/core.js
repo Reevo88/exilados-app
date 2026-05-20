@@ -16,6 +16,7 @@ let G = {
   perfil:  'jogador',  // 'jogador' | 'full' | 'escalador'
   perfilApp: 'jogador',
   superAdmin: false,
+  podeGerirJogadores: false,
   usuario: null,
   jogadorLogado: null,
   peladas: [],
@@ -190,6 +191,7 @@ async function restaurarSessaoAdm(){
     G.perfil = perfil;
     G.perfilApp = perfilApp;
     G.superAdmin = email === SUPER_ADMIN_EMAIL && perfilApp === 'adm';
+    G.podeGerirJogadores = perfilApp === 'adm' || perfilApp === 'presidente';
     G.usuario = user;
     G.jogadorLogado = jogador;
     return G.isAdm;
@@ -198,6 +200,7 @@ async function restaurarSessaoAdm(){
     G.perfil = 'jogador';
     G.perfilApp = 'jogador';
     G.superAdmin = false;
+    G.podeGerirJogadores = false;
     G.usuario = null;
     G.jogadorLogado = null;
     return false;

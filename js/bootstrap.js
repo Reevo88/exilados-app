@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if(erroRetornoPerfilAuth()){
     atualizarSaudacaoLogin();
-    G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
+    G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null;
     await tratarRetornoPerfilAuth();
     return;
   }

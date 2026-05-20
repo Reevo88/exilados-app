@@ -67,7 +67,7 @@ async function esqueceuSenha(){
 }
 
 async function sair(){
-  G.isAdm = false; G.perfil = 'jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
+  G.isAdm = false; G.perfil = 'jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null;
   fecharMenu();
   await _sbClient.auth.signOut().catch(()=>{});
   await voltarLista();
@@ -76,7 +76,7 @@ function atualizarOpcaoPerfilAdm(){
   const nome=document.getElementById('adm-profile-option-name');
   const desc=document.getElementById('adm-profile-option-desc');
   const icon=document.getElementById('adm-profile-option-icon');
-  const geral=!!G.superAdmin;
+  const geral=!!G.podeGerirJogadores;
   if(nome) nome.textContent=geral?'Jogadores':'Meu Perfil';
   if(desc) desc.textContent=geral?'Cadastro, fotos e perfis':'Editar meu perfil';
   if(icon) icon.className=geral?'ti ti-users-group':'ti ti-user-circle';
@@ -88,7 +88,7 @@ function abrirMenu(){
 function fecharMenu(e){ if(!e||e.target===document.getElementById('adm-menu')) document.getElementById('adm-menu').classList.remove('open'); }
 async function abrirOpcaoPerfilAdm(){
   fecharMenu();
-  if(G.superAdmin) return abrirJogadoresAdm();
+  if(G.podeGerirJogadores) return abrirJogadoresAdm();
   await abrirPerfilJogador(false);
 }
 
@@ -232,7 +232,7 @@ async function tratarRetornoPerfilAuth(){
     const msg=erro==='otp_expired'
       ? 'Link de senha expirado ou inválido. Peça um novo link em Esqueci minha senha.'
       : 'Não foi possível validar o link. Peça um novo link em Esqueci minha senha.';
-    G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
+    G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null;
     await _sbClient.auth.signOut().catch(()=>{});
     limparUrlPerfil();
     await carregarBaseAppSeNecessario();
@@ -552,7 +552,7 @@ async function salvarMeuPerfil(){
 async function sairJogador(){
   fecharMenuJogador();
   await _sbClient.auth.signOut().catch(()=>{});
-  G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;
+  G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null;
   showToast('Sessão encerrada.');
   voltarLista();
 }

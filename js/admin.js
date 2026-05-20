@@ -542,7 +542,7 @@ function chaveOrdenacaoJogador(j){
 }
 async function abrirJogadoresAdm(){
   fecharMenu();
-  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  if(!G.podeGerirJogadores){ showToast('Acesso restrito ao ADM/Presidente.'); return; }
   goTo('s-adm-jogadores');
   await carregarJogadoresAdm();
 }
@@ -613,7 +613,7 @@ function atualizarPreviewJogador(){
 }
 async function uploadFotoJogadorAdm(file){
   if(!file) return;
-  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  if(!G.podeGerirJogadores){ showToast('Acesso restrito ao ADM/Presidente.'); return; }
   if(file.size > 3 * 1024 * 1024){ showToast('Use uma foto de até 3 MB.'); return; }
   const id=document.getElementById('jog-id').value || 'novo';
   const nome=document.getElementById('jog-nome').value.trim() || 'jogador';
@@ -644,7 +644,7 @@ function fecharFormJogador(){
   document.getElementById('jog-form-card').style.display='none';
 }
 async function salvarJogadorAdm(){
-  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  if(!G.podeGerirJogadores){ showToast('Acesso restrito ao ADM/Presidente.'); return; }
   const id=document.getElementById('jog-id').value;
   const nome=document.getElementById('jog-nome').value.trim();
   const apelido=document.getElementById('jog-apelido').value.trim();
@@ -676,7 +676,7 @@ async function salvarJogadorAdm(){
   }
 }
 async function excluirJogadorAdm(){
-  if(G.perfil==='escalador'){ showToast('Acesso restrito ao ADM.'); return; }
+  if(!G.podeGerirJogadores){ showToast('Acesso restrito ao ADM/Presidente.'); return; }
   const id=document.getElementById('jog-id')?.value;
   if(!id){ showToast('Selecione um jogador para excluir.'); return; }
   const j=(G.jogadores||[]).find(x=>String(x.id)===String(id));
