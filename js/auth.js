@@ -379,6 +379,23 @@ async function carregarPerfilJogador(opts={}){
   if(mostrarFormulario) formCard.style.display='block';
 }
 
+async function carregarBaseAppSeNecessario(){
+  const precisaCarregar = !Array.isArray(G.peladas) || !G.peladas.length;
+  if(!precisaCarregar) return;
+  const jlista=document.getElementById('j-lista');
+  if(jlista) jlista.innerHTML='<div class="empty" style="padding:40px 0;"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;font-size:28px;opacity:.5;"></i></div>';
+  try{
+    await dbCarregarPeladas();
+    await aplicarEncerramentoAutomatico();
+    const cfg = await dbGetConfig();
+    G.valorChurras = cfg ? (Number(cfg.valor_churras)||0) : 0;
+    renderJLista();
+  }catch(e){
+    console.error('Erro ao carregar base do app:', e);
+    renderJLista();
+  }
+}
+
 async function salvarNovaSenhaJogador(){
   const senha=(document.getElementById('perfil-nova-senha')?.value||'').trim();
   if(!senha || senha.length<6){ showToast('Use uma senha com no minimo 6 caracteres.'); return; }
@@ -387,6 +404,7 @@ async function salvarNovaSenhaJogador(){
   document.getElementById('perfil-nova-senha').value='';
   G.redefinindoSenha=false;
   limparUrlPerfil();
+  await carregarBaseAppSeNecessario();
   await restaurarSessaoAdm();
   await carregarPerfilJogador({mostrarFormulario:false});
   if(!abrirDestinoPosLogin()) voltarLista();
@@ -397,6 +415,7 @@ async function voltarLoginPerfil(){
   G.redefinindoSenha=false;
   limparUrlPerfil();
   await _sbClient.auth.signOut().catch(()=>{});
+  await carregarBaseAppSeNecessario();
   mostrarLoginPerfil();
 }
 
