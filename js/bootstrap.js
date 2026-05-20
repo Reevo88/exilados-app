@@ -13,6 +13,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   const temRetornoAuth=temRetornoPerfilAuth();
   const temTokenRecovery=temTokenRecoveryAuth();
 
+  if(perfilParam && !temRetornoAuth && !temTokenRecovery && !erroRetornoPerfilAuth()){
+    limparUrlPerfil();
+  }
+
   if(erroRetornoPerfilAuth()){
     atualizarSaudacaoLogin();
     G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.usuario=null; G.jogadorLogado=null;

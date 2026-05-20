@@ -55,7 +55,7 @@ async function esqueceuSenha(){
 
   try {
     const { error } = await _sbClient.auth.resetPasswordForEmail(email, {
-      redirectTo: APP_BASE_URL + '/?perfil=1',
+      redirectTo: appRootUrl(),
     });
     if(error) throw error;
     showToast('E-mail de redefinição enviado! Verifique a caixa de entrada.');
@@ -144,7 +144,7 @@ function erroRetornoPerfilAuth(){
 function temRetornoPerfilAuth(){
   const params=new URLSearchParams(window.location.search);
   const hash=perfilAuthHash();
-  return !!(params.get('perfil') || params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('error') || hash.get('error_code') || hash.get('type'));
+  return !!(params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('error') || hash.get('error_code') || hash.get('type'));
 }
 
 function temTokenRecoveryAuth(){
@@ -153,7 +153,11 @@ function temTokenRecoveryAuth(){
   return !!(params.get('reset') || params.get('code') || hash.get('access_token') || hash.get('refresh_token') || hash.get('type')==='recovery');
 }
 
-function limparUrlPerfil(destino=APP_BASE_URL+'/'){
+function appRootUrl(){
+  return window.location.origin + '/';
+}
+
+function limparUrlPerfil(destino=appRootUrl()){
   if(window.history && window.history.replaceState) window.history.replaceState(null,'',destino);
 }
 
@@ -232,7 +236,7 @@ async function tratarRetornoPerfilAuth(){
 async function loginJogadorGoogle(){
   const { error } = await _sbClient.auth.signInWithOAuth({
     provider:'google',
-    options:{ redirectTo:APP_BASE_URL+'/?perfil=1' },
+    options:{ redirectTo:appRootUrl() },
   });
   if(error) showToast('Erro ao abrir login Google.');
 }
@@ -296,7 +300,7 @@ async function criarContaJogadorSenha(){
   const { error } = await _sbClient.auth.signUp({
     email:cred.email,
     password:cred.password,
-    options:{ emailRedirectTo:APP_BASE_URL+'/?perfil=1' },
+    options:{ emailRedirectTo:appRootUrl() },
   });
   if(error){ showToast('Erro ao criar conta.'); return; }
   await restaurarSessaoAdm();
@@ -315,7 +319,7 @@ async function recuperarSenhaJogador(){
   const btn=document.getElementById('perfil-btn-esqueci');
   if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
   try{
-    const { error } = await _sbClient.auth.resetPasswordForEmail(email,{redirectTo:APP_BASE_URL+'/?perfil=1'});
+    const { error } = await _sbClient.auth.resetPasswordForEmail(email,{redirectTo:appRootUrl()});
     if(error) throw error;
     showToast('E-mail de redefinicao enviado!');
   }catch(e){ showToast('Erro ao enviar redefinicao.'); }
