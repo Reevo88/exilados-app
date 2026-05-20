@@ -172,9 +172,11 @@ function mostrarLoginPerfil(){
   const loginCard=document.getElementById('perfil-login-card');
   const formCard=document.getElementById('perfil-form-card');
   const resetCard=document.getElementById('perfil-reset-card');
+  const btnVoltar=document.getElementById('perfil-btn-voltar-lista');
   if(loginCard) loginCard.style.display='block';
   if(formCard) formCard.style.display='none';
   if(resetCard) resetCard.style.display='none';
+  if(btnVoltar) btnVoltar.style.display='';
   goTo('s-j-perfil');
 }
 
@@ -182,10 +184,12 @@ function mostrarResetSenhaPerfil(){
   const loginCard=document.getElementById('perfil-login-card');
   const formCard=document.getElementById('perfil-form-card');
   const resetCard=document.getElementById('perfil-reset-card');
+  const btnVoltar=document.getElementById('perfil-btn-voltar-lista');
   G.redefinindoSenha=true;
   if(loginCard) loginCard.style.display='none';
   if(formCard) formCard.style.display='none';
   if(resetCard) resetCard.style.display='block';
+  if(btnVoltar) btnVoltar.style.display='none';
   goTo('s-j-perfil');
 }
 
