@@ -6,6 +6,7 @@
 // INIT
 // ==========================================
 window.addEventListener('DOMContentLoaded', async () => {
+  limparHashVazio();
   inicializarAuthRecoveryListener();
   const params=new URLSearchParams(window.location.search);
   const perfilParam=params.get('perfil');

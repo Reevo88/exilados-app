@@ -115,7 +115,13 @@ const POSICOES = ['GOL','ZAG','LAT','MEI','ATA'];
 
 // -- Supabase Auth client --------------------------------------------------
 // Carregado via CDN no index.html (supabase-js UMD)
-const _sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// O app trata manualmente os retornos de OAuth/recovery para não perder o hash antes da rota correta.
+const _sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    detectSessionInUrl: false,
+    flowType: 'pkce',
+  },
+});
 
 // Mapeamento email -> perfil (os emails são criados no painel do Supabase)
 // Formato: adm@exiladosdabola.com / presidente@exiladosdabola.com / escalador@exiladosdabola.com

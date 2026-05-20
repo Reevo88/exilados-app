@@ -157,9 +157,15 @@ function appRootUrl(){
   return window.location.origin;
 }
 
+function limparHashVazio(){
+  if(window.location.hash==='#' && window.history && window.history.replaceState){
+    window.history.replaceState(null,'',window.location.origin + window.location.pathname + window.location.search);
+  }
+}
+
 function limparUrlPerfil(destino=appRootUrl()){
   if(window.history && window.history.replaceState) window.history.replaceState(null,'',destino);
-  if(window.location.hash==='#') window.history.replaceState(null,'',destino);
+  limparHashVazio();
 }
 
 function mostrarLoginPerfil(){
