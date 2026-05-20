@@ -189,7 +189,7 @@
         <button id="btn-esqueci" onclick="esqueceuSenha()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);padding:4px 8px;font-family:'Inter',sans-serif;">Esqueci a senha</button>
       </div>
       <div style="text-align:center;margin-top:14px;">
-        <a href="#" onclick="goTo('s-j-lista')" style="font-size:13px;color:#c0392b;">← Ver como jogador</a>
+        <a href="#" onclick="voltarLista()" style="font-size:13px;color:#c0392b;">← Ver como jogador</a>
       </div>
     </div>
   </div>
@@ -198,7 +198,7 @@
 <!-- A1: HOME ADM -->
 <div class="screen" id="s-adm-home">
   <div class="header">
-    <button onclick="goTo('s-j-lista');renderJLista();" style="background:none;border:none;padding:0;cursor:pointer;flex-shrink:0;"><img class="logo-img" alt="Exilados da Bola" src="logo.png"/></button>
+    <button onclick="voltarLista()" style="background:none;border:none;padding:0;cursor:pointer;flex-shrink:0;"><img class="logo-img" alt="Exilados da Bola" src="logo.png"/></button>
     <div class="htext" style="text-align:center;"><h1>MINHAS PELADAS</h1><p>Painel do Administrador</p></div>
     <div style="margin-left:auto;">
       <button onclick="abrirMenu()" aria-label="Abrir menu do administrador" title="Menu do administrador" style="width:32px;height:32px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--cream);cursor:pointer;padding:0;"><i class="ti ti-settings" style="font-size:20px;"></i></button>
