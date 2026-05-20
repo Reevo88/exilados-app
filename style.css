@@ -459,6 +459,15 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 /* -- ADM JOGADORES ------------------------- */
 #s-adm-jogadores .page-body { padding-left:12px; padding-right:12px; }
 .player-directory-card { padding:12px 14px; margin-bottom:10px; }
+.player-directory-card .invite-whatsapp-btn {
+  margin-top:8px;
+  padding:9px;
+  font-size:13px;
+  background:var(--success-bg);
+  color:var(--success-text);
+  border:1px solid var(--success-border);
+}
+.player-directory-card .invite-whatsapp-btn i { font-size:15px; }
 .jog-row { display:flex; align-items:center; gap:10px; background:var(--surface); border:.5px solid var(--border2); border-radius:var(--radius); padding:10px 12px; margin-bottom:8px; cursor:pointer; box-shadow:0 1px 0 rgba(0,0,0,.02); }
 .jog-avatar, .player-photo-preview { width:38px; height:38px; border-radius:50%; background:var(--blue); color:var(--cream); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; flex-shrink:0; overflow:hidden; }
 .jog-avatar img, .player-photo-preview img { width:100%; height:100%; object-fit:cover; display:block; }
