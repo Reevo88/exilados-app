@@ -510,9 +510,45 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .jog-badges { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
 .player-form-card { margin-top:12px; }
 .player-photo-editor { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-.player-photo-preview { width:54px; height:54px; font-size:22px; }
+.player-photo-preview { width:54px; height:54px; font-size:22px; cursor:pointer; }
 .photo-upload-btn { border:1px solid var(--border2); background:var(--surface2); color:var(--text); border-radius:var(--radius-sm); padding:9px 12px; display:inline-flex; align-items:center; justify-content:center; gap:7px; font-size:13px; font-weight:700; cursor:pointer; }
 .player-delete-btn { margin:4px 0 10px; padding:9px; font-size:13px; }
+
+.photo-zoom {
+  position:fixed;
+  inset:0;
+  z-index:1200;
+  background:rgba(0,0,0,.72);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.photo-zoom.open { display:flex; }
+.photo-zoom img {
+  width:min(82vw,340px);
+  height:min(82vw,340px);
+  border-radius:22px;
+  object-fit:cover;
+  background:var(--surface);
+  box-shadow:0 18px 45px rgba(0,0,0,.35);
+}
+.photo-zoom-close {
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:40px;
+  height:40px;
+  border:none;
+  border-radius:50%;
+  background:var(--white);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.photo-zoom-close i { font-size:22px; }
 
 /* -- TOAST --------------------------------- */
 .toast      { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--danger-text); color:var(--white); padding:10px 20px; border-radius:99px; font-size:13px; font-weight:600; z-index:999; opacity:0; transition:opacity .2s; pointer-events:none; white-space:nowrap; }

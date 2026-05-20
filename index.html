@@ -73,7 +73,7 @@
     <div id="perfil-form-card" class="card player-form-card" style="display:none;">
       <div class="card-title">Dados do jogador</div>
       <div class="player-photo-editor">
-        <div class="player-photo-preview" id="perfil-foto-preview">?</div>
+        <div class="player-photo-preview" id="perfil-foto-preview" onclick="abrirZoomFotoPerfil('perfil')" title="Ampliar foto">?</div>
         <div style="flex:1;min-width:0;">
           <label class="photo-upload-btn" for="perfil-foto-file"><i class="ti ti-camera"></i> Enviar foto</label>
           <input type="file" id="perfil-foto-file" accept="image/*" style="display:none;" onchange="uploadFotoPerfil(this.files[0])"/>
@@ -88,8 +88,8 @@
         <div class="field"><label>Instagram</label><input type="text" id="perfil-instagram" placeholder="@usuario" autocomplete="off"/></div>
       </div>
       <div class="row2">
-        <div class="field"><label>Telefone/WhatsApp</label><input type="tel" id="perfil-telefone" autocomplete="tel"/></div>
-        <div class="field"><label>Nascimento</label><input type="date" id="perfil-nascimento"/></div>
+        <div class="field"><label>Telefone/WhatsApp</label><input type="tel" id="perfil-telefone" placeholder="51-999999999" maxlength="13" autocomplete="tel" oninput="mascararTelefoneInput(this)"/></div>
+        <div class="field"><label>Nascimento</label><input type="text" id="perfil-nascimento" placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" oninput="mascararDataInput(this)"/></div>
       </div>
       <div class="field"><label>Posição favorita</label><select id="perfil-pos"><option value="">-</option><option value="GOL">Goleiro</option><option value="ZAG">Zagueiro</option><option value="LAT">Lateral</option><option value="MEI">Meia</option><option value="ATA">Atacante</option></select></div>
       <button class="btn btn-primary" onclick="salvarMeuPerfil()"><i class="ti ti-device-floppy"></i> Salvar perfil</button>
@@ -240,7 +240,7 @@
       <div class="card-title" id="jog-form-title">Editar jogador</div>
       <input type="hidden" id="jog-id"/>
       <div class="player-photo-editor">
-        <div class="player-photo-preview" id="jog-foto-preview">?</div>
+        <div class="player-photo-preview" id="jog-foto-preview" onclick="abrirZoomFotoPerfil('jog')" title="Ampliar foto">?</div>
         <div style="flex:1;min-width:0;">
           <label class="photo-upload-btn" for="jog-foto-file"><i class="ti ti-camera"></i> Enviar foto</label>
           <input type="file" id="jog-foto-file" accept="image/*" style="display:none;" onchange="uploadFotoJogadorAdm(this.files[0])"/>
@@ -254,10 +254,10 @@
       </div>
       <div class="row2">
         <div class="field"><label>Email</label><input type="email" id="jog-email" autocomplete="off"/></div>
-        <div class="field"><label>Telefone/WhatsApp</label><input type="tel" id="jog-telefone" autocomplete="off"/></div>
+        <div class="field"><label>Telefone/WhatsApp</label><input type="tel" id="jog-telefone" placeholder="51-999999999" maxlength="13" autocomplete="off" oninput="mascararTelefoneInput(this)"/></div>
       </div>
       <div class="row2">
-        <div class="field"><label>Nascimento</label><input type="date" id="jog-nascimento"/></div>
+        <div class="field"><label>Nascimento</label><input type="text" id="jog-nascimento" placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" oninput="mascararDataInput(this)"/></div>
         <div class="field"><label>Posição favorita</label><select id="jog-pos"><option value="">-</option><option value="GOL">Goleiro</option><option value="ZAG">Zagueiro</option><option value="LAT">Lateral</option><option value="MEI">Meia</option><option value="ATA">Atacante</option></select></div>
       </div>
       <div class="row2">
@@ -993,6 +993,11 @@
 <div class="pwa-update" id="pwa-update" role="status" aria-live="polite">
   <span>Nova versão disponível.</span>
   <button type="button" id="pwa-update-btn">Atualizar</button>
+</div>
+
+<div class="photo-zoom" id="photo-zoom" onclick="fecharZoomFoto(event)">
+  <button class="photo-zoom-close" onclick="fecharZoomFoto()" aria-label="Fechar foto"><i class="ti ti-x"></i></button>
+  <img id="photo-zoom-img" alt="Foto ampliada"/>
 </div>
 
 <div class="toast" id="toast"></div>
