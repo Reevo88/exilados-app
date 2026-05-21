@@ -152,7 +152,10 @@ async function pjSalvarPlacar(){
   const verm = parseInt(document.getElementById('pj-gols-verm').value)||0;
   try{
     await dbSalvarResultado(G.pelada.id, azul, verm);
-    PJ.resultado = { gols_azul:azul, gols_vermelho:verm };
+    PJ.resultado = { ...(PJ.resultado||{}), gols_azul:azul, gols_vermelho:verm };
+    if(G.pelada) G.pelada.resultado = { ...(G.pelada.resultado||{}), gols_azul:azul, gols_vermelho:verm };
+    const peladaMemoria = (G.peladas||[]).find(p=>String(p.id)===String(G.pelada?.id));
+    if(peladaMemoria) peladaMemoria.resultado = { ...(peladaMemoria.resultado||{}), gols_azul:azul, gols_vermelho:verm };
     showToast('Placar salvo!');
   }catch(e){ showToast('Erro ao salvar placar.'); }
 }

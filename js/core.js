@@ -62,11 +62,23 @@ async function dbCarregarPeladas() {
     id:r.id, nome:r.nome, data:r.data, hora:r.hora.slice(0,5),
     local:r.local, valor:Number(r.valor), max:r.max_jogadores,
     status:r.status, reaberta:r.reaberta||false,
-    temChurras:r.tem_churras||false, confirmados:[], jogadores:[], naoVao:[], espera:[],
+    temChurras:r.tem_churras||false, resultado:null, confirmados:[], jogadores:[], naoVao:[], espera:[],
   }));
   if(G.peladas.length){
     const ids=G.peladas.map(p=>p.id).join(',');
-    const confs=await sbFetch('/confirmacoes?pelada_id=in.('+ids+')&order=ordem.asc,created_at.asc');
+    const [confs, resultados]=await Promise.all([
+      sbFetch('/confirmacoes?pelada_id=in.('+ids+')&order=ordem.asc,created_at.asc'),
+      sbFetch('/resultados_pelada?pelada_id=in.('+ids+')')
+    ]);
+    (resultados||[]).forEach(r=>{
+      const p=G.peladas.find(x=>x.id===r.pelada_id);
+      if(!p)return;
+      p.resultado={
+        id:r.id,
+        gols_azul:Number(r.gols_azul)||0,
+        gols_vermelho:Number(r.gols_vermelho)||0,
+      };
+    });
     confs.forEach(c=>{
       const p=G.peladas.find(x=>x.id===c.pelada_id); if(!p)return;
       if(c.status==='nao_vai'){

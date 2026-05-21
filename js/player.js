@@ -23,6 +23,8 @@ function renderJLista(){
     const antesDoJogo = encerradaAntesDoJogo(p);
     const confirmadosJogo = totalJogadoresConfirmados(p);
     const lotada = peladaLotada(p);
+    const golsAzul = p.resultado ? (Number(p.resultado.gols_azul)||0) : '?';
+    const golsVermelho = p.resultado ? (Number(p.resultado.gols_vermelho)||0) : '?';
     if(encerrada){
       if(antesDoJogo){
         return `<div class="pelada-card card-encerrada" style="cursor:default;">
@@ -63,7 +65,7 @@ function renderJLista(){
             <div class="closed-result-title"><i class="ti ti-trophy"></i> Resultado</div>
             <div class="closed-score-line">
               <div class="closed-team closed-team-blue">${camisaSvg('azul')}<span>Azul</span></div>
-              <div class="closed-score"><span id="home-gols-a-${p.id}">?</span><b>x</b><span id="home-gols-b-${p.id}">?</span></div>
+              <div class="closed-score"><span id="home-gols-a-${p.id}">${golsAzul}</span><b>x</b><span id="home-gols-b-${p.id}">${golsVermelho}</span></div>
               <div class="closed-team closed-team-red">${camisaSvg('verm')}<span>Vermelho</span></div>
             </div>
           </div>
@@ -103,17 +105,16 @@ async function carregarResultadoCardHome(peladaId){
   const p = G.peladas.find(x=>String(x.id)===String(peladaId));
   if(encerradaAntesDoJogo(p)) return;
   try{
-    const r = await dbGetResultado(peladaId);
     const a   = document.getElementById(`home-gols-a-${peladaId}`);
     const b   = document.getElementById(`home-gols-b-${peladaId}`);
     const btn = document.getElementById(`home-summary-btn-${peladaId}`);
-    if(a && b && r){
-      a.textContent = r.gols_azul ?? 0;
-      b.textContent = r.gols_vermelho ?? 0;
+    if(a && b && p?.resultado){
+      a.textContent = Number(p.resultado.gols_azul) || 0;
+      b.textContent = Number(p.resultado.gols_vermelho) || 0;
     }
     try{
       const [gols, videos] = await Promise.all([dbGetGols(peladaId), dbGetVideos(peladaId)]);
-      const temConteudo = !!r || (Array.isArray(gols) && gols.length) || (Array.isArray(videos) && videos.length);
+      const temConteudo = !!p?.resultado || (Array.isArray(gols) && gols.length) || (Array.isArray(videos) && videos.length);
       if(btn && temConteudo) btn.innerHTML = '<i class="ti ti-trophy"></i> Olho no lance';
     }catch(e){}
   }catch(e){}
