@@ -24,6 +24,8 @@ let G = {
   pelada:  null,
   meuNome: '',
   editandoPeladaId: null,
+  appContext: 'player',
+  perfilOrigem: 'player',
 };
 let uid = 100, drag = null;
 

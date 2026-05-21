@@ -26,6 +26,8 @@ async function login(){
     }
     document.getElementById('login-input').value = '';
     document.getElementById('senha-input').value = '';
+    G.appContext = 'admin';
+    G.perfilOrigem = 'admin';
 
     if(G.perfil === 'escalador'){
       goTo('s-adm-home'); renderAdmHome();
@@ -67,7 +69,7 @@ async function esqueceuSenha(){
 }
 
 async function sair(){
-  G.isAdm = false; G.perfil = 'jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null;
+  G.isAdm = false; G.perfil = 'jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null; G.appContext='player'; G.perfilOrigem='player';
   fecharMenu();
   await _sbClient.auth.signOut().catch(()=>{});
   await voltarLista();
@@ -76,10 +78,12 @@ function atualizarOpcaoPerfilAdm(){
   const nome=document.getElementById('adm-profile-option-name');
   const desc=document.getElementById('adm-profile-option-desc');
   const icon=document.getElementById('adm-profile-option-icon');
-  const geral=!!G.podeGerirJogadores;
-  if(nome) nome.textContent=geral?'Jogadores':'Meu Perfil';
-  if(desc) desc.textContent=geral?'Cadastro, fotos e perfis':'Editar meu perfil';
-  if(icon) icon.className=geral?'ti ti-users-group':'ti ti-user-circle';
+  const modoJogador=document.getElementById('adm-player-mode-option');
+  const podeGerirPeladeiros=!!G.podeGerirJogadores;
+  if(nome) nome.textContent=podeGerirPeladeiros?'Peladeiros':'Meu Perfil';
+  if(desc) desc.textContent=podeGerirPeladeiros?'Cadastro, fotos e perfis':'Gerenciar informações pessoais';
+  if(icon) icon.className=podeGerirPeladeiros?'ti ti-users-group':'ti ti-user-circle';
+  if(modoJogador) modoJogador.style.display=G.isAdm?'flex':'none';
 }
 function abrirMenu(){
   atualizarOpcaoPerfilAdm();
@@ -91,7 +95,6 @@ async function abrirOpcaoPerfilAdm(){
   if(G.podeGerirJogadores) return abrirJogadoresAdm();
   await abrirPerfilJogador(false);
 }
-
 // ==========================================
 // PERFIL DO JOGADOR
 // ==========================================
@@ -113,17 +116,37 @@ function abrirMenuJogador(){
   const loginName=document.getElementById('player-menu-login-name');
   const loginDesc=document.getElementById('player-menu-login-desc');
   const sairItem=document.getElementById('player-menu-sair');
+  const adminBack=document.getElementById('player-menu-admin-back');
   const nomeExibicao=nomeExibicaoExilado();
   if(title) title.textContent=nomeExibicao ? `${saudacaoPorHora()}, Exilado ${nomeExibicao}!` : `${saudacaoPorHora()}, Exilado!`;
   if(loginName) loginName.textContent=G.usuario?'Meu Perfil':'Login';
   if(loginDesc) loginDesc.textContent=G.usuario?'Gerenciar informações pessoais':'Entrar na sua conta';
   if(sairItem) sairItem.style.display=G.usuario?'flex':'none';
+  if(adminBack) adminBack.style.display=(G.isAdm && G.appContext==='player')?'flex':'none';
   document.getElementById('player-menu').classList.add('open');
 }
 function fecharMenuJogador(e){ if(!e||e.target===document.getElementById('player-menu')) document.getElementById('player-menu').classList.remove('open'); }
 
+async function entrarModoJogador(){
+  fecharMenu();
+  G.appContext='player';
+  G.perfilOrigem='player';
+  await carregarBaseAppSeNecessario();
+  renderJLista();
+  goTo('s-j-lista');
+}
+
+function voltarPainelAdmin(){
+  fecharMenuJogador();
+  G.appContext='admin';
+  G.perfilOrigem='admin';
+  renderAdmHome();
+  goTo('s-adm-home');
+}
+
 async function abrirPerfilJogador(redirecionarAdm=false){
   fecharMenuJogador();
+  if(redirecionarAdm) G.perfilOrigem='player';
   const abrirEdicaoPerfil = redirecionarAdm && !!G.usuario && !temRetornoPerfilAuth();
   const retornoCadastro=temRetornoPerfilAuth() && !temTokenRecoveryAuth() && !erroRetornoPerfilAuth();
   const retornoAuth=await tratarRetornoPerfilAuth();
@@ -143,6 +166,19 @@ async function abrirPerfilJogador(redirecionarAdm=false){
   if(!abrirEdicaoPerfil && redirecionarAdm && !retornoCadastro && !G.redefinindoSenha && abrirDestinoPosLogin()) return;
   if(redirecionarAdm) await carregarPerfilJogador({mostrarFormulario:true});
   goTo('s-j-perfil');
+}
+
+async function voltarInicioApp(){
+  if(G.isAdm && G.appContext==='admin'){
+    renderAdmHome();
+    goTo('s-adm-home');
+    return;
+  }
+  await voltarLista();
+}
+
+async function voltarInicioPerfil(){
+  await voltarInicioApp();
 }
 
 function perfilAuthSearch(){
@@ -297,7 +333,7 @@ async function loginJogadorEmail(){
 
 function abrirDestinoUsuarioLogado(){
   if(temRetornoPerfilAuth()) return false;
-  if(G.isAdm){
+  if(G.isAdm && G.appContext!=='player'){
     const btnNova=document.getElementById('btn-nova-pelada');
     if(btnNova) btnNova.style.display=G.perfil==='escalador'?'none':'';
     renderAdmHome();
@@ -337,6 +373,7 @@ async function entrarJogadorSenha(){
   const { error } = await _sbClient.auth.signInWithPassword(cred);
   if(error){ showToast('E-mail ou senha incorretos.'); return; }
   await restaurarSessaoAdm();
+  if(G.isAdm) G.appContext='admin';
   await carregarPerfilJogador({mostrarFormulario:false});
   await restaurarSessaoAdm();
   if(abrirDestinoPosLogin()){
@@ -582,7 +619,7 @@ async function salvarMeuPerfil(){
 async function sairJogador(){
   fecharMenuJogador();
   await _sbClient.auth.signOut().catch(()=>{});
-  G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null;
+  G.isAdm=false; G.perfil='jogador'; G.perfilApp='jogador'; G.superAdmin=false; G.podeGerirJogadores=false; G.usuario=null; G.jogadorLogado=null; G.appContext='player'; G.perfilOrigem='player';
   showToast('Sessão encerrada.');
   voltarLista();
 }
