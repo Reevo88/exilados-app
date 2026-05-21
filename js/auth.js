@@ -101,11 +101,23 @@ function saudacaoPorHora(){
   if(h>=18 || h<5) return 'Boa noite';
   return 'Bom dia';
 }
+function nomeExibicaoExilado(){
+  const apelidoJogador=(G.jogadorLogado?.apelido||'').trim();
+  if(apelidoJogador) return apelidoJogador;
+  const nomeJogador=(G.jogadorLogado?.nome||'').trim();
+  if(nomeJogador) return nomeJogador;
+  const nomeLocal=typeof lsGetNome==='function' ? String(lsGetNome()||'').trim() : '';
+  if(nomeLocal) return nomeLocal;
+  const nomeMemoria=String(G.meuNome||'').trim();
+  if(nomeMemoria) return nomeMemoria;
+  return '';
+}
 function abrirMenuJogador(){
   const title=document.getElementById('player-menu-title');
   const loginName=document.getElementById('player-menu-login-name');
   const sairItem=document.getElementById('player-menu-sair');
-  if(title) title.textContent=saudacaoPorHora()+', Exilado!';
+  const nomeExibicao=nomeExibicaoExilado();
+  if(title) title.textContent=nomeExibicao ? `${saudacaoPorHora()}, Exilado ${nomeExibicao}!` : `${saudacaoPorHora()}, Exilado!`;
   if(loginName) loginName.textContent=G.usuario?'Meu Perfil':'Login';
   if(sairItem) sairItem.style.display=G.usuario?'flex':'none';
   document.getElementById('player-menu').classList.add('open');
