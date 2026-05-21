@@ -27,7 +27,7 @@
 <div class="screen active" id="s-j-lista">
   <div class="header">
     <img class="logo-img" alt="Exilados da Bola" src="logo.png"/>
-    <div class="htext" style="text-align:center;"><h1>EXILADOS DA BOLA</h1><p>Escolha uma partida</p></div>
+    <div class="htext" style="text-align:center;"><h1>EXILADOS DA BOLA</h1><p>Escolha uma pelada</p></div>
     <button class="player-menu-btn" onclick="abrirMenuJogador()" aria-label="Abrir menu do jogador" title="Menu do jogador"><i class="ti ti-menu-2"></i></button>
   </div>
   <div class="page-body">
@@ -49,12 +49,11 @@
 <!-- J1B: PERFIL DO JOGADOR -->
 <div class="screen" id="s-j-perfil">
   <div class="header">
-    <img class="logo-img" alt="Exilados da Bola" src="logo.png" onclick="voltarLista()" style="cursor:pointer;"/>
+    <img class="logo-img" alt="Exilados da Bola" src="logo.png" onclick="voltarInicioPerfil()" style="cursor:pointer;"/>
     <div class="htext" style="text-align:center;"><h1>MEU PERFIL</h1><p>Gerenciar informações pessoais</p></div>
   </div>
   <div class="page-body">
     <div id="perfil-login-card" class="card">
-      <div class="card-title">Entrar ou cadastrar</div>
       <button class="btn btn-outline" onclick="loginJogadorGoogle()" style="margin-bottom:10px;display:none;"><i class="ti ti-brand-google"></i> Entrar com Google</button>
       <div class="field"><label>E-mail</label><input type="email" id="perfil-email-login" placeholder="voce@email.com" autocomplete="email"/></div>
       <div class="field"><label>Senha</label><input type="password" id="perfil-senha-login" placeholder="mínimo 6 caracteres" autocomplete="current-password"/></div>
@@ -95,7 +94,7 @@
     </div>
   </div>
   <div class="bottom-nav">
-    <button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+    <button class="nav-btn" onclick="voltarInicioPerfil()"><i class="ti ti-home"></i><span>Início</span></button>
     <button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users-group"></i><span>Peladeiros</span></button>
     <button class="nav-btn active"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
   </div>
@@ -104,7 +103,7 @@
 <!-- J1C: PELADEIROS (SOMENTE LEITURA) -->
 <div class="screen" id="s-j-peladeiros">
   <div class="header">
-    <img class="logo-img" alt="Exilados da Bola" src="logo.png" onclick="voltarLista()" style="cursor:pointer;"/>
+    <img class="logo-img" alt="Exilados da Bola" src="logo.png" onclick="voltarInicioApp()" style="cursor:pointer;"/>
     <div class="htext" style="text-align:center;"><h1>PELADEIROS</h1><p>Elenco cadastrado</p></div>
     <div style="width:34px;flex-shrink:0;"></div>
   </div>
@@ -127,7 +126,7 @@
     <div id="peladeiros-lista"></div>
   </div>
   <div class="bottom-nav">
-    <button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+    <button class="nav-btn" onclick="voltarInicioApp()"><i class="ti ti-home"></i><span>Início</span></button>
     <button class="nav-btn active"><i class="ti ti-users-group"></i><span>Peladeiros</span></button>
     <button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
   </div>
@@ -629,6 +628,7 @@
     <div class="adm-sheet-title" id="player-menu-title">Perfil</div>
     <div class="adm-option" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><div><div class="adm-option-name" id="player-menu-login-name">Login</div><div class="adm-option-desc" id="player-menu-login-desc">Gerenciar suas informações</div></div></div>
     <div class="adm-option" onclick="abrirPeladeirosPublico()"><i class="ti ti-users-group"></i><div><div class="adm-option-name">Peladeiros</div><div class="adm-option-desc">Ver elenco cadastrado</div></div></div>
+    <div class="adm-option" id="player-menu-admin-back" onclick="voltarPainelAdmin()" style="display:none;"><i class="ti ti-settings"></i><div><div class="adm-option-name">Painel Admin</div><div class="adm-option-desc">Voltar ao painel administrativo</div></div></div>
     <div class="adm-option" id="player-menu-sair" onclick="sairJogador()" style="display:none;"><i class="ti ti-logout"></i><div><div class="adm-option-name">Sair</div><div class="adm-option-desc">Encerrar sessão</div></div></div>
   </div>
 </div>
@@ -637,7 +637,8 @@
 <div class="adm-menu" id="adm-menu" onclick="fecharMenu(event)">
   <div class="adm-sheet">
     <div class="adm-sheet-title">Configurações</div>
-    <div class="adm-option" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-users-group" id="adm-profile-option-icon"></i><div><div class="adm-option-name" id="adm-profile-option-name">Jogadores</div><div class="adm-option-desc" id="adm-profile-option-desc">Cadastro, fotos e perfis</div></div></div>
+    <div class="adm-option" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-users-group" id="adm-profile-option-icon"></i><div><div class="adm-option-name" id="adm-profile-option-name">Peladeiros</div><div class="adm-option-desc" id="adm-profile-option-desc">Cadastro, fotos e perfis</div></div></div>
+    <div class="adm-option" id="adm-player-mode-option" onclick="entrarModoJogador()" style="display:none;"><i class="ti ti-home"></i><div><div class="adm-option-name">Ver como jogador</div><div class="adm-option-desc">Acessar a experiência do peladeiro</div></div></div>
     <div class="adm-option" onclick="sair()"><i class="ti ti-logout"></i><div><div class="adm-option-name">Sair</div><div class="adm-option-desc">Encerrar sessão</div></div></div>
   </div>
 </div>

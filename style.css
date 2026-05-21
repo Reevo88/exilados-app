@@ -72,13 +72,15 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 }
 .logo-img { width:48px; height:48px; object-fit:contain; flex-shrink:0; background:transparent; }
 .htext { flex:1; min-width:0; text-align:left; }
-.htext h1 { font-family:'Barlow Condensed',sans-serif; font-size:clamp(19px,5.4vw,24px); font-weight:700; color:var(--white); letter-spacing:.02em; line-height:1; white-space:nowrap; }
-#s-j-lista .htext h1,
-#s-j-conf .htext h1,
-#s-j-peladeiros .htext h1,
-#s-login .htext h1,
-#s-adm-fin .htext h1,
-#s-j-caixa .htext h1 { font-size:clamp(24px,6.5vw,30px); }
+.htext h1 { font-family:'Barlow Condensed',sans-serif; font-size:clamp(24px,6.5vw,30px); font-weight:700; color:var(--white); letter-spacing:.02em; line-height:1; white-space:nowrap; }
+#s-adm-home .htext h1,
+#s-adm-jogadores .htext h1,
+#s-adm-criar .htext h1,
+#s-adm-fin-pelada .htext h1,
+#s-j-times .htext h1,
+#s-resumo .htext h1,
+#s-adm-posjogo .htext h1,
+#s-votacao .htext h1 { font-size:clamp(19px,5.4vw,24px); }
 .htext p  { font-size:13px; color:var(--white); opacity:.86; margin-top:4px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .adm-badge { background:rgba(255,255,255,.15); border-radius:8px; padding:4px 10px; font-size:11px; color:var(--cream); display:flex; align-items:center; gap:4px; font-weight:600; white-space:nowrap; }
@@ -509,7 +511,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .jog-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:4px; font-size:11px; color:var(--text2); }
 .jog-meta span { display:inline-flex; align-items:center; gap:3px; }
 .jog-badges { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
-.player-form-card { margin-top:12px; }
+.player-form-card { margin-top:0; }
 .player-photo-editor { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
 .player-photo-preview { width:54px; height:54px; font-size:22px; cursor:pointer; }
 .photo-upload-btn { border:1px solid var(--border2); background:var(--surface2); color:var(--text); border-radius:var(--radius-sm); padding:9px 12px; display:inline-flex; align-items:center; justify-content:center; gap:7px; font-size:13px; font-weight:700; cursor:pointer; }
