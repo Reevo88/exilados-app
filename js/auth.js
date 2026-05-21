@@ -116,7 +116,7 @@ function abrirMenuJogador(){
   const nomeExibicao=nomeExibicaoExilado();
   if(title) title.textContent=nomeExibicao ? `${saudacaoPorHora()}, Exilado ${nomeExibicao}!` : `${saudacaoPorHora()}, Exilado!`;
   if(loginName) loginName.textContent=G.usuario?'Meu Perfil':'Login';
-  if(loginDesc) loginDesc.textContent=G.usuario?'Gerenciar suas informações':'Entrar na sua conta';
+  if(loginDesc) loginDesc.textContent=G.usuario?'Gerenciar informações pessoais':'Entrar na sua conta';
   if(sairItem) sairItem.style.display=G.usuario?'flex':'none';
   document.getElementById('player-menu').classList.add('open');
 }
