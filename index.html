@@ -50,10 +50,9 @@
 <div class="screen" id="s-j-perfil">
   <div class="header">
     <img class="logo-img" alt="Exilados da Bola" src="logo.png" onclick="voltarLista()" style="cursor:pointer;"/>
-    <div class="htext" style="text-align:center;"><h1>ENTRAR OU CADASTRAR</h1><p>Acesso do peladeiro</p></div>
+    <div class="htext" style="text-align:center;"><h1>MEU PERFIL</h1><p>Gerenciar informações pessoais</p></div>
   </div>
   <div class="page-body">
-    <button class="btn btn-danger" id="perfil-btn-voltar-lista" onclick="voltarLista()" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
     <div id="perfil-login-card" class="card">
       <div class="card-title">Entrar ou cadastrar</div>
       <button class="btn btn-outline" onclick="loginJogadorGoogle()" style="margin-bottom:10px;display:none;"><i class="ti ti-brand-google"></i> Entrar com Google</button>
@@ -63,7 +62,6 @@
       <button class="btn btn-outline" onclick="criarContaJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-user-plus"></i> Criar conta</button>
       <button id="perfil-btn-esqueci" onclick="recuperarSenhaJogador()" style="width:100%;background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);padding:4px 8px;font-family:'Inter',sans-serif;">Esqueci minha senha</button>
     </div>
-    <div id="perfil-login-readonly-note" class="readonly-badge"><i class="ti ti-eye" style="font-size:14px;"></i> Você ainda pode confirmar presença sem login.</div>
     <div id="perfil-reset-card" class="card" style="display:none;">
       <div class="card-title">Criar nova senha</div>
       <div class="field"><label>Nova senha</label><input type="password" id="perfil-nova-senha" placeholder="mínimo 6 caracteres" autocomplete="new-password"/></div>
@@ -96,6 +94,11 @@
       <button class="btn btn-outline" onclick="sairJogador()" style="margin-top:8px;"><i class="ti ti-logout"></i> Sair</button>
     </div>
   </div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+    <button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users-group"></i><span>Peladeiros</span></button>
+    <button class="nav-btn active"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+  </div>
 </div>
 
 <!-- J1C: PELADEIROS (SOMENTE LEITURA) -->
@@ -106,7 +109,6 @@
     <div style="width:34px;flex-shrink:0;"></div>
   </div>
   <div class="page-body">
-    <button class="btn btn-danger" onclick="voltarLista()" style="margin-bottom:12px;padding:9px;font-size:13px;"><i class="ti ti-arrow-left" style="font-size:14px;"></i> Voltar</button>
     <div class="card peladeiros-intro-card">
       <div>
         <div class="card-title">Quem joga com a gente</div>
