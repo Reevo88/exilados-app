@@ -11,10 +11,9 @@ function renderJLista(){
   const ord=[...G.peladas].sort((a,b)=>new Date(b.data+'T'+b.hora)-new Date(a.data+'T'+a.hora));
 
   function camisaSvg(cor){
-    if(cor==='azul'){
-      return `<svg class="home-shirt-svg" viewBox="0 0 100 110" aria-hidden="true"><defs><clipPath id="clipHomeAzul"><polygon points="0,22 22,0 50,12 78,0 100,22 84,34 84,110 16,110 16,34"/></clipPath></defs><polygon points="0,22 22,0 50,12 78,0 100,22 84,34 84,110 16,110 16,34" fill="#185FA5" stroke="#0C447C" stroke-width="2"/><ellipse cx="50" cy="13" rx="14" ry="9" fill="#FAC775" stroke="#0C447C" stroke-width="1.5"/><rect x="0" y="38" width="100" height="14" fill="#FAC775" clip-path="url(#clipHomeAzul)"/><polygon points="0,22 22,0 28,0 8,26" fill="#FAC775" clip-path="url(#clipHomeAzul)"/><polygon points="78,0 100,22 92,26 72,0" fill="#FAC775" clip-path="url(#clipHomeAzul)"/><text x="50" y="90" text-anchor="middle" font-size="28" font-weight="700" fill="white" font-family="sans-serif">10</text></svg>`;
-    }
-    return `<svg class="home-shirt-svg" viewBox="0 0 100 110" aria-hidden="true"><defs><clipPath id="clipHomeVerm"><polygon points="0,22 22,0 50,12 78,0 100,22 84,34 84,110 16,110 16,34"/></clipPath></defs><polygon points="0,22 22,0 50,12 78,0 100,22 84,34 84,110 16,110 16,34" fill="#A32D2D" stroke="#791F1F" stroke-width="2"/><ellipse cx="50" cy="13" rx="14" ry="9" fill="#2C2C2A" stroke="#444441" stroke-width="1.5"/><polygon points="16,34 0,34 0,110 28,110 28,34" fill="#2C2C2A" clip-path="url(#clipHomeVerm)"/><polygon points="84,34 100,34 100,110 72,110 72,34" fill="#2C2C2A" clip-path="url(#clipHomeVerm)"/><polygon points="0,22 22,0 28,0 8,26" fill="#2C2C2A" clip-path="url(#clipHomeVerm)"/><polygon points="78,0 100,22 92,26 72,0" fill="#2C2C2A" clip-path="url(#clipHomeVerm)"/><text x="50" y="90" text-anchor="middle" font-size="28" font-weight="700" fill="white" font-family="sans-serif">10</text></svg>`;
+    const src=cor==='azul'?'camisa-azul.png?v=2':'camisa-vermelha.png?v=2';
+    const alt=cor==='azul'?'Camisa azul':'Camisa vermelha';
+    return `<img class="home-shirt-svg" src="${src}" alt="${alt}" />`;
   }
 
   el.innerHTML=ord.map(p=>{
