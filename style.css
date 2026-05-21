@@ -532,8 +532,12 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   aspect-ratio:2.28/1;
   min-height:172px;
   display:block;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
   padding:0;
   margin-bottom:12px;
+  margin-inline:auto;
   overflow:hidden;
   background:#fff;
   border:1px solid rgba(0,0,0,.12);
@@ -622,9 +626,9 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .peladeiro-info {
   position:absolute;
   z-index:4;
-  left:33.5%;
+  left:32.5%;
   top:8.5%;
-  width:51.8%;
+  width:49.5%;
   min-width:0;
   padding:0;
 }
@@ -737,15 +741,41 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   color:#fff;
 }
 .peladeiro-social {
-  display:none;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:8px;
+  min-width:0;
 }
-.peladeiro-social i { font-size:0; }
+.peladeiro-social-link {
+  min-width:0;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#4f4f4f;
+  text-decoration:none;
+  font-family:'Inter',sans-serif;
+  font-size:clamp(9px,2.25vw,12px);
+  font-weight:700;
+  line-height:1.1;
+}
+.peladeiro-social-link i {
+  font-size:14px;
+  flex-shrink:0;
+}
+.peladeiro-social-link span {
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.peladeiro-social-instagram i { color:#d62976; }
 .peladeiro-logo {
   position:absolute;
   z-index:3;
-  right:5.5%;
+  right:4.2%;
   top:8%;
-  width:14.5%;
+  width:13%;
   height:38%;
   object-fit:contain;
   filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));
@@ -806,7 +836,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 @media (max-width:380px) {
   .peladeiro-card { aspect-ratio:2.22/1; min-height:158px; border-radius:17px; }
   .peladeiro-avatar { width:22.5%; left:4%; border-width:4px; outline-width:3px; }
-  .peladeiro-info { left:32.5%; width:53.5%; top:8.5%; }
+  .peladeiro-info { left:31.2%; width:51.6%; top:8.5%; }
   .peladeiro-brand { font-size:clamp(14px,4.05vw,17px); margin-bottom:4px; }
   .peladeiro-name { font-size:clamp(25px,7.25vw,31px); }
   .peladeiro-name-medium .peladeiro-name { font-size:clamp(22px,6.35vw,27px); }
@@ -817,19 +847,27 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   .peladeiro-meta { gap:4px; margin-top:8px; }
   .peladeiro-chip { min-height:17px; padding:2px 5px; font-size:clamp(8px,2.25vw,10px); border-radius:7px; }
   .peladeiro-chip-role { font-size:clamp(7px,1.85vw,8px); }
-  .peladeiro-logo { width:12.2%; right:3.8%; top:8%; opacity:.92; }
+  .peladeiro-social { margin-top:6px; gap:8px; }
+  .peladeiro-social-link { font-size:clamp(8px,2.2vw,10px); }
+  .peladeiro-social-link i { font-size:12px; }
+  .peladeiro-logo { width:11.2%; right:3%; top:8%; opacity:.92; }
   .peladeiro-field { width:32%; height:40%; opacity:.24; }
 }
 @media (max-width:340px) {
-  .peladeiro-card { min-height:148px; }
-  .peladeiro-info { left:32%; width:55%; }
+  .peladeiro-card { min-height:148px; border-radius:16px; }
+  .peladeiro-avatar { width:21.5%; left:3.2%; }
+  .peladeiro-info { left:29.2%; width:51.8%; }
   .peladeiro-brand { font-size:13px; }
   .peladeiro-name { font-size:clamp(22px,6.6vw,26px); }
   .peladeiro-name-medium .peladeiro-name { font-size:clamp(20px,5.9vw,23px); }
   .peladeiro-name-long .peladeiro-name { font-size:clamp(17px,5.15vw,20px); }
   .peladeiro-real-name { font-size:11px; }
+  .peladeiro-meta { flex-wrap:wrap; row-gap:5px; }
+  .peladeiro-social { margin-top:5px; gap:6px; }
+  .peladeiro-social-link { font-size:8px; gap:5px; }
+  .peladeiro-social-link i { font-size:11px; }
   .peladeiro-chip-mod i { display:none; }
-  .peladeiro-logo { opacity:.75; }
+  .peladeiro-logo { width:10.2%; right:2.4%; opacity:.75; }
 }
 
 .photo-zoom {
