@@ -311,6 +311,9 @@ function renderPeladeirosLista(){
     const seloPerfil=peladeiroSeloPerfil(j);
     const apelidoLen=apelido.length;
     const apelidoSize=apelidoLen>13?'xlong':apelidoLen>10?'long':apelidoLen>7?'medium':'short';
+    const social=insta ? `<div class="peladeiro-social">
+        <a class="peladeiro-social-link peladeiro-social-instagram" href="https://instagram.com/${encodeURIComponent(insta)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de ${escHtml(apelido)}"><i class="ti ti-brand-instagram"></i><span>@${escHtml(insta)}</span></a>
+      </div>` : '';
     return `<div class="peladeiro-card peladeiro-card-${tema} peladeiro-name-${apelidoSize}">
       <div class="peladeiro-sash"></div>
       <div class="peladeiro-field" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -324,6 +327,7 @@ function renderPeladeirosLista(){
           <span class="peladeiro-chip peladeiro-chip-mod"><i class="ti ti-crown"></i> ${modalidade}</span>
           ${seloPerfil}
         </div>
+        ${social}
       </div>
       <img class="peladeiro-logo" src="logo.png" alt="Exilados da Bola"/>
     </div>`;
