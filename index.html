@@ -182,11 +182,11 @@
   <div class="page-body">
     <div class="teams-grid">
       <div class="team-col">
-        <div class="th-blue"><div style="display:flex;align-items:center;gap:8px;"><img class="team-shirt-icon" src="camisa-azul.png?v=2" alt="Camisa do Time Azul"/><div style="flex:1;text-align:center;"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="jt-cnt-a">0 jog.</div></div></div></div>
+        <div class="th-blue"><div class="team-header-row"><img class="team-shirt-icon" src="camisa-azul.png?v=2" alt="Camisa do Time Azul"/><div class="team-header-text"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="jt-cnt-a">0 jog.</div></div><img class="team-bull-icon" src="boi-blue.png" alt="Boi do Time Azul"/></div></div>
         <div class="team-body" id="jt-team-a"></div>
       </div>
       <div class="team-col">
-        <div class="th-red"><div style="display:flex;align-items:center;gap:8px;"><img class="team-shirt-icon" src="camisa-vermelha.png?v=2" alt="Camisa do Time Vermelho"/><div style="flex:1;text-align:center;"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="jt-cnt-b">0 jog.</div></div></div></div>
+        <div class="th-red"><div class="team-header-row"><img class="team-shirt-icon" src="camisa-vermelha.png?v=2" alt="Camisa do Time Vermelho"/><div class="team-header-text"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="jt-cnt-b">0 jog.</div></div><img class="team-bull-icon" src="boi-red.png" alt="Boi do Time Vermelho"/></div></div>
         <div class="team-body" id="jt-team-b"></div>
       </div>
     </div>
@@ -415,18 +415,20 @@
     <div id="at-escalar">
       <div class="teams-grid">
         <div class="team-col">
-          <div class="th-blue"><div style="display:flex;align-items:center;gap:8px;">
+          <div class="th-blue"><div class="team-header-row">
             <img class="team-shirt-icon" src="camisa-azul.png?v=2" alt="Camisa do Time Azul">
-            <div style="flex:1;text-align:center;"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="at-cnt-a">0 jog.</div></div>
+            <div class="team-header-text"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="at-cnt-a">0 jog.</div></div>
+            <img class="team-bull-icon" src="boi-blue.png" alt="Boi do Time Azul">
           </div></div>
           <div class="team-body" id="at-team-a" ondragover="allowDrop(event)" ondrop="dropTo(event,'azul')">
             <div class="drop-zone" id="at-dz-a">Arraste aqui</div>
           </div>
         </div>
         <div class="team-col">
-          <div class="th-red"><div style="display:flex;align-items:center;gap:8px;">
+          <div class="th-red"><div class="team-header-row">
             <img class="team-shirt-icon" src="camisa-vermelha.png?v=2" alt="Camisa do Time Vermelho">
-            <div style="flex:1;text-align:center;"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="at-cnt-b">0 jog.</div></div>
+            <div class="team-header-text"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="at-cnt-b">0 jog.</div></div>
+            <img class="team-bull-icon" src="boi-red.png" alt="Boi do Time Vermelho">
           </div></div>
           <div class="team-body" id="at-team-b" ondragover="allowDrop(event)" ondrop="dropTo(event,'vermelho')">
             <div class="drop-zone" id="at-dz-b">Arraste aqui</div>
@@ -712,16 +714,18 @@
       </div>
       <div class="teams-grid" style="margin-bottom:12px;">
         <div class="team-col">
-          <div class="th-blue"><div style="display:flex;align-items:center;gap:8px;">
+          <div class="th-blue"><div class="team-header-row">
             <img class="team-shirt-icon" src="camisa-azul.png?v=2" alt="Camisa do Time Azul">
-            <div style="flex:1;text-align:center;"><div class="team-title y">Time Azul</div></div>
+            <div class="team-header-text"><div class="team-title y">Time Azul</div></div>
+            <img class="team-bull-icon" src="boi-blue.png" alt="Boi do Time Azul">
           </div></div>
           <div class="team-body" id="resumo-team-a"></div>
         </div>
         <div class="team-col">
-          <div class="th-red"><div style="display:flex;align-items:center;gap:8px;">
+          <div class="th-red"><div class="team-header-row">
             <img class="team-shirt-icon" src="camisa-vermelha.png?v=2" alt="Camisa do Time Vermelho">
-            <div style="flex:1;text-align:center;"><div class="team-title w">Time Vermelho</div></div>
+            <div class="team-header-text"><div class="team-title w">Time Vermelho</div></div>
+            <img class="team-bull-icon" src="boi-red.png" alt="Boi do Time Vermelho">
           </div></div>
           <div class="team-body" id="resumo-team-b"></div>
         </div>
@@ -740,16 +744,18 @@
     <div id="resumo-tab-escalacoes" style="display:none;">
       <div class="teams-grid">
         <div class="team-col">
-          <div class="th-blue"><div style="display:flex;align-items:center;gap:8px;">
+          <div class="th-blue"><div class="team-header-row">
             <img class="team-shirt-icon" src="camisa-azul.png?v=2" alt="Camisa do Time Azul">
-            <div style="flex:1;text-align:center;"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="resumo-esc-cnt-a">0 jog.</div></div>
+            <div class="team-header-text"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="resumo-esc-cnt-a">0 jog.</div></div>
+            <img class="team-bull-icon" src="boi-blue.png" alt="Boi do Time Azul">
           </div></div>
           <div class="team-body" id="resumo-esc-a"></div>
         </div>
         <div class="team-col">
-          <div class="th-red"><div style="display:flex;align-items:center;gap:8px;">
+          <div class="th-red"><div class="team-header-row">
             <img class="team-shirt-icon" src="camisa-vermelha.png?v=2" alt="Camisa do Time Vermelho">
-            <div style="flex:1;text-align:center;"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="resumo-esc-cnt-b">0 jog.</div></div>
+            <div class="team-header-text"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="resumo-esc-cnt-b">0 jog.</div></div>
+            <img class="team-bull-icon" src="boi-red.png" alt="Boi do Time Vermelho">
           </div></div>
           <div class="team-body" id="resumo-esc-b"></div>
         </div>

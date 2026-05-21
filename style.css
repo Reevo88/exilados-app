@@ -223,6 +223,16 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .team-col        { border-radius:var(--radius); overflow:hidden; border:.5px solid var(--border2); }
 .th-blue         { background:#2d47c7; padding:10px 12px 8px; }
 .th-red          { background:#d63a32;  padding:10px 12px 8px; }
+.team-header-row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.team-header-text {
+  flex:1;
+  text-align:center;
+  min-width:0;
+}
 .team-title      { font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; }
 .team-title.y    { color:var(--uni-yellow); }
 .team-title.w    { color:var(--white); }
@@ -232,6 +242,13 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .team-shirt-icon {
   width:28px;
   height:31px;
+  display:block;
+  object-fit:contain;
+  flex-shrink:0;
+}
+.team-bull-icon {
+  width:24px;
+  height:24px;
   display:block;
   object-fit:contain;
   flex-shrink:0;
