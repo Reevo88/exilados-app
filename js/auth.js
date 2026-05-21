@@ -106,19 +106,17 @@ function nomeExibicaoExilado(){
   if(apelidoJogador) return apelidoJogador;
   const nomeJogador=(G.jogadorLogado?.nome||'').trim();
   if(nomeJogador) return nomeJogador;
-  const nomeLocal=typeof lsGetNome==='function' ? String(lsGetNome()||'').trim() : '';
-  if(nomeLocal) return nomeLocal;
-  const nomeMemoria=String(G.meuNome||'').trim();
-  if(nomeMemoria) return nomeMemoria;
   return '';
 }
 function abrirMenuJogador(){
   const title=document.getElementById('player-menu-title');
   const loginName=document.getElementById('player-menu-login-name');
+  const loginDesc=document.getElementById('player-menu-login-desc');
   const sairItem=document.getElementById('player-menu-sair');
   const nomeExibicao=nomeExibicaoExilado();
   if(title) title.textContent=nomeExibicao ? `${saudacaoPorHora()}, Exilado ${nomeExibicao}!` : `${saudacaoPorHora()}, Exilado!`;
   if(loginName) loginName.textContent=G.usuario?'Meu Perfil':'Login';
+  if(loginDesc) loginDesc.textContent=G.usuario?'Gerenciar suas informações':'Entrar na sua conta';
   if(sairItem) sairItem.style.display=G.usuario?'flex':'none';
   document.getElementById('player-menu').classList.add('open');
 }
