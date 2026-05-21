@@ -221,14 +221,21 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 /* -- TEAMS --------------------------------- */
 .teams-grid      { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
 .team-col        { border-radius:var(--radius); overflow:hidden; border:.5px solid var(--border2); }
-.th-blue         { background:var(--uni-blue); padding:10px 12px 8px; }
-.th-red          { background:var(--uni-red);  padding:10px 12px 8px; }
+.th-blue         { background:#2d47c7; padding:10px 12px 8px; }
+.th-red          { background:#d63a32;  padding:10px 12px 8px; }
 .team-title      { font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; }
 .team-title.y    { color:var(--uni-yellow); }
 .team-title.w    { color:var(--white); }
 .team-cnt        { font-size:10px; font-weight:600; }
 .team-cnt.y      { color:rgba(245,200,0,.75); }
 .team-cnt.w      { color:rgba(255,255,255,.65); }
+.team-shirt-icon {
+  width:28px;
+  height:31px;
+  display:block;
+  object-fit:contain;
+  flex-shrink:0;
+}
 .team-body       { padding:8px; min-height:90px; background:var(--surface); }
 .team-slot       { padding:5px 7px; border-radius:8px; margin-bottom:4px; display:flex; align-items:center; gap:4px; background:var(--surface2); }
 .team-slot.editable { cursor:default; }

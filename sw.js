@@ -2,7 +2,7 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v39';
+const CACHE_NAME = 'exilados-v41';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
@@ -18,6 +18,8 @@ const STATIC_ASSETS = [
   '/js/voting.js',
   '/js/bootstrap.js',
   '/logo.png',
+  '/camisa-azul.png?v=2',
+  '/camisa-vermelha.png?v=2',
   '/icon-192.png',
   '/icon-512.png',
   '/apple-touch-icon.png',
