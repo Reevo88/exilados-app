@@ -274,6 +274,13 @@ function nomeConfirmacaoAtual(){
   return digitado || apelidoJogadorLogado() || G.meuNome || '';
 }
 
+function nomeConfirmacaoEfetivo(){
+  if(G.usuario && G.jogadorLogado){
+    return apelidoJogadorLogado() || G.meuNome || '';
+  }
+  return nomeConfirmacaoAtual();
+}
+
 function jogadorAtualNaPelada(pelada){
   if(!pelada) return null;
   const escalados = (pelada.jogadores && pelada.jogadores.length) ? pelada.jogadores : pelada.confirmados || [];
@@ -290,6 +297,26 @@ function jogadorAtualNaPelada(pelada){
   ].filter(Boolean);
   for(const nome of candidatos){
     const porNome = escalados.find(j => normNome(j.nome) === normNome(nome));
+    if(porNome) return porNome;
+  }
+  return null;
+}
+
+function confirmacaoAtualNaPelada(pelada){
+  if(!pelada) return null;
+  const jogadorId = G.jogadorLogado?.id || null;
+  if(jogadorId){
+    const porId = (pelada.confirmados || []).find(j => String(j.jogador_id || '') === String(jogadorId));
+    if(porId) return porId;
+  }
+  const candidatos = [
+    lsNomeConfirmadoNaPelada(pelada.id),
+    apelidoJogadorLogado(),
+    lsGetNome(),
+    G.meuNome
+  ].filter(Boolean);
+  for(const nome of candidatos){
+    const porNome = (pelada.confirmados || []).find(j => normNome(j.nome) === normNome(nome));
     if(porNome) return porNome;
   }
   return null;
@@ -454,9 +481,7 @@ function renderJConf(){
   const btnCancelar = document.getElementById('btn-cancelar');
 
   // Prioridade: já confirmado nesta pelada > nome do localStorage > G.meuNome
-  const nomeConfirmado = lsNomeConfirmadoNaPelada(p.id);
-  const jaConf = nomeConfirmado && p.confirmados.find(j=>normNome(j.nome)===normNome(nomeConfirmado));
-  const apelidoLogado = apelidoJogadorLogado();
+  const jaConf = confirmacaoAtualNaPelada(p);
 
   if(!G.usuario || !G.jogadorLogado){
     inp.value = '';
@@ -467,9 +492,9 @@ function renderJConf(){
     inp.value = jaConf.nome;
     inp.disabled = true;
   } else {
-    const nomeSalvo = nomeConfirmacaoAtual();
+    const nomeSalvo = apelidoJogadorLogado() || G.meuNome || '';
     inp.value = nomeSalvo;
-    inp.disabled = false;
+    inp.disabled = true;
   }
 
   if(btnCancelar){
@@ -539,7 +564,7 @@ async function jogadorVai(churrasOpt){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível confirmar presença.')) return;
   const p=G.pelada;
   const tratarComoJogador = G.appContext === 'player';
-  const nome=nomeConfirmacaoAtual();
+  const nome=nomeConfirmacaoEfetivo();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(G.jogadorLogado && !apelidoJogadorLogado()){
     showToast('Cadastre seu apelido antes de confirmar.');
@@ -587,7 +612,7 @@ async function jogadorNaoVai(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível alterar presença.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
   const tratarComoJogador = G.appContext === 'player';
-  const nome=nomeConfirmacaoAtual();
+  const nome=nomeConfirmacaoEfetivo();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(p.naoVao.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Ausência já registrada!'); return; }
   const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
@@ -621,7 +646,7 @@ async function jogadorCancelar(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível cancelar presença.')) return;
   const p=G.pelada; p.espera=p.espera||[];
   const tratarComoJogador = G.appContext === 'player';
-  const nome=G.meuNome||nomeConfirmacaoAtual();
+  const nome=G.meuNome||nomeConfirmacaoEfetivo();
   if(!nome){ document.getElementById('jc-input').focus(); showToast('Digite seu nome primeiro para cancelar.'); return; }
   const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
   const conf=p.confirmados.find(j=>normNome(j.nome)===normNome(nome));
@@ -634,7 +659,7 @@ async function jogadorCancelar(){
     p.espera=p.espera.filter(j=>j.id!==item.id);
     p.naoVao.push({id:item.id,nome:item.nome});
     G.meuNome='';
-    document.getElementById('jc-input').value=lsGetNome(); // mantém nome salvo, limpa só o bloqueio da pelada
+    document.getElementById('jc-input').value=nomeConfirmacaoEfetivo();
     document.getElementById('jc-input').disabled=false;
     if(tratarComoJogador) lsLimparConf(p.id);
     showToast('Confirmação cancelada');

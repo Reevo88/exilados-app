@@ -124,7 +124,7 @@ function _resumoAtualizarBotaoVotacao(pelada) {
   const wrap  = document.getElementById('resumo-vot-btn-wrap');
   const tempo = document.getElementById('resumo-vot-tempo');
   if(!wrap) return;
-  if(!pelada || G.isAdm || !votacaoAberta(pelada)) {
+  if(!pelada || G.appContext === 'admin' || !votacaoAberta(pelada)) {
     wrap.style.display = 'none';
     return;
   }
@@ -357,7 +357,7 @@ async function publicarResultadoVotacao(pelada) {
   return null;
 }
 
-async function enviarVotos() {
+async function enviarVotosLegado() {
   const p = G.pelada;
   if(!p) return;
   const nomeSalvo = jogadorAtualNaPelada(p)?.nome || '';
