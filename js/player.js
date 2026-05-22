@@ -255,6 +255,23 @@ function lsNomeConfirmadoNaPelada(peladaId) {
 function apelidoJogadorLogado(){
   return (G.jogadorLogado && G.jogadorLogado.apelido ? G.jogadorLogado.apelido : '').trim();
 }
+async function exigirLoginParaConfirmacao(){
+  if(G.usuario && G.jogadorLogado){
+    if(!apelidoJogadorLogado()){
+      showToast('Cadastre seu apelido antes de confirmar.');
+      await abrirPerfilJogador();
+      return false;
+    }
+    return true;
+  }
+  showToast('Faça login para confirmar presença.');
+  await abrirPerfilJogador(false);
+  return false;
+}
+
+function nomeConfirmacaoAtual(){
+  return apelidoJogadorLogado() || G.meuNome || '';
+}
 
 // ==========================================
 // JOGADOR - PELADEIROS (somente leitura)
@@ -412,20 +429,31 @@ function renderJConf(){
   document.getElementById('jc-count').textContent=p.max||14;
 
   const inp = document.getElementById('jc-input');
+  const btnCancelar = document.getElementById('btn-cancelar');
 
   // Prioridade: já confirmado nesta pelada > nome do localStorage > G.meuNome
   const nomeConfirmado = lsNomeConfirmadoNaPelada(p.id);
   const jaConf = nomeConfirmado && p.confirmados.find(j=>normNome(j.nome)===normNome(nomeConfirmado));
   const apelidoLogado = apelidoJogadorLogado();
 
-  if(jaConf){
+  if(!G.usuario || !G.jogadorLogado){
+    inp.value = '';
+    inp.placeholder = 'Faça login para confirmar presença';
+    inp.disabled = true;
+  } else if(jaConf){
     G.meuNome = jaConf.nome;
     inp.value = jaConf.nome;
+    inp.disabled = true;
   } else {
-    const nomeSalvo = apelidoLogado || (G.isAdm ? (G.meuNome || '') : (lsGetNome() || G.meuNome || ''));
+    const nomeSalvo = nomeConfirmacaoAtual();
     inp.value = nomeSalvo;
+    inp.disabled = true;
   }
-  inp.disabled = false;
+
+  if(btnCancelar){
+    btnCancelar.disabled = false;
+    btnCancelar.classList.remove('disabled');
+  }
 
   p.espera=p.espera||[];
   const el=document.getElementById('jc-lista');
@@ -464,7 +492,7 @@ function renderJConf(){
     const btnDiv = btnArea.querySelector('div[style*="display:flex;gap:8px"]');
     if(btnDiv){
       btnDiv.innerHTML=`
-        <button class="btn" style="flex:1;background:#111;color:#fff;margin:0;font-weight:700;font-size:13px;" onclick="jogadorVai('jogo')"><i class="ti ti-ball-football"></i> Jogo</button>
+        <button class="btn" data-confirm-action="vai" style="flex:1;background:#111;color:#fff;margin:0;font-weight:700;font-size:13px;" onclick="jogadorVai('jogo')"><i class="ti ti-ball-football"></i> Jogo</button>
         <button class="btn" style="flex:1;background:#1a3ecf;color:#fff;margin:0;font-weight:700;font-size:13px;" onclick="jogadorVai('jogo_churras')"><i class="ti ti-fire"></i> Jogo+🍖</button>
         <button class="btn" style="flex:1;background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;margin:0;font-weight:700;font-size:13px;" onclick="jogadorVai('churras')">Só 🍖</button>
         <button class="btn" style="flex:1;background:#fde8e8;color:#c0392b;border:1px solid #f5c6c6;margin:0;font-weight:700;font-size:13px;" onclick="jogadorNaoVai()"><i class="ti ti-x"></i> Fora</button>`;
@@ -477,12 +505,18 @@ function renderJConf(){
         <button class="btn" style="flex:1;background:#fde8e8;color:#c0392b;border:1px solid #f5c6c6;margin:0;font-weight:700;" onclick="jogadorNaoVai()"><i class="ti ti-x"></i> TÔ FORA</button>`;
     }
   }
+  document.querySelectorAll('#s-j-conf button[onclick^="jogadorVai"]').forEach(btn=>{
+    btn.dataset.confirmAction = 'vai';
+  });
+  document.querySelectorAll('#s-j-conf button[onclick^="jogadorNaoVai"]').forEach(btn=>{
+    btn.dataset.confirmAction = 'nao-vai';
+  });
 }
 
 async function jogadorVai(churrasOpt){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível confirmar presença.')) return;
   const p=G.pelada;
-  const nome=document.getElementById('jc-input').value.trim();
+  const nome=nomeConfirmacaoAtual();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(G.jogadorLogado && !apelidoJogadorLogado()){
     showToast('Cadastre seu apelido antes de confirmar.');
@@ -529,7 +563,7 @@ async function jogadorVai(churrasOpt){
 async function jogadorNaoVai(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível alterar presença.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
-  const nome=document.getElementById('jc-input').value.trim();
+  const nome=nomeConfirmacaoAtual();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(p.naoVao.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Ausência já registrada!'); return; }
   const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
@@ -562,7 +596,7 @@ async function jogadorNaoVai(){
 async function jogadorCancelar(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível cancelar presença.')) return;
   const p=G.pelada; p.espera=p.espera||[];
-  const nome=G.meuNome||document.getElementById('jc-input').value.trim();
+  const nome=G.meuNome||nomeConfirmacaoAtual();
   if(!nome){ document.getElementById('jc-input').focus(); showToast('Digite seu nome primeiro para cancelar.'); return; }
   const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
   const conf=p.confirmados.find(j=>normNome(j.nome)===normNome(nome));
@@ -583,6 +617,25 @@ async function jogadorCancelar(){
   }catch(e){ showToast('Erro ao cancelar.'); }
 }
 
+
+const _jogadorVaiSemLoginObrigatorio = jogadorVai;
+const _jogadorNaoVaiSemLoginObrigatorio = jogadorNaoVai;
+const _jogadorCancelarSemLoginObrigatorio = jogadorCancelar;
+
+async function jogadorVai(churrasOpt){
+  if(!(await exigirLoginParaConfirmacao())) return;
+  return _jogadorVaiSemLoginObrigatorio(churrasOpt);
+}
+
+async function jogadorNaoVai(){
+  if(!(await exigirLoginParaConfirmacao())) return;
+  return _jogadorNaoVaiSemLoginObrigatorio();
+}
+
+async function jogadorCancelar(){
+  if(!(await exigirLoginParaConfirmacao())) return;
+  return _jogadorCancelarSemLoginObrigatorio();
+}
 
 // ==========================================
 // JOGADOR - TIMES (leitura)
