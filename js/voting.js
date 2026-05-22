@@ -129,11 +129,10 @@ function _resumoAtualizarBotaoVotacao(pelada) {
     return;
   }
   // Verifica se o jogador está escalado - usa nome confirmado nesta pelada específica
-  const nomeSalvo = lsNomeConfirmadoNaPelada(pelada.id) || lsGetNome();
-  if(!nomeSalvo) { wrap.style.display = 'none'; return; }
   const escalados = (pelada.jogadores && pelada.jogadores.length)
     ? pelada.jogadores : pelada.confirmados;
-  const escalado = escalados.some(j => normNome(j.nome) === normNome(nomeSalvo));
+  const jogadorAtual = jogadorAtualNaPelada(pelada);
+  const escalado = !!jogadorAtual;
   if(!escalado) { wrap.style.display = 'none'; return; }
   // Já votou
   if(lsJaVotou(pelada.id)) { wrap.style.display = 'none'; return; }
@@ -200,9 +199,10 @@ function abrirVotacao() {
   }
 
   // Verifica se está escalado - usa nome confirmado nesta pelada específica
-  const nomeSalvo = lsNomeConfirmadoNaPelada(p.id) || lsGetNome();
   const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
-  const escalado  = nomeSalvo && escalados.some(j => normNome(j.nome) === normNome(nomeSalvo));
+  const jogadorAtual = jogadorAtualNaPelada(p);
+  const nomeSalvo = jogadorAtual?.nome || '';
+  const escalado  = !!jogadorAtual;
 
   if(!escalado) {
     document.getElementById('vot-sem-permissao').style.display = '';
@@ -254,7 +254,7 @@ function votarEstrela(btn) {
 async function enviarVotos() {
   const p = G.pelada;
   if(!p) return;
-  const nomeSalvo = lsNomeConfirmadoNaPelada(p.id) || lsGetNome();
+  const nomeSalvo = jogadorAtualNaPelada(p)?.nome || '';
   if(!nomeSalvo) return;
 
   const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
@@ -360,7 +360,7 @@ async function publicarResultadoVotacao(pelada) {
 async function enviarVotos() {
   const p = G.pelada;
   if(!p) return;
-  const nomeSalvo = lsNomeConfirmadoNaPelada(p.id) || lsGetNome();
+  const nomeSalvo = jogadorAtualNaPelada(p)?.nome || '';
   if(!nomeSalvo) return;
 
   const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;

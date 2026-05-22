@@ -131,9 +131,8 @@ function tentarVotarHome(id) {
   if(!p) return;
   G.pelada = p;
 
-  const nomeSalvo = lsNomeConfirmadoNaPelada(p.id) || lsGetNome();
-  const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
-  const escalado  = nomeSalvo && escalados.some(j => normNome(j.nome) === normNome(nomeSalvo));
+  const jogadorAtual = jogadorAtualNaPelada(p);
+  const escalado  = !!jogadorAtual;
 
   if(!escalado) {
     showToast('Só quem jogou opina, parceiro! ⚽');
@@ -271,6 +270,27 @@ async function exigirLoginParaConfirmacao(){
 
 function nomeConfirmacaoAtual(){
   return apelidoJogadorLogado() || G.meuNome || '';
+}
+
+function jogadorAtualNaPelada(pelada){
+  if(!pelada) return null;
+  const escalados = (pelada.jogadores && pelada.jogadores.length) ? pelada.jogadores : pelada.confirmados || [];
+  const jogadorId = G.jogadorLogado?.id || null;
+  if(jogadorId){
+    const porId = escalados.find(j => String(j.jogador_id || '') === String(jogadorId));
+    if(porId) return porId;
+  }
+  const candidatos = [
+    lsNomeConfirmadoNaPelada(pelada.id),
+    apelidoJogadorLogado(),
+    lsGetNome(),
+    G.meuNome
+  ].filter(Boolean);
+  for(const nome of candidatos){
+    const porNome = escalados.find(j => normNome(j.nome) === normNome(nome));
+    if(porNome) return porNome;
+  }
+  return null;
 }
 
 // ==========================================
@@ -438,8 +458,8 @@ function renderJConf(){
 
   if(!G.usuario || !G.jogadorLogado){
     inp.value = '';
-    inp.placeholder = 'Faça login para confirmar presença';
-    inp.disabled = true;
+    inp.placeholder = 'Digite seu apelido';
+    inp.disabled = false;
   } else if(jaConf){
     G.meuNome = jaConf.nome;
     inp.value = jaConf.nome;
