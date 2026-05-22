@@ -134,6 +134,12 @@ async function reabrirPelada(id){
 function hojeISO(){
   const d=new Date(); d.setHours(12,0,0,0); return d.toISOString().slice(0,10);
 }
+function dataIsoParaInput(valor){
+  const v=String(valor||'').trim();
+  const iso=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+  return v;
+}
 function proximaDataSemanal(dataBase){
   if(!dataBase) return hojeISO();
   const hoje=new Date(); hoje.setHours(12,0,0,0);
@@ -200,7 +206,7 @@ function prepararNovaPelada(){
   limparErrosCriarPelada();
   const base=ultimaPeladaBase();
   document.getElementById('cp-nome').value=base?.nome||'Pelada das Quintas';
-  document.getElementById('cp-data').value=base?proximaDataSemanal(base.data):hojeISO();
+  document.getElementById('cp-data').value=dataIsoParaInput(base?proximaDataSemanal(base.data):hojeISO());
   document.getElementById('cp-hora').value=base?.hora||'20:00';
   document.getElementById('cp-local').value=base?.local||'Arena Gaúcha';
   document.getElementById('cp-valor').value=base?.valor||35;
@@ -221,7 +227,7 @@ function prepararEditarPelada(id){
   configurarFormularioPelada('editar');
   limparErrosCriarPelada();
   document.getElementById('cp-nome').value=p.nome||'';
-  document.getElementById('cp-data').value=p.data||'';
+  document.getElementById('cp-data').value=dataIsoParaInput(p.data||'');
   document.getElementById('cp-hora').value=p.hora||'';
   document.getElementById('cp-local').value=p.local||'';
   document.getElementById('cp-valor').value=p.valor||35;
