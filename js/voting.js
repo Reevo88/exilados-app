@@ -53,24 +53,22 @@ async function dbEnviarVotos(peladaId, nomeVotante, votos, escalados) {
   if(!nomeValido) throw new Error('nome_invalido');
 
   const ip = await getIpVotante();
+  const votosExistentes = await dbGetVotosDoVotante(peladaId, nomeVotante);
+  if(votosExistentes && votosExistentes.length) throw new Error('votante_duplicado');
 
-  if(ip) {
-    const existente = await sbFetch(`/votos_pelada?pelada_id=eq.${peladaId}&ip_votante=eq.${encodeURIComponent(ip)}&limit=1`);
-    if(existente && existente.length > 0) throw new Error('ip_duplicado');
+  for (const v of votos) {
+    await sbFetch('/votos_pelada', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({
+        pelada_id: peladaId,
+        nome_votante: nomeVotante,
+        nome_votado: v.nome_votado,
+        nota: v.nota,
+        ip_votante: ip || null
+      })
+    });
   }
-
-  const rows = votos.map(v => ({
-    pelada_id: peladaId,
-    nome_votante: nomeVotante,
-    nome_votado: v.nome_votado,
-    nota: v.nota,
-    ip_votante: ip || null
-  }));
-  await sbFetch('/votos_pelada', {
-    method: 'POST',
-    prefer: 'resolution=ignore-duplicates,return=minimal',
-    body: JSON.stringify(rows)
-  });
 }
 async function dbGetVotos(peladaId) {
   try {
