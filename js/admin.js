@@ -714,9 +714,11 @@ async function excluirJogadorAdm(){
   if(!id){ showToast('Selecione um jogador para excluir.'); return; }
   const j=(G.jogadores||[]).find(x=>String(x.id)===String(id));
   const nome=j?.nome||document.getElementById('jog-nome')?.value.trim()||'este jogador';
+  const apelido=j?.apelido||document.getElementById('jog-apelido')?.value.trim()||'';
   if(!confirm(`Excluir ${nome} da base de jogadores? Essa ação não pode ser desfeita.`)) return;
   showToast('Excluindo jogador...');
   try{
+    await dbExcluirVotosDoJogador([nome, apelido]);
     await dbExcluirJogador(id);
     await carregarJogadoresAdm();
     fecharFormJogador();

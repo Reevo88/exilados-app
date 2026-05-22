@@ -286,7 +286,7 @@ async function enviarVotosBasico() {
     _resumoAtualizarBotaoVotacao(p);
   } catch(e) {
     const msg = e.message || '';
-    const isDuplicado = msg === 'ip_duplicado' || msg.includes('23505') || msg.includes('uq_votos_pelada') || msg.includes('duplicate key');
+    const isDuplicado = msg === 'ip_duplicado' || msg === 'votante_duplicado' || msg.includes('23505') || msg.includes('uq_votos_pelada') || msg.includes('duplicate key');
     if(msg === 'nome_invalido') {
       showToastDanger('Seu nome não está na lista desta pelada.');
     } else if(isDuplicado) {
@@ -394,7 +394,7 @@ async function enviarVotos() {
     _resumoAtualizarBotaoVotacao(p);
   } catch(e) {
     const msg = e.message || '';
-    const isDuplicado = msg === 'ip_duplicado' || msg.includes('23505') || msg.includes('uq_votos_pelada') || msg.includes('duplicate key');
+    const isDuplicado = msg === 'ip_duplicado' || msg === 'votante_duplicado' || msg.includes('23505') || msg.includes('uq_votos_pelada') || msg.includes('duplicate key');
     console.error('Falha ao enviar votos:', msg, e);
     if(msg === 'nome_invalido') {
       showToastDanger('Seu nome não está na lista desta pelada.');

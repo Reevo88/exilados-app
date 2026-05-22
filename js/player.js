@@ -167,7 +167,7 @@ function _atualizarBotaoVotacaoHome(p) {
       votBtn.disabled = true;
       votBtn.style.opacity = '.5';
       votBtn.style.cursor = 'default';
-      if(votLabel) votLabel.textContent = 'Já votei';
+      if(votLabel) votLabel.textContent = 'Voto enviado';
     } else {
       if(votLabel) votLabel.textContent = 'Avaliar';
     }
@@ -211,7 +211,7 @@ function _atualizarBotaoVotacaoHome(p) {
       votBtn.disabled = true;
       votBtn.style.opacity = '.5';
       votBtn.style.cursor = 'default';
-      if(votLabel) votLabel.textContent = 'JÃ¡ votei';
+      if(votLabel) votLabel.textContent = 'Voto enviado';
     } else {
       if(votLabel) votLabel.textContent = 'Avaliar';
     }

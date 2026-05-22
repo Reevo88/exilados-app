@@ -116,6 +116,7 @@ async function dbDeletar(id) {
 }
 async function dbExcluirPelada(id) {
   // Apaga primeiro as confirmações para evitar erro caso o Supabase não esteja com cascade configurado.
+  await sbFetch('/votos_pelada?pelada_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
   await sbFetch('/confirmacoes?pelada_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
   await sbFetch('/peladas?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
 }
@@ -134,6 +135,13 @@ async function dbCriarJogador(fields) {
 }
 async function dbExcluirJogador(id) {
   await sbFetch('/jogadores?id=eq.'+encodeURIComponent(id),{method:'DELETE',prefer:'return=minimal'});
+}
+async function dbExcluirVotosDoJogador(nomes=[]) {
+  const unicos=[...new Set((nomes||[]).map(v=>String(v||'').trim()).filter(Boolean))];
+  for(const nome of unicos){
+    await sbFetch('/votos_pelada?nome_votante=eq.'+encodeURIComponent(nome),{method:'DELETE',prefer:'return=minimal'}).catch(()=>{});
+    await sbFetch('/votos_pelada?nome_votado=eq.'+encodeURIComponent(nome),{method:'DELETE',prefer:'return=minimal'}).catch(()=>{});
+  }
 }
 async function dbJogadorPorAuth(userId) {
   const rows=await sbFetch('/jogadores?auth_user_id=eq.'+encodeURIComponent(userId)+'&limit=1');
