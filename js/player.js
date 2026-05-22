@@ -269,7 +269,9 @@ async function exigirLoginParaConfirmacao(){
 }
 
 function nomeConfirmacaoAtual(){
-  return apelidoJogadorLogado() || G.meuNome || '';
+  const inp=document.getElementById('jc-input');
+  const digitado=inp && !inp.disabled ? String(inp.value||'').trim() : '';
+  return digitado || apelidoJogadorLogado() || G.meuNome || '';
 }
 
 function jogadorAtualNaPelada(pelada){
@@ -467,7 +469,7 @@ function renderJConf(){
   } else {
     const nomeSalvo = nomeConfirmacaoAtual();
     inp.value = nomeSalvo;
-    inp.disabled = true;
+    inp.disabled = false;
   }
 
   if(btnCancelar){
@@ -536,6 +538,7 @@ function renderJConf(){
 async function jogadorVai(churrasOpt){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível confirmar presença.')) return;
   const p=G.pelada;
+  const tratarComoJogador = G.appContext === 'player';
   const nome=nomeConfirmacaoAtual();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(G.jogadorLogado && !apelidoJogadorLogado()){
@@ -545,7 +548,7 @@ async function jogadorVai(churrasOpt){
   }
 
   // Bloqueio: dispositivo já confirmou outro nome nesta pelada (ignora se ADM)
-  if(!G.isAdm){
+  if(tratarComoJogador){
     const nomeConf = lsNomeConfirmadoNaPelada(p.id);
     if(nomeConf && normNome(nomeConf) !== normNome(nome)){
       showToast(`Este dispositivo já confirmou "${nomeConf}" nesta pelada.`);
@@ -571,18 +574,19 @@ async function jogadorVai(churrasOpt){
     }
     G.meuNome=nome;
     // Salva identidade no dispositivo
-    if(!G.isAdm){
+    if(tratarComoJogador){
       lsSetNome(nome);
       lsRegistrarConf(p.id, nome);
     }
     showToast(vaiParaEspera?'Você entrou na lista de espera!':'Presença confirmada!');
     renderJConf();
-  }catch(e){ showToast('Erro ao confirmar.'); }
+  }catch(e){ console.error('Erro ao confirmar presença:', e); showToast('Erro ao confirmar.'); }
 }
 
 async function jogadorNaoVai(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível alterar presença.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
+  const tratarComoJogador = G.appContext === 'player';
   const nome=nomeConfirmacaoAtual();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(p.naoVao.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Ausência já registrada!'); return; }
@@ -594,14 +598,14 @@ async function jogadorNaoVai(){
       p.confirmados=p.confirmados.filter(j=>j.id!==conf.id);
       p.jogadores=p.jogadores.filter(j=>j.id!==conf.id);
       p.naoVao.push({id:conf.id,nome});
-      if(!G.isAdm) lsLimparConf(p.id);
+      if(tratarComoJogador) lsLimparConf(p.id);
     }catch(e){}
   } else if(espera){
     try{
       await dbAtualizar(espera.id,{status:'nao_vai',pago:false,time:'pool'});
       p.espera=p.espera.filter(j=>j.id!==espera.id);
       p.naoVao.push({id:espera.id,nome});
-      if(!G.isAdm) lsLimparConf(p.id);
+      if(tratarComoJogador) lsLimparConf(p.id);
     }catch(e){}
   } else {
     try{
@@ -616,6 +620,7 @@ async function jogadorNaoVai(){
 async function jogadorCancelar(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível cancelar presença.')) return;
   const p=G.pelada; p.espera=p.espera||[];
+  const tratarComoJogador = G.appContext === 'player';
   const nome=G.meuNome||nomeConfirmacaoAtual();
   if(!nome){ document.getElementById('jc-input').focus(); showToast('Digite seu nome primeiro para cancelar.'); return; }
   const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
@@ -631,7 +636,7 @@ async function jogadorCancelar(){
     G.meuNome='';
     document.getElementById('jc-input').value=lsGetNome(); // mantém nome salvo, limpa só o bloqueio da pelada
     document.getElementById('jc-input').disabled=false;
-    if(!G.isAdm) lsLimparConf(p.id);
+    if(tratarComoJogador) lsLimparConf(p.id);
     showToast('Confirmação cancelada');
     renderJConf();
   }catch(e){ showToast('Erro ao cancelar.'); }
