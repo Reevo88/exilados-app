@@ -290,9 +290,7 @@ function jogadorAtualNaPelada(pelada){
     if(porId) return porId;
   }
   const candidatos = [
-    lsNomeConfirmadoNaPelada(pelada.id),
     apelidoJogadorLogado(),
-    lsGetNome(),
     G.meuNome
   ].filter(Boolean);
   for(const nome of candidatos){
@@ -310,9 +308,7 @@ function confirmacaoAtualNaPelada(pelada){
     if(porId) return porId;
   }
   const candidatos = [
-    lsNomeConfirmadoNaPelada(pelada.id),
     apelidoJogadorLogado(),
-    lsGetNome(),
     G.meuNome
   ].filter(Boolean);
   for(const nome of candidatos){
@@ -480,7 +476,6 @@ function renderJConf(){
   const inp = document.getElementById('jc-input');
   const btnCancelar = document.getElementById('btn-cancelar');
 
-  // Prioridade: já confirmado nesta pelada > nome do localStorage > G.meuNome
   const jaConf = confirmacaoAtualNaPelada(p);
 
   if(!G.usuario || !G.jogadorLogado){
@@ -494,7 +489,7 @@ function renderJConf(){
   } else {
     const nomeSalvo = apelidoJogadorLogado() || G.meuNome || '';
     inp.value = nomeSalvo;
-    inp.disabled = true;
+    inp.disabled = false;
   }
 
   if(btnCancelar){
@@ -563,7 +558,7 @@ function renderJConf(){
 async function jogadorVai(churrasOpt){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível confirmar presença.')) return;
   const p=G.pelada;
-  const tratarComoJogador = G.appContext === 'player';
+  const tratarComoJogador = false;
   const nome=nomeConfirmacaoEfetivo();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(G.jogadorLogado && !apelidoJogadorLogado()){
@@ -611,7 +606,7 @@ async function jogadorVai(churrasOpt){
 async function jogadorNaoVai(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível alterar presença.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
-  const tratarComoJogador = G.appContext === 'player';
+  const tratarComoJogador = false;
   const nome=nomeConfirmacaoEfetivo();
   if(!nome){ document.getElementById('jc-input').focus(); return; }
   if(p.naoVao.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Ausência já registrada!'); return; }
@@ -645,7 +640,7 @@ async function jogadorNaoVai(){
 async function jogadorCancelar(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível cancelar presença.')) return;
   const p=G.pelada; p.espera=p.espera||[];
-  const tratarComoJogador = G.appContext === 'player';
+  const tratarComoJogador = false;
   const nome=G.meuNome||nomeConfirmacaoEfetivo();
   if(!nome){ document.getElementById('jc-input').focus(); showToast('Digite seu nome primeiro para cancelar.'); return; }
   const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
