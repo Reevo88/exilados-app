@@ -143,6 +143,12 @@ function proximaDataSemanal(dataBase){
   while(d<hoje) d.setDate(d.getDate()+7);
   return d.toISOString().slice(0,10);
 }
+
+function voltarInicioAdm(){
+  G.pelada = null;
+  renderAdmHome();
+  goTo('s-adm-home');
+}
 function normalizarDataPelada(valor){
   const v=String(valor||'').trim();
   if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
@@ -543,6 +549,7 @@ function chaveOrdenacaoJogador(j){
 async function abrirJogadoresAdm(){
   fecharMenu();
   if(!G.podeGerirJogadores){ showToast('Acesso restrito ao ADM/Presidente.'); return; }
+  G.pelada = null;
   goTo('s-adm-jogadores');
   await carregarJogadoresAdm();
 }

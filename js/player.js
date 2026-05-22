@@ -15,6 +15,11 @@ function renderJLista(){
     const alt=cor==='azul'?'Camisa azul':'Camisa vermelha';
     return `<img class="home-shirt-svg" src="${src}" alt="${alt}" />`;
   }
+  function labelResumoHome(p){
+    if(p?.resultado) return 'Olho no lance';
+    if(p?.homeResumoDisponivel === true) return 'Olho no lance';
+    return 'Olho no lance';
+  }
 
   el.innerHTML=ord.map(p=>{
     const ab=pelAdaberta(p);
@@ -70,7 +75,7 @@ function renderJLista(){
           </div>
         </div>
         <div id="home-btns-${p.id}" class="closed-btns-wrap">
-          <button id="home-summary-btn-${p.id}" class="closed-highlights-btn" onclick="event.stopPropagation();abrirResumoPublico('${p.id}')"><i class="ti ti-trophy"></i> Ver resumo</button>
+          <button id="home-summary-btn-${p.id}" class="closed-highlights-btn" onclick="event.stopPropagation();abrirResumoPublico('${p.id}')"><i class="ti ti-trophy"></i> <span id="home-summary-label-${p.id}">${labelResumoHome(p)}</span></button>
           <button id="home-vot-btn-${p.id}" class="closed-highlights-btn closed-vot-btn" style="display:none;" onclick="event.stopPropagation();tentarVotarHome('${p.id}')"><i class="ti ti-star"></i> <span id="home-vot-label-${p.id}">Avaliar</span></button>
         </div>
       </div>`;
@@ -106,7 +111,7 @@ async function carregarResultadoCardHome(peladaId){
   try{
     const a   = document.getElementById(`home-gols-a-${peladaId}`);
     const b   = document.getElementById(`home-gols-b-${peladaId}`);
-    const btn = document.getElementById(`home-summary-btn-${peladaId}`);
+    const label = document.getElementById(`home-summary-label-${peladaId}`);
     if(a && b && p?.resultado){
       a.textContent = Number(p.resultado.gols_azul) || 0;
       b.textContent = Number(p.resultado.gols_vermelho) || 0;
@@ -114,7 +119,8 @@ async function carregarResultadoCardHome(peladaId){
     try{
       const [gols, videos] = await Promise.all([dbGetGols(peladaId), dbGetVideos(peladaId)]);
       const temConteudo = !!p?.resultado || (Array.isArray(gols) && gols.length) || (Array.isArray(videos) && videos.length);
-      if(btn && temConteudo) btn.innerHTML = '<i class="ti ti-trophy"></i> Olho no lance';
+      p.homeResumoDisponivel = temConteudo;
+      if(label) label.textContent = 'Olho no lance';
     }catch(e){}
   }catch(e){}
 }
@@ -176,6 +182,49 @@ function _atualizarBotaoVotacaoHome(p) {
 // ==========================================
 // IDENTIDADE DO JOGADOR (localStorage)
 // ==========================================
+function _atualizarBotaoVotacaoHome(p) {
+  if(!p) return;
+  const votBtn   = document.getElementById(`home-vot-btn-${p.id}`);
+  const votLabel = document.getElementById(`home-vot-label-${p.id}`);
+  const btnWrap  = document.getElementById(`home-btns-${p.id}`);
+  if(!votBtn) return;
+
+  if(votacaoEncerrada(p)){
+    if(btnWrap) btnWrap.classList.add('vote-ended-shift');
+    votBtn.style.display = 'none';
+    votBtn.style.visibility = '';
+    votBtn.style.pointerEvents = '';
+    votBtn.disabled = true;
+    votBtn.style.opacity = '';
+    votBtn.style.cursor = 'default';
+    return;
+  }
+
+  if(votacaoAberta(p)){
+    if(btnWrap) btnWrap.classList.remove('vote-ended-shift');
+    votBtn.style.display = '';
+    votBtn.style.visibility = 'visible';
+    votBtn.style.pointerEvents = '';
+    votBtn.disabled = false;
+    votBtn.style.opacity = '';
+    votBtn.style.cursor = '';
+    if(lsJaVotou(p.id)){
+      votBtn.disabled = true;
+      votBtn.style.opacity = '.5';
+      votBtn.style.cursor = 'default';
+      if(votLabel) votLabel.textContent = 'JÃ¡ votei';
+    } else {
+      if(votLabel) votLabel.textContent = 'Avaliar';
+    }
+    return;
+  }
+
+  votBtn.style.display = 'none';
+  votBtn.style.visibility = '';
+  votBtn.style.pointerEvents = '';
+  if(btnWrap) btnWrap.classList.remove('vote-ended-shift');
+}
+
 const LS_NOME_KEY     = 'exilados_nome';          // nome salvo do dispositivo
 const LS_CONF_KEY     = 'exilados_confs';          // { peladaId: nomeConfirmado }
 
@@ -266,6 +315,7 @@ function chaveOrdenacaoPeladeiro(j){
 
 async function abrirPeladeirosPublico(){
   fecharMenuJogador();
+  G.pelada = null;
   goTo('s-j-peladeiros');
   await carregarPeladeirosPublico();
 }

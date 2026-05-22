@@ -78,6 +78,12 @@ async function dbGetVotos(peladaId) {
     return r || [];
   } catch(e) { return []; }
 }
+async function dbGetVotosDoVotante(peladaId, nomeVotante) {
+  try {
+    const r = await sbFetch(`/votos_pelada?pelada_id=eq.${peladaId}&nome_votante=eq.${encodeURIComponent(nomeVotante)}`);
+    return r || [];
+  } catch(e) { return []; }
+}
 
 // -- Compilar resultado -------------------
 function compilarVotos(votos, jogadores) {
@@ -325,4 +331,90 @@ async function _resumoRenderRanking(peladaId, jogadores) {
     }
     el.style.display = '';
   } catch(e) { el.style.display = 'none'; }
+}
+
+async function publicarResultadoVotacao(pelada) {
+  try {
+    const votos = await dbGetVotos(pelada.id);
+    if(!votos.length) return null;
+    const jogadores = (pelada.jogadores && pelada.jogadores.length)
+      ? pelada.jogadores
+      : pelada.confirmados;
+    const ranking = compilarVotos(votos, jogadores);
+    if(!ranking.length) return null;
+    const craque = ranking[0];
+    const pereba = ranking[ranking.length - 1];
+    if(craque && craque.nome) {
+      await dbSalvarEstatistica(pelada.id, 'craque', craque.nome);
+    }
+    if(pereba && pereba.nome && (!craque || craque.nome !== pereba.nome)) {
+      await dbSalvarEstatistica(pelada.id, 'pereba', pereba.nome);
+    }
+    return { craque, pereba, ranking };
+  } catch(e) {
+    console.warn('Erro ao publicar resultado votacao:', e);
+  }
+  return null;
+}
+
+async function enviarVotos() {
+  const p = G.pelada;
+  if(!p) return;
+  const nomeSalvo = lsNomeConfirmadoNaPelada(p.id) || lsGetNome();
+  if(!nomeSalvo) return;
+
+  const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
+  const rows = [...document.querySelectorAll('#vot-lista-jogadores .vot-stars')];
+  const votos = [];
+  let semNota = false;
+
+  rows.forEach(container => {
+    const nota = parseInt(container.dataset.nota || '0');
+    if(!nota) { semNota = true; return; }
+    votos.push({ nome_votado: container.dataset.nome, nota });
+  });
+
+  if(semNota) {
+    showToast('Avalie todos os jogadores antes de enviar.');
+    return;
+  }
+  if(!votos.length) {
+    showToast('Nenhum jogador para votar.');
+    return;
+  }
+
+  try {
+    await dbEnviarVotos(p.id, nomeSalvo, votos, escalados);
+    const votosPersistidos = await dbGetVotosDoVotante(p.id, nomeSalvo);
+    if(!votosPersistidos.length) throw new Error('persistencia_vazia');
+    lsMarcarVotou(p.id);
+    document.getElementById('vot-form').style.display = 'none';
+    document.getElementById('vot-aviso-janela').style.display = 'none';
+    document.getElementById('vot-ja-votou').style.display = '';
+    showToast('Votos enviados! ⭐');
+    await _atualizarContadorVotos(p.id, escalados.length);
+    _resumoAtualizarBotaoVotacao(p);
+  } catch(e) {
+    const msg = e.message || '';
+    const isDuplicado = msg === 'ip_duplicado' || msg.includes('23505') || msg.includes('uq_votos_pelada') || msg.includes('duplicate key');
+    console.error('Falha ao enviar votos:', msg, e);
+    if(msg === 'nome_invalido') {
+      showToastDanger('Seu nome não está na lista desta pelada.');
+    } else if(isDuplicado) {
+      const votosExistentes = await dbGetVotosDoVotante(p.id, nomeSalvo);
+      if(votosExistentes.length) {
+        lsMarcarVotou(p.id);
+        document.getElementById('vot-form').style.display = 'none';
+        document.getElementById('vot-aviso-janela').style.display = 'none';
+        document.getElementById('vot-ja-votou').style.display = '';
+        showToast('Voto já registrado para este dispositivo! ⭐');
+      } else {
+        showToastDanger('Seus votos não foram gravados no banco. Tente novamente.');
+      }
+    } else if(msg === 'persistencia_vazia') {
+      showToastDanger('O envio retornou sem gravar os votos. Tente novamente.');
+    } else {
+      showToast('Erro ao enviar votos. Tente novamente.');
+    }
+  }
 }

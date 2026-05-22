@@ -265,7 +265,7 @@ async function pjRemoverVideo(id){
   }catch(e){ showToast('Erro ao remover.'); }
 }
 
-// Ver Resumo Público (ADM -> s-resumo)
+// Abrir Olho no lance (ADM -> s-resumo)
 // Render Craque e Pereba no ADM
 function pjRenderEstatisticas(){
   ['craque','pereba'].forEach(tipo => {
@@ -386,7 +386,7 @@ async function renderResumo(peladaId, pjCache){
 
   // Botão flutuante ADM
   const admBack = document.getElementById('resumo-adm-back');
-  if(admBack) admBack.style.display = G.isAdm ? 'flex' : 'none';
+  if(admBack) admBack.style.display = 'none';
 
   // Botão de votação (só para jogadores escalados durante janela aberta)
   _resumoAtualizarBotaoVotacao(p);
@@ -488,8 +488,8 @@ async function renderResumo(peladaId, pjCache){
   }
 
   // -- Aba Estatísticas - lógica por estado da votação --
-  const craque = estats.find(e => e.tipo === 'craque');
-  const pereba = estats.find(e => e.tipo === 'pereba');
+  let craque = estats.find(e => e.tipo === 'craque');
+  let pereba = estats.find(e => e.tipo === 'pereba');
 
   const statsCraque     = document.getElementById('resumo-stats-craque');
   const statsCraqueNome = document.getElementById('resumo-stats-craque-nome');
@@ -555,6 +555,15 @@ async function renderResumo(peladaId, pjCache){
     // APÓS ENCERRAMENTO: craque + pereba + artilharia
     if(statsVotCard) statsVotCard.style.display = 'none';
     if(rankingLabel) rankingLabel.style.display = 'none';
+    if(!craque || !pereba) {
+      await publicarResultadoVotacao(p);
+      const novasEstatsPublicadas = await dbGetEstatisticas(peladaId);
+      if(novasEstatsPublicadas && novasEstatsPublicadas.length) {
+        estats = novasEstatsPublicadas;
+        craque = estats.find(e => e.tipo === 'craque');
+        pereba = estats.find(e => e.tipo === 'pereba');
+      }
+    }
 
     // Publicar automaticamente se ainda não foi publicado
     if(!craque) {

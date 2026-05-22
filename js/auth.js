@@ -170,8 +170,7 @@ async function abrirPerfilJogador(redirecionarAdm=false){
 
 async function voltarInicioApp(){
   if(G.isAdm && G.appContext==='admin'){
-    renderAdmHome();
-    goTo('s-adm-home');
+    voltarInicioAdm();
     return;
   }
   await voltarLista();
