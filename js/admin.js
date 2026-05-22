@@ -186,7 +186,7 @@ function configurarFormularioPelada(modo){
   const btnDup=document.getElementById('cp-btn-duplicar');
   const btnDel=document.getElementById('cp-btn-excluir');
   const ajuda=document.getElementById('cp-ajuda');
-  if(titulo) titulo.textContent = editando ? 'EDITAR PELADA' : 'NOVA PELADA';
+  if(titulo) titulo.textContent = editando ? 'EDITAR PELADA' : 'MARCAR NOVA PELADA';
   if(btn) btn.innerHTML = editando ? '<i class="ti ti-device-floppy"></i> Salvar alterações' : '<i class="ti ti-check"></i> Criar e abrir confirmações';
   if(btnDup) btnDup.style.display = editando ? 'none' : 'flex';
   if(btnDel) btnDel.style.display = editando ? 'flex' : 'none';
