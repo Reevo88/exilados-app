@@ -478,7 +478,7 @@ function pelAdaberta(p){
   return p.status === 'aberta';
 }
 function peladaStatusInfo(p){
-  if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)) return {label:'Encerrada', cls:'badge-gray', aberta:false};
+  if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)) return {label:'Encerrada', cls:'badge-yellow', aberta:false};
   return {label:'Aberta', cls:'badge-green', aberta:true, lotada:peladaLotada(p)};
 }
 function bloquearSeEncerrada(msg='Partida encerrada. Não é possível alterar confirmações ou escalações.'){
