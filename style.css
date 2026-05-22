@@ -116,7 +116,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 }
 
 /* Badge ADM posicionado nas telas adm */
-#s-adm-conf .header, #s-adm-times .header, #s-adm-fin .header { position:relative; }
+#s-adm-conf .header, #s-adm-times .header, #s-adm-fin .header, #s-resumo .header { position:relative; }
 #s-adm-conf .header > div:last-child,
 #s-adm-times .header > div:last-child,
 #s-adm-fin .header > div:last-child,
