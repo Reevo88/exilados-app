@@ -151,6 +151,23 @@ function aplicarResumoCaixaNaTela(saldoId, extratoId, isAdm) {
   return true;
 }
 
+function hidratarCaixaCache() {
+  aplicarResumoCaixaNaTela('caixa-saldo-val', 'caixa-extrato', true);
+  aplicarResumoCaixaNaTela('jcaixa-saldo-val', 'jcaixa-extrato', false);
+}
+
+function abrirCaixaGeral() {
+  hidratarCaixaCache();
+  goTo('s-adm-fin');
+  renderCaixaGeral();
+}
+
+function abrirJCaixa() {
+  hidratarCaixaCache();
+  goTo('s-j-caixa');
+  renderJCaixa();
+}
+
 // -- RENDER: Caixa Geral (ADM) -------------
 async function limparEstornos() {
   try {
@@ -464,5 +481,7 @@ function verFinanceiroPelada(id) {
   if (!G.pelada) return;
   renderAdmFin(); goTo('s-adm-fin-pelada');
 }
+
+hidratarCaixaCache();
 
 

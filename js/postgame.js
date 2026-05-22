@@ -352,7 +352,7 @@ function resumoNavTimes() {
   renderJTimes(); goTo('s-j-times');
 }
 function resumoNavCaixa() {
-  renderJCaixa(); goTo('s-j-caixa');
+  abrirJCaixa();
 }
 
 function abrirVideoPlayer(url, titulo) {

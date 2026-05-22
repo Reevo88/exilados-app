@@ -246,7 +246,7 @@ function admNav(aba){
     showToastDanger('Acesso restrito ao perfil escalador.'); return;
   }
   if(aba==='fin'){
-    renderCaixaGeral(); goTo('s-adm-fin'); return;
+    abrirCaixaGeral(); return;
   }
   if(!G.pelada){ showToast('Selecione uma pelada primeiro'); goTo('s-adm-home'); renderAdmHome(); return; }
   if(aba==='conf')     { renderAdmConf();  goTo('s-adm-conf'); }
