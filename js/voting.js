@@ -251,7 +251,7 @@ function votarEstrela(btn) {
   container.dataset.nota = val;
 }
 
-async function enviarVotos() {
+async function enviarVotosBasico() {
   const p = G.pelada;
   if(!p) return;
   const nomeSalvo = jogadorAtualNaPelada(p)?.nome || '';
@@ -357,7 +357,7 @@ async function publicarResultadoVotacao(pelada) {
   return null;
 }
 
-async function enviarVotosLegado() {
+async function enviarVotos() {
   const p = G.pelada;
   if(!p) return;
   const nomeSalvo = jogadorAtualNaPelada(p)?.nome || '';

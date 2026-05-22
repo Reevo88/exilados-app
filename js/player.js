@@ -555,7 +555,7 @@ function renderJConf(){
   });
 }
 
-async function jogadorVai(churrasOpt){
+async function jogadorVaiImpl(churrasOpt){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível confirmar presença.')) return;
   const p=G.pelada;
   const tratarComoJogador = false;
@@ -603,7 +603,7 @@ async function jogadorVai(churrasOpt){
   }catch(e){ console.error('Erro ao confirmar presença:', e); showToast('Erro ao confirmar.'); }
 }
 
-async function jogadorNaoVai(){
+async function jogadorNaoVaiImpl(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível alterar presença.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
   const tratarComoJogador = false;
@@ -637,7 +637,7 @@ async function jogadorNaoVai(){
   renderJConf();
 }
 
-async function jogadorCancelar(){
+async function jogadorCancelarImpl(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível cancelar presença.')) return;
   const p=G.pelada; p.espera=p.espera||[];
   const tratarComoJogador = false;
@@ -663,23 +663,19 @@ async function jogadorCancelar(){
 }
 
 
-const _jogadorVaiSemLoginObrigatorio = jogadorVai;
-const _jogadorNaoVaiSemLoginObrigatorio = jogadorNaoVai;
-const _jogadorCancelarSemLoginObrigatorio = jogadorCancelar;
-
 async function jogadorVai(churrasOpt){
   if(!(await exigirLoginParaConfirmacao())) return;
-  return _jogadorVaiSemLoginObrigatorio(churrasOpt);
+  return jogadorVaiImpl(churrasOpt);
 }
 
 async function jogadorNaoVai(){
   if(!(await exigirLoginParaConfirmacao())) return;
-  return _jogadorNaoVaiSemLoginObrigatorio();
+  return jogadorNaoVaiImpl();
 }
 
 async function jogadorCancelar(){
   if(!(await exigirLoginParaConfirmacao())) return;
-  return _jogadorCancelarSemLoginObrigatorio();
+  return jogadorCancelarImpl();
 }
 
 // ==========================================
