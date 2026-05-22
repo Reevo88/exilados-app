@@ -118,6 +118,39 @@ function origemLabel(m) {
 // -- Variável de filtro do extrato ---------
 let _extratoFiltro = 'todos';
 
+const LS_CAIXA_CACHE_KEY = 'exilados_caixa_cache';
+
+function lerCacheCaixa() {
+  try {
+    const raw = localStorage.getItem(LS_CAIXA_CACHE_KEY);
+    if (!raw) return null;
+    const cache = JSON.parse(raw);
+    if (!cache || !Array.isArray(cache.movimentos) || !cache.resumo) return null;
+    return cache;
+  } catch(e) {
+    return null;
+  }
+}
+
+function salvarCacheCaixa(movimentos) {
+  try {
+    localStorage.setItem(LS_CAIXA_CACHE_KEY, JSON.stringify({
+      movimentos,
+      resumo: calcularResumo(movimentos),
+      updatedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function aplicarResumoCaixaNaTela(saldoId, extratoId, isAdm) {
+  const cache = lerCacheCaixa();
+  if (!cache) return false;
+  const saldoEl = document.getElementById(saldoId);
+  if (saldoEl) saldoEl.textContent = fmtMoney(cache.resumo?.saldo || 0);
+  renderExtrato(cache.movimentos, extratoId, 'todos', isAdm);
+  return true;
+}
+
 // -- RENDER: Caixa Geral (ADM) -------------
 async function limparEstornos() {
   try {
@@ -134,9 +167,11 @@ async function renderCaixaGeral() {
   document.querySelectorAll('.cfiltro').forEach(b => b.classList.remove('active'));
   const btnTodos = document.querySelector('.cfiltro');
   if(btnTodos) btnTodos.classList.add('active');
+  aplicarResumoCaixaNaTela('caixa-saldo-val', 'caixa-extrato', true);
 
   const movimentos = await dbGetMovimentos();
   const res = calcularResumo(movimentos);
+  salvarCacheCaixa(movimentos);
 
   document.getElementById('caixa-saldo-val').textContent = fmtMoney(res.saldo);
 
@@ -145,8 +180,11 @@ async function renderCaixaGeral() {
 
 // -- RENDER: Caixa Jogador (leitura) ------
 async function renderJCaixa() {
+  aplicarResumoCaixaNaTela('jcaixa-saldo-val', 'jcaixa-extrato', false);
+
   const movimentos = await dbGetMovimentos();
   const res = calcularResumo(movimentos);
+  salvarCacheCaixa(movimentos);
 
   document.getElementById('jcaixa-saldo-val').textContent = fmtMoney(res.saldo);
 
