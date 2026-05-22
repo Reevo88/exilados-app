@@ -206,6 +206,12 @@ async function renderJCaixa() {
   document.getElementById('jcaixa-saldo-val').textContent = fmtMoney(res.saldo);
 
   renderExtrato(movimentos, 'jcaixa-extrato', 'todos', false);
+
+  const aberta = G.pelada && pelAdaberta(G.pelada);
+  ['jcaixa-nav-conf','jcaixa-nav-times'].forEach(id => {
+    const btn = document.getElementById(id);
+    if(btn) btn.classList.toggle('nav-disabled', !aberta);
+  });
 }
 
 // -- RENDER: Extrato -----------------------
