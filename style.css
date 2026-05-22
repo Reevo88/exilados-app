@@ -87,6 +87,21 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .player-menu-btn { width:34px; height:34px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:var(--white); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; padding:0; }
 .player-menu-btn i { font-size:22px; }
 
+/* Home jogador: cabeçalho fixo/flutuante */
+#s-j-lista .header{
+  position:fixed;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  width:calc(100% - 24px);
+  max-width:406px;
+  margin:0;
+  z-index:135;
+}
+#s-j-lista .page-body{
+  padding-top:104px;
+}
+
 /* Badge ADM posicionado nas telas adm */
 #s-adm-conf .header, #s-adm-times .header, #s-adm-fin .header { position:relative; }
 #s-adm-conf .header > div:last-child,
