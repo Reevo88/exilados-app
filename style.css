@@ -83,7 +83,20 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 #s-votacao .htext h1 { font-size:clamp(19px,5.4vw,24px); }
 .htext p  { font-size:13px; color:var(--white); opacity:.86; margin-top:4px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-.adm-badge { background:rgba(255,255,255,.15); border-radius:8px; padding:4px 10px; font-size:11px; color:var(--cream); display:flex; align-items:center; gap:4px; font-weight:600; white-space:nowrap; }
+.adm-badge {
+  background:var(--uni-yellow);
+  border:1px solid rgba(17,17,17,.10);
+  border-radius:8px;
+  padding:4px 10px;
+  font-size:11px;
+  color:#111;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-weight:700;
+  white-space:nowrap;
+  box-shadow:0 1px 0 rgba(255,255,255,.18), 0 3px 8px rgba(0,0,0,.12);
+}
 .player-menu-btn { width:34px; height:34px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:var(--white); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; padding:0; }
 .player-menu-btn i { font-size:22px; }
 
@@ -106,7 +119,13 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 #s-adm-conf .header, #s-adm-times .header, #s-adm-fin .header { position:relative; }
 #s-adm-conf .header > div:last-child,
 #s-adm-times .header > div:last-child,
-#s-adm-fin .header > div:last-child { position:absolute; right:18px; bottom:14px; z-index:2; }
+#s-adm-fin .header > div:last-child {
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:2;
+}
 #s-adm-conf .header .htext,
 #s-adm-times .header .htext,
 #s-adm-fin .header .htext { padding-right:54px; text-align:center; }
