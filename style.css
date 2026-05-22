@@ -282,6 +282,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .badge       { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; padding:3px 8px; border-radius:99px; }
 .badge-green { background:var(--success-bg); color:var(--success-text); }
 .badge-gray  { background:var(--surface2);   color:var(--text2); }
+.badge-yellow{ background:var(--warn-bg);    color:var(--warn-text); border:1px solid var(--warn-border); }
 .badge-red   { background:var(--danger-bg);  color:var(--danger-text); }
 
 /* -- STAT GRID ----------------------------- */
