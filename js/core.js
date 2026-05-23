@@ -87,7 +87,10 @@ async function dbCarregarPeladas() {
         p.naoVao.push({id:c.id, nome:c.nome});
         return;
       }
-      const j={id:c.id,jogador_id:c.jogador_id||null,nome:c.nome,pos:(c.posicao&&['?','GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?',time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
+      const _posConf=(c.posicao&&['GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?';
+      const _jogCad=c.jogador_id?(G.jogadores||[]).find(jj=>String(jj.id)===String(c.jogador_id)):null;
+      const _posFinal=(_posConf==='?'&&_jogCad&&_jogCad.posicao_favorita&&['GOL','ZAG','LAT','MEI','ATA'].includes(_jogCad.posicao_favorita))?_jogCad.posicao_favorita:_posConf;
+      const j={id:c.id,jogador_id:c.jogador_id||null,nome:c.nome,pos:_posFinal,time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
       if(c.status==='espera'){
         p.espera.push(j);
         return;
@@ -101,8 +104,9 @@ async function dbCriarPelada(p) {
   const rows=await sbFetch('/peladas',{method:'POST',body:JSON.stringify({nome:p.nome,data:p.data,hora:p.hora,local:p.local,valor:p.valor,max_jogadores:p.max,status:'aberta',tem_churras:p.temChurras||false})});
   return rows[0];
 }
-async function dbConfirmar(peladaId,nome,churras,status='confirmado',jogadorId=null) {
-  const body={pelada_id:peladaId,nome,posicao:'?',time:'pool',pago:false,modalidade:'avulso',status};
+async function dbConfirmar(peladaId,nome,churras,status='confirmado',jogadorId=null,posicao=null) {
+  const posVal=(posicao&&['GOL','ZAG','LAT','MEI','ATA'].includes(posicao))?posicao:'?';
+  const body={pelada_id:peladaId,nome,posicao:posVal,time:'pool',pago:false,modalidade:'avulso',status};
   if(churras) body.churras=churras;
   if(jogadorId) body.jogador_id=jogadorId;
   const rows=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify(body)});

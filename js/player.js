@@ -100,8 +100,8 @@ function renderJLista(){
   }).join('');
 
   ord.filter(p=>!pelAdaberta(p)).forEach(p=>{
-    _atualizarBotaoVotacaoHome(p);      // síncrono - não depende do banco
-    carregarResultadoCardHome(p.id);    // async - placar/vídeos em background
+    _atualizarBotaoVotacaoHome(p);
+    carregarResultadoCardHome(p.id);
   });
 }
 
@@ -125,7 +125,6 @@ async function carregarResultadoCardHome(peladaId){
   }catch(e){}
 }
 
-
 function tentarVotarHome(id) {
   const p = G.peladas.find(x => String(x.id) === String(id));
   if(!p) return;
@@ -142,45 +141,6 @@ function tentarVotarHome(id) {
   abrirVotacao();
 }
 
-function _atualizarBotaoVotacaoHome(p) {
-  if(!p) return;
-  const votBtn   = document.getElementById(`home-vot-btn-${p.id}`);
-  const votLabel = document.getElementById(`home-vot-label-${p.id}`);
-  if(!votBtn) return;
-
-  if(votacaoEncerrada(p)){
-    // Votação encerrada - mostra botão desabilitado
-    votBtn.style.display = '';
-    votBtn.disabled = true;
-    votBtn.style.opacity = '.5';
-    votBtn.style.cursor = 'default';
-    if(votLabel) votLabel.textContent = 'Votação encerrada';
-    return;
-  }
-
-  if(votacaoAberta(p)){
-    votBtn.style.display = '';
-    votBtn.disabled = false;
-    votBtn.style.opacity = '';
-    votBtn.style.cursor = '';
-    if(lsJaVotou(p.id)){
-      votBtn.disabled = true;
-      votBtn.style.opacity = '.5';
-      votBtn.style.cursor = 'default';
-      if(votLabel) votLabel.textContent = 'Voto enviado';
-    } else {
-      if(votLabel) votLabel.textContent = 'Avaliar';
-    }
-    return;
-  }
-
-  // Fora da janela - esconde
-  votBtn.style.display = 'none';
-}
-
-// ==========================================
-// IDENTIDADE DO JOGADOR (localStorage)
-// ==========================================
 function _atualizarBotaoVotacaoHome(p) {
   if(!p) return;
   const votBtn   = document.getElementById(`home-vot-btn-${p.id}`);
@@ -224,36 +184,16 @@ function _atualizarBotaoVotacaoHome(p) {
   if(btnWrap) btnWrap.classList.remove('vote-ended-shift');
 }
 
-const LS_NOME_KEY     = 'exilados_nome';          // nome salvo do dispositivo
-const LS_CONF_KEY     = 'exilados_confs';          // { peladaId: nomeConfirmado }
-
-function lsGetNome() {
-  return localStorage.getItem(LS_NOME_KEY) || '';
-}
-function lsSetNome(nome) {
-  localStorage.setItem(LS_NOME_KEY, nome);
-}
-function lsGetConfs() {
-  try { return JSON.parse(localStorage.getItem(LS_CONF_KEY) || '{}'); }
-  catch(e) { return {}; }
-}
-function lsRegistrarConf(peladaId, nome) {
-  const confs = lsGetConfs();
-  confs[String(peladaId)] = nome;
-  localStorage.setItem(LS_CONF_KEY, JSON.stringify(confs));
-}
-function lsLimparConf(peladaId) {
-  const confs = lsGetConfs();
-  delete confs[String(peladaId)];
-  localStorage.setItem(LS_CONF_KEY, JSON.stringify(confs));
-}
-function lsNomeConfirmadoNaPelada(peladaId) {
-  return lsGetConfs()[String(peladaId)] || null;
-}
+// ==========================================
+// IDENTIDADE DO JOGADOR
+// ==========================================
+// Nota: fluxo legado por apelido digitado removido.
+// Toda confirmação exige login (G.usuario + G.jogadorLogado).
 
 function apelidoJogadorLogado(){
   return (G.jogadorLogado && G.jogadorLogado.apelido ? G.jogadorLogado.apelido : '').trim();
 }
+
 async function exigirLoginParaConfirmacao(){
   if(G.usuario && G.jogadorLogado){
     if(!apelidoJogadorLogado()){
@@ -268,17 +208,9 @@ async function exigirLoginParaConfirmacao(){
   return false;
 }
 
-function nomeConfirmacaoAtual(){
-  const inp=document.getElementById('jc-input');
-  const digitado=inp && !inp.disabled ? String(inp.value||'').trim() : '';
-  return digitado || apelidoJogadorLogado() || G.meuNome || '';
-}
-
+// O nome de confirmação vem SEMPRE do perfil logado — sem fallback para input manual.
 function nomeConfirmacaoEfetivo(){
-  if(G.usuario && G.jogadorLogado){
-    return apelidoJogadorLogado() || G.meuNome || '';
-  }
-  return nomeConfirmacaoAtual();
+  return apelidoJogadorLogado();
 }
 
 function jogadorAtualNaPelada(pelada){
@@ -289,12 +221,9 @@ function jogadorAtualNaPelada(pelada){
     const porId = escalados.find(j => String(j.jogador_id || '') === String(jogadorId));
     if(porId) return porId;
   }
-  const candidatos = [
-    apelidoJogadorLogado(),
-    G.meuNome
-  ].filter(Boolean);
-  for(const nome of candidatos){
-    const porNome = escalados.find(j => normNome(j.nome) === normNome(nome));
+  const apelido = apelidoJogadorLogado();
+  if(apelido){
+    const porNome = escalados.find(j => normNome(j.nome) === normNome(apelido));
     if(porNome) return porNome;
   }
   return null;
@@ -307,12 +236,9 @@ function confirmacaoAtualNaPelada(pelada){
     const porId = (pelada.confirmados || []).find(j => String(j.jogador_id || '') === String(jogadorId));
     if(porId) return porId;
   }
-  const candidatos = [
-    apelidoJogadorLogado(),
-    G.meuNome
-  ].filter(Boolean);
-  for(const nome of candidatos){
-    const porNome = (pelada.confirmados || []).find(j => normNome(j.nome) === normNome(nome));
+  const apelido = apelidoJogadorLogado();
+  if(apelido){
+    const porNome = (pelada.confirmados || []).find(j => normNome(j.nome) === normNome(apelido));
     if(porNome) return porNome;
   }
   return null;
@@ -473,23 +399,19 @@ function renderJConf(){
   document.getElementById('jc-conf').textContent=totalJogadoresConfirmados(p);
   document.getElementById('jc-count').textContent=p.max||14;
 
+  // Campo de nome: SEMPRE desabilitado — confirmação exige login
   const inp = document.getElementById('jc-input');
   const btnCancelar = document.getElementById('btn-cancelar');
 
-  const jaConf = confirmacaoAtualNaPelada(p);
-
   if(!G.usuario || !G.jogadorLogado){
+    // Não logado: mostra placeholder orientando ao login, input desabilitado
     inp.value = '';
-    inp.placeholder = 'Digite seu apelido';
-    inp.disabled = false;
-  } else if(jaConf){
-    G.meuNome = jaConf.nome;
-    inp.value = jaConf.nome;
+    inp.placeholder = 'Faça login para confirmar';
     inp.disabled = true;
   } else {
-    const nomeSalvo = apelidoJogadorLogado() || G.meuNome || '';
-    inp.value = nomeSalvo;
-    inp.disabled = false;
+    const jaConf = confirmacaoAtualNaPelada(p);
+    inp.value = jaConf ? jaConf.nome : apelidoJogadorLogado();
+    inp.disabled = true;
   }
 
   if(btnCancelar){
@@ -528,7 +450,7 @@ function renderJConf(){
     :'';
   el.innerHTML=confHtml+soChurrasHtml+esperaHtml+naoVaoHtml;
 
-  // Botões de confirmação: redesenhar se tem churras
+  // Botões de confirmação
   const btnArea = document.querySelector('#s-j-conf .card');
   if(btnArea && p.temChurras){
     const btnDiv = btnArea.querySelector('div[style*="display:flex;gap:8px"]');
@@ -547,58 +469,103 @@ function renderJConf(){
         <button class="btn" style="flex:1;background:#fde8e8;color:#c0392b;border:1px solid #f5c6c6;margin:0;font-weight:700;" onclick="jogadorNaoVai()"><i class="ti ti-x"></i> TÔ FORA</button>`;
     }
   }
-  document.querySelectorAll('#s-j-conf button[onclick^="jogadorVai"]').forEach(btn=>{
-    btn.dataset.confirmAction = 'vai';
-  });
-  document.querySelectorAll('#s-j-conf button[onclick^="jogadorNaoVai"]').forEach(btn=>{
-    btn.dataset.confirmAction = 'nao-vai';
-  });
+}
+
+// ==========================================
+// CONFIRMAÇÃO — lógica central (upsert)
+// ==========================================
+
+/**
+ * Busca confirmação existente do jogador logado nesta pelada.
+ * Prioriza busca por jogador_id, depois por apelido normalizado.
+ */
+async function _buscarConfirmacaoExistente(peladaId){
+  const jogadorId = G.jogadorLogado?.id || null;
+  if(jogadorId){
+    try{
+      const rows = await sbFetch(`/confirmacoes?pelada_id=eq.${peladaId}&jogador_id=eq.${encodeURIComponent(jogadorId)}&limit=1`);
+      if(rows && rows.length) return rows[0];
+    }catch(e){}
+  }
+  const apelido = apelidoJogadorLogado();
+  if(apelido){
+    try{
+      const rows = await sbFetch(`/confirmacoes?pelada_id=eq.${peladaId}&order=created_at.asc`);
+      if(rows && rows.length){
+        const match = rows.find(r => normNome(r.nome) === normNome(apelido));
+        if(match) return match;
+      }
+    }catch(e){}
+  }
+  return null;
 }
 
 async function jogadorVaiImpl(churrasOpt){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível confirmar presença.')) return;
   const p=G.pelada;
-  const tratarComoJogador = false;
   const nome=nomeConfirmacaoEfetivo();
-  if(!nome){ document.getElementById('jc-input').focus(); return; }
-  if(G.jogadorLogado && !apelidoJogadorLogado()){
-    showToast('Cadastre seu apelido antes de confirmar.');
-    await abrirPerfilJogador();
-    return;
-  }
+  if(!nome){ showToast('Faça login para confirmar presença.'); return; }
 
-  // Bloqueio: dispositivo já confirmou outro nome nesta pelada (ignora se ADM)
-  if(tratarComoJogador){
-    const nomeConf = lsNomeConfirmadoNaPelada(p.id);
-    if(nomeConf && normNome(nomeConf) !== normNome(nome)){
-      showToast(`Este dispositivo já confirmou "${nomeConf}" nesta pelada.`);
-      document.getElementById('jc-input').value = nomeConf;
-      return;
-    }
-  }
-
-  if(p.confirmados.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Você já está confirmado!'); return; }
-  p.espera=p.espera||[];
-  if(p.espera.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Você já está na lista de espera!'); return; }
   const churrasVal = p.temChurras ? (churrasOpt||'jogo') : null;
   const vaiParaEspera = churrasVal !== 'churras' && peladaLotada(p);
+
   showToast('Confirmando...');
   try{
-    const row=await dbConfirmar(p.id,nome,churrasVal,vaiParaEspera?'espera':'confirmado',G.jogadorLogado?.id||null);
-    const novo={id:row.id,jogador_id:G.jogadorLogado?.id||null,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churrasVal};
-    if(vaiParaEspera){
-      p.espera.push(novo);
+    // Upsert: busca se já existe qualquer registro deste jogador nesta pelada
+    const existente = await _buscarConfirmacaoExistente(p.id);
+
+    if(existente){
+      // Já existe — atualiza status ao invés de inserir novo
+      const novoStatus = vaiParaEspera ? 'espera' : 'confirmado';
+      await dbAtualizar(existente.id, {
+        status: novoStatus,
+        nome: nome,
+        churras: churrasVal,
+        jogador_id: G.jogadorLogado?.id || existente.jogador_id || null,
+        pago: existente.pago || false,
+        time: novoStatus === 'confirmado' ? (existente.time || 'pool') : 'pool',
+      });
+
+      // Atualiza estado local — remove da posição antiga e coloca na nova
+      p.confirmados = p.confirmados.filter(j=>j.id!==existente.id);
+      p.jogadores   = p.jogadores.filter(j=>j.id!==existente.id);
+      p.espera      = (p.espera||[]).filter(j=>j.id!==existente.id);
+      p.naoVao      = (p.naoVao||[]).filter(j=>j.id!==existente.id);
+
+      const atualizado = {
+        id: existente.id,
+        jogador_id: G.jogadorLogado?.id || null,
+        nome, pos: existente.posicao || existente.pos || '?',
+        time: novoStatus === 'confirmado' ? (existente.time || 'pool') : 'pool',
+        pago: existente.pago || false,
+        modalidade: existente.modalidade || 'avulso',
+        churras: churrasVal,
+      };
+      if(vaiParaEspera){
+        p.espera.push(atualizado);
+      } else {
+        p.confirmados.push(atualizado);
+        if(churrasVal !== 'churras') p.jogadores.push({...atualizado});
+      }
     } else {
-      p.confirmados.push(novo);
-      if(churrasVal !== 'churras') p.jogadores.push({...novo});
+      // Não existe — insere novo
+      const _posIns=G.jogadorLogado?.posicao_favorita||null;
+      const row = await dbConfirmar(p.id, nome, churrasVal, vaiParaEspera ? 'espera' : 'confirmado', G.jogadorLogado?.id || null, _posIns);
+      const novo = {
+        id: row.id,
+        jogador_id: G.jogadorLogado?.id || null,
+        nome, pos: '?', time: 'pool',
+        pago: false, modalidade: 'avulso', churras: churrasVal,
+      };
+      if(vaiParaEspera){
+        p.espera.push(novo);
+      } else {
+        p.confirmados.push(novo);
+        if(churrasVal !== 'churras') p.jogadores.push({...novo});
+      }
     }
-    G.meuNome=nome;
-    // Salva identidade no dispositivo
-    if(tratarComoJogador){
-      lsSetNome(nome);
-      lsRegistrarConf(p.id, nome);
-    }
-    showToast(vaiParaEspera?'Você entrou na lista de espera!':'Presença confirmada!');
+
+    showToast(vaiParaEspera ? 'Você entrou na lista de espera!' : 'Presença confirmada!');
     renderJConf();
   }catch(e){ console.error('Erro ao confirmar presença:', e); showToast('Erro ao confirmar.'); }
 }
@@ -606,63 +573,59 @@ async function jogadorVaiImpl(churrasOpt){
 async function jogadorNaoVaiImpl(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível alterar presença.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
-  const tratarComoJogador = false;
   const nome=nomeConfirmacaoEfetivo();
-  if(!nome){ document.getElementById('jc-input').focus(); return; }
-  if(p.naoVao.find(j=>normNome(j.nome)===normNome(nome))){ showToast('Ausência já registrada!'); return; }
-  const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
-  const conf=p.confirmados.find(j=>normNome(j.nome)===normNome(nome));
-  if(conf){
-    try{
-      await dbAtualizar(conf.id,{status:'nao_vai',pago:false,time:'pool'});
-      p.confirmados=p.confirmados.filter(j=>j.id!==conf.id);
-      p.jogadores=p.jogadores.filter(j=>j.id!==conf.id);
-      p.naoVao.push({id:conf.id,nome});
-      if(tratarComoJogador) lsLimparConf(p.id);
-    }catch(e){}
-  } else if(espera){
-    try{
-      await dbAtualizar(espera.id,{status:'nao_vai',pago:false,time:'pool'});
-      p.espera=p.espera.filter(j=>j.id!==espera.id);
-      p.naoVao.push({id:espera.id,nome});
-      if(tratarComoJogador) lsLimparConf(p.id);
-    }catch(e){}
-  } else {
-    try{
-      const rows=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify({pelada_id:p.id,nome,posicao:'?',time:'pool',pago:false,modalidade:'avulso',status:'nao_vai'})});
-      p.naoVao.push({id:rows[0].id,nome});
-    }catch(e){}
-  }
-  showToast('Ausência registrada. Até a próxima!');
-  renderJConf();
+  if(!nome){ showToast('Faça login para registrar ausência.'); return; }
+
+  try{
+    const existente = await _buscarConfirmacaoExistente(p.id);
+    if(existente){
+      await dbAtualizar(existente.id, {status:'nao_vai', pago:false, time:'pool'});
+      p.confirmados = p.confirmados.filter(j=>j.id!==existente.id);
+      p.jogadores   = p.jogadores.filter(j=>j.id!==existente.id);
+      p.espera      = p.espera.filter(j=>j.id!==existente.id);
+      p.naoVao      = p.naoVao.filter(j=>j.id!==existente.id);
+      p.naoVao.push({id:existente.id, nome});
+    } else {
+      // Não existe nenhum registro — cria direto como nao_vai
+      const rows = await sbFetch('/confirmacoes', {
+        method:'POST',
+        body: JSON.stringify({
+          pelada_id: p.id, nome,
+          jogador_id: G.jogadorLogado?.id || null,
+          posicao:'?', time:'pool', pago:false, modalidade:'avulso', status:'nao_vai',
+        }),
+      });
+      p.naoVao.push({id:rows[0].id, nome});
+    }
+    showToast('Ausência registrada. Até a próxima!');
+    renderJConf();
+  }catch(e){ showToast('Erro ao registrar ausência.'); }
 }
 
 async function jogadorCancelarImpl(){
   if(bloquearSeEncerrada('Partida encerrada. Não é mais possível cancelar presença.')) return;
   const p=G.pelada; p.espera=p.espera||[];
-  const tratarComoJogador = false;
-  const nome=G.meuNome||nomeConfirmacaoEfetivo();
-  if(!nome){ document.getElementById('jc-input').focus(); showToast('Digite seu nome primeiro para cancelar.'); return; }
-  const espera=p.espera.find(j=>normNome(j.nome)===normNome(nome));
-  const conf=p.confirmados.find(j=>normNome(j.nome)===normNome(nome));
-  if(!conf && !espera){ showToast('Esse nome não está na lista de confirmados.'); return; }
+  const nome=nomeConfirmacaoEfetivo();
+  if(!nome){ showToast('Faça login para cancelar presença.'); return; }
+
   try{
-    const item=conf||espera;
-    await dbAtualizar(item.id,{status:'nao_vai',pago:false,time:'pool'});
-    p.confirmados=p.confirmados.filter(j=>j.id!==item.id);
-    p.jogadores=p.jogadores.filter(j=>j.id!==item.id);
-    p.espera=p.espera.filter(j=>j.id!==item.id);
-    p.naoVao.push({id:item.id,nome:item.nome});
-    G.meuNome='';
-    document.getElementById('jc-input').value=nomeConfirmacaoEfetivo();
-    document.getElementById('jc-input').disabled=false;
-    if(tratarComoJogador) lsLimparConf(p.id);
+    const existente = await _buscarConfirmacaoExistente(p.id);
+    if(!existente || existente.status==='nao_vai'){
+      showToast('Você não está na lista de confirmados.');
+      return;
+    }
+    await dbAtualizar(existente.id, {status:'nao_vai', pago:false, time:'pool'});
+    p.confirmados = p.confirmados.filter(j=>j.id!==existente.id);
+    p.jogadores   = p.jogadores.filter(j=>j.id!==existente.id);
+    p.espera      = p.espera.filter(j=>j.id!==existente.id);
+    p.naoVao      = (p.naoVao||[]).filter(j=>j.id!==existente.id);
+    p.naoVao.push({id:existente.id, nome:existente.nome||nome});
     showToast('Confirmação cancelada');
     renderJConf();
   }catch(e){ showToast('Erro ao cancelar.'); }
 }
 
-
+// Wrappers públicos — todos exigem login
 async function jogadorVai(churrasOpt){
   if(!(await exigirLoginParaConfirmacao())) return;
   return jogadorVaiImpl(churrasOpt);
@@ -699,4 +662,3 @@ function renderJTimes(){
     ?pool.map(j=>`<div class="pool-item"><div class="pool-av">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;font-size:13px;font-weight:500;">${escHtml(j.nome)}</span>${posBadge(j.pos)}</div>`).join('')
     :'<div style="padding:8px;font-size:12px;color:var(--text3);">Todos escalados!</div>';
 }
-
