@@ -598,27 +598,17 @@ async function renderResumo(peladaId, pjCache){
   const destaque  = document.getElementById('resumo-destaque-video');
 
   if(videos.length) {
-    if(vEmpty)   vEmpty.style.display = 'none';
-
-    // Destaque: primeiro vídeo com autoplay (muted), roda uma vez
+    if(vEmpty)   vEmpty.style.display   = 'none';
     if(destaque) {
       destaque.style.display = '';
-      const v0    = videos[0];
+      const v0 = videos[0];
       const ytId0 = extrairYoutubeId(v0.video_url);
       const frame0 = document.getElementById('resumo-destaque-player');
-      if(frame0 && ytId0) {
-        frame0.src = ytEmbedUrl(ytId0, true);  // autoplay=true, loop=false
-      }
+      if(frame0 && ytId0) frame0.src = ytEmbedUrl(ytId0, true);
       document.getElementById('resumo-destaque-titulo').textContent = v0.titulo;
-      const tipoEl = document.getElementById('resumo-destaque-tipo');
-      if(tipoEl) tipoEl.textContent = '';
     }
-
-    // Lista (aba Vídeos): todos os vídeos clicáveis, sem autoplay
-    const listVideos = videos.slice(1); // demais videos
     grid.innerHTML = '';
-    const allForList = videos; // aba Vídeos mostra todos
-    allForList.forEach(v => {
+    videos.forEach(v => {
       const ytId = extrairYoutubeId(v.video_url);
       if(!ytId) return;
       const item = document.createElement('div');
@@ -636,7 +626,7 @@ async function renderResumo(peladaId, pjCache){
     });
   } else {
     grid.innerHTML = '';
-    if(vEmpty)   vEmpty.style.display = '';
+    if(vEmpty)   vEmpty.style.display   = '';
     if(destaque) destaque.style.display = 'none';
   }
 }
