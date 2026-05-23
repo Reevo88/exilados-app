@@ -104,8 +104,7 @@ function youtubeWatchUrl(url){
 function youtubeEmbedUrl(url){
   const id = youtubeVideoId(url);
   if(!id) return '';
-  // youtube-nocookie.com evita que o PWA standalone abra o app do YouTube
-  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0&modestbranding=1`;
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0`;
 }
 
 function youtubeThumbUrl(url){
@@ -406,68 +405,24 @@ function resumoNavCaixa() {
 }
 
 function abrirVideoPlayer(url, titulo) {
-  const vid  = document.getElementById('vplayer-video');
-  const yt   = document.getElementById('vplayer-youtube');
-  const body = document.querySelector('#s-video-player .vplayer-body');
+  const vid = document.getElementById('vplayer-video');
+  const yt  = document.getElementById('vplayer-youtube');
   const titEl = document.getElementById('vplayer-titulo');
   if(titEl) titEl.textContent = titulo || 'Video';
   goTo('s-video-player');
-
   if(isYoutubeUrl(url)) {
-    // Esconde video nativo e iframe
     if(vid) { vid.pause(); vid.src = ''; vid.style.display = 'none'; }
-    if(yt)  { yt.src = ''; yt.style.display = 'none'; }
-
-    // Mostra thumbnail com botão de play — iframe só carrega quando o usuário tocar
-    const thumbUrl = youtubeThumbUrl(url);
-    const embedUrl = youtubeEmbedUrl(url);
-
-    // Remove placeholder anterior se existir
-    const old = body ? body.querySelector('.yt-thumb-placeholder') : null;
-    if(old) old.remove();
-
-    const placeholder = document.createElement('div');
-    placeholder.className = 'yt-thumb-placeholder';
-    placeholder.innerHTML = `
-      <img src="${thumbUrl}" alt="${escHtml(titulo||'')}" />
-      <button class="yt-play-btn" aria-label="Reproduzir vídeo">
-        <svg viewBox="0 0 68 48" width="68" height="48">
-          <path d="M66.5 7.7c-.8-2.9-3-5.2-5.9-6C55.8 0 34 0 34 0S12.2 0 7.4 1.7c-2.9.8-5.1 3.1-5.9 6C0 12.5 0 24 0 24s0 11.5 1.5 16.3c.8 2.9 3 5.2 5.9 6C12.2 48 34 48 34 48s21.8 0 26.6-1.7c2.9-.8 5.1-3.1 5.9-6C68 35.5 68 24 68 24s0-11.5-1.5-16.3z" fill="#f00"/>
-          <path d="M45 24 27 14v20" fill="#fff"/>
-        </svg>
-      </button>`;
-
-    placeholder.querySelector('.yt-play-btn').onclick = () => {
-      placeholder.remove();
-      if(yt) {
-        yt.style.cssText = 'display:block;width:100%;height:100%;border:0;background:#000;';
-        yt.src = embedUrl;
-      }
-    };
-
-    if(body) body.appendChild(placeholder);
-
+    if(yt)  { yt.style.display = 'block'; yt.src = youtubeEmbedUrl(url); }
   } else {
-    // Vídeo direto (não YouTube)
     if(yt)  { yt.src = ''; yt.style.display = 'none'; }
-    const old = body ? body.querySelector('.yt-thumb-placeholder') : null;
-    if(old) old.remove();
-    if(vid) {
-      vid.style.display = '';
-      vid.src = url;
-      vid.load();
-    }
+    if(vid) { vid.style.display = ''; vid.src = url; vid.load(); }
   }
 }
-
 function fecharVideoPlayer() {
-  const vid  = document.getElementById('vplayer-video');
-  const yt   = document.getElementById('vplayer-youtube');
-  const body = document.querySelector('#s-video-player .vplayer-body');
-  if(vid) { vid.pause(); vid.src = ''; vid.style.display = ''; }
-  if(yt)  { yt.src = ''; yt.style.display = 'none'; }
-  const old = body ? body.querySelector('.yt-thumb-placeholder') : null;
-  if(old) old.remove();
+  const vid = document.getElementById('vplayer-video');
+  const yt = document.getElementById('vplayer-youtube');
+  if(vid) { vid.pause(); vid.src = ''; }
+  if(yt) { yt.src = ''; yt.style.display = 'none'; }
   goTo('s-resumo');
 }
 async function renderResumo(peladaId, pjCache){
