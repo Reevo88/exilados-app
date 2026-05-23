@@ -2,7 +2,7 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v42';
+const CACHE_NAME = 'exilados-v50';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
@@ -68,6 +68,17 @@ self.addEventListener('fetch', event => {
   // Requisições ao Supabase: sempre vai pra rede (dados em tempo real)
   if (url.hostname.includes('supabase.co')) {
     return; // deixa o browser tratar normalmente
+  }
+
+  // YouTube precisa receber Referer/Origin intactos para o player embutido.
+  // Não interceptamos embeds nem thumbnails para evitar erro 153.
+  if (
+    url.hostname.includes('youtube.com') ||
+    url.hostname.includes('youtube-nocookie.com') ||
+    url.hostname.includes('ytimg.com') ||
+    url.hostname.includes('googlevideo.com')
+  ) {
+    return;
   }
 
   // Google Fonts e CDNs externos: cache-first (raramente mudam)

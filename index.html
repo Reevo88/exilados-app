@@ -717,6 +717,11 @@
       <div id="resumo-destaque-video" style="display:none;margin-bottom:12px;">
         <div class="resumo-video-card">
           <video id="resumo-destaque-player" src="" preload="metadata" playsinline muted controls></video>
+          <iframe id="resumo-destaque-youtube" src="" title="Destaque do YouTube" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          <button id="resumo-destaque-thumb" class="youtube-thumb-btn" type="button" style="display:none;">
+            <img id="resumo-destaque-thumb-img" alt="Prévia do vídeo"/>
+            <span class="youtube-thumb-play"><i class="ti ti-player-play-filled"></i></span>
+          </button>
           <div class="resumo-video-info">
             <span class="resumo-video-titulo" id="resumo-destaque-titulo"></span>
             <span class="resumo-video-tipo" id="resumo-destaque-tipo"></span>
@@ -859,6 +864,7 @@
 <div class="screen" id="s-video-player">
   <div class="vplayer-body">
     <video id="vplayer-video" src="" controls playsinline preload="metadata"></video>
+    <iframe id="vplayer-youtube" src="" title="Player do YouTube" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
   </div>
   <div class="vplayer-bottom">
     <button onclick="fecharVideoPlayer()" class="vplayer-back-btn"><i class="ti ti-arrow-left"></i> Voltar aos vídeos</button>
@@ -909,7 +915,7 @@
       <div id="pj-gols-lista"><div class="empty" style="font-size:12px;">Nenhum gol cadastrado</div></div>
     </div>
 
-    <!-- Upload de Vídeos -->
+    <!-- Links de Vídeos -->
     <div class="card" style="margin-bottom:12px;">
       <div class="card-title"><i class="ti ti-video" style="font-size:14px;"></i> Vídeos / Melhores Momentos</div>
       <div class="field" style="margin-bottom:8px;">
@@ -927,12 +933,12 @@
         </select>
       </div>
       <div class="field" style="margin-bottom:10px;">
-        <label>Arquivo de Vídeo *</label>
-        <input type="file" id="pj-video-file" accept="video/*" style="font-size:13px;"/>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Máx. 50MB. Formatos: mp4, mov, avi, webm</div>
+        <label>Link do YouTube *</label>
+        <input type="url" id="pj-video-url" placeholder="https://youtu.be/..." autocomplete="off"/>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Suba o vídeo como não listado no YouTube e cole o link aqui.</div>
       </div>
-      <button class="btn btn-primary" onclick="pjUploadVideo()" id="pj-btn-upload"><i class="ti ti-upload"></i> Enviar Vídeo</button>
-      <div id="pj-upload-progress" style="display:none;margin-top:10px;font-size:13px;color:var(--text2);">Enviando…</div>
+      <button class="btn btn-primary" onclick="pjSalvarLinkVideo()" id="pj-btn-upload"><i class="ti ti-link"></i> Salvar Link</button>
+      <div id="pj-upload-progress" style="display:none;margin-top:10px;font-size:13px;color:var(--text2);">Salvando…</div>
       <div style="margin-top:12px;" id="pj-videos-lista"></div>
     </div>
 
