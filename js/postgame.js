@@ -104,7 +104,8 @@ function youtubeWatchUrl(url){
 function youtubeEmbedUrl(url){
   const id = youtubeVideoId(url);
   if(!id) return '';
-  return `https://www.youtube.com/embed/${encodeURIComponent(id)}?feature=oembed`;
+  // youtube-nocookie.com evita que o PWA standalone abra o app do YouTube
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0&modestbranding=1`;
 }
 
 function youtubeThumbUrl(url){
@@ -410,24 +411,20 @@ function abrirVideoPlayer(url, titulo) {
   const titEl = document.getElementById('vplayer-titulo');
   if(titEl) titEl.textContent = titulo || 'Video';
   goTo('s-video-player');
-  if(yt) {
-    yt.src = '';
-    yt.style.display = 'none';
-  }
-  if(vid) {
-    vid.pause();
-    vid.src = '';
-    vid.style.display = isYoutubeUrl(url) ? 'none' : '';
-    vid.loop = false;
-  }
   if(isYoutubeUrl(url)) {
+    // Roda dentro do app via iframe (youtube-nocookie evita abrir app externo)
+    if(vid) { vid.pause(); vid.src = ''; vid.style.display = 'none'; }
     if(yt) {
       yt.style.display = 'block';
       yt.src = youtubeEmbedUrl(url);
     }
-  } else if(vid) {
-    vid.src = url;
-    vid.load();
+  } else {
+    if(yt) { yt.src = ''; yt.style.display = 'none'; }
+    if(vid) {
+      vid.style.display = '';
+      vid.src = url;
+      vid.load();
+    }
   }
 }
 function fecharVideoPlayer() {
