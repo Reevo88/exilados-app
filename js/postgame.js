@@ -76,6 +76,50 @@ async function uploadVideoStorage(peladaId, arquivo){
   return { storagePath: caminho, publicUrl };
 }
 
+function youtubeVideoId(url){
+  const raw = String(url || '').trim();
+  if(!raw) return '';
+  try{
+    const u = new URL(raw);
+    const host = u.hostname.replace(/^www\./,'').toLowerCase();
+    if(host === 'youtu.be') return u.pathname.split('/').filter(Boolean)[0] || '';
+    if(host === 'youtube.com' || host === 'm.youtube.com' || host === 'music.youtube.com'){
+      if(u.searchParams.get('v')) return u.searchParams.get('v');
+      const parts = u.pathname.split('/').filter(Boolean);
+      if(['shorts','embed','live'].includes(parts[0])) return parts[1] || '';
+    }
+  }catch(e){}
+  return '';
+}
+
+function isYoutubeUrl(url){
+  return !!youtubeVideoId(url);
+}
+
+function youtubeWatchUrl(url){
+  const id = youtubeVideoId(url);
+  return id ? `https://www.youtube.com/watch?v=${encodeURIComponent(id)}` : '';
+}
+
+function youtubeEmbedUrl(url){
+  const id = youtubeVideoId(url);
+  if(!id) return '';
+  return `https://www.youtube.com/embed/${encodeURIComponent(id)}?feature=oembed`;
+}
+
+function youtubeThumbUrl(url){
+  const id = youtubeVideoId(url);
+  return id ? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg` : '';
+}
+
+function videoCardPreviewHtml(video){
+  const url = video.video_url || '';
+  if(isYoutubeUrl(url)){
+    return `<button class="resumo-video-grid-thumb youtube-thumb-btn" type="button" onclick="abrirVideoPlayer('${url.replace(/'/g,"\\'")}','${escHtml(video.titulo).replace(/'/g,"\\'")}')"><img src="${youtubeThumbUrl(url)}" alt="${escHtml(video.titulo)}" loading="lazy"><span class="youtube-thumb-play"><i class="ti ti-player-play-filled"></i></span></button>`;
+  }
+  return `<button class="resumo-video-grid-thumb resumo-video-placeholder" onclick="abrirVideoPlayer('${url.replace(/'/g,"\\'")}','${escHtml(video.titulo).replace(/'/g,"\\'")}')"><i class="ti ti-player-play"></i></button>`;
+}
+
 // ==========================================
 // PÓS-JOGO - ESTADO LOCAL
 // ==========================================
@@ -219,42 +263,47 @@ function pjRenderVideos(){
 }
 
 // Upload de Vídeo
-async function pjUploadVideo(){
+async function pjSalvarLinkVideo(){
   const titulo = document.getElementById('pj-video-titulo').value.trim();
   const tipo = document.getElementById('pj-video-tipo').value;
-  const fileInput = document.getElementById('pj-video-file');
-  const arquivo = fileInput.files && fileInput.files[0];
+  const urlInput = document.getElementById('pj-video-url');
+  if(!urlInput){ showToast('Atualize a página para cadastrar links do YouTube.'); return; }
+  const urlInformada = urlInput.value.trim();
   if(!titulo){ showToast('Informe o título do vídeo.'); return; }
-  if(!arquivo){ showToast('Selecione um arquivo de vídeo.'); return; }
-  if(arquivo.size > 50*1024*1024){ showToast('Arquivo muito grande (máx. 50MB).'); return; }
+  if(!urlInformada){ showToast('Cole o link do YouTube.'); return; }
+  const publicUrl = youtubeWatchUrl(urlInformada);
+  if(!publicUrl){ showToast('Link do YouTube inválido.'); return; }
   const btn = document.getElementById('pj-btn-upload');
   const prog = document.getElementById('pj-upload-progress');
   btn.disabled = true;
   prog.style.display = 'block';
-  prog.textContent = 'Enviando… aguarde';
+  prog.textContent = 'Salvando... aguarde';
   try{
-    const { storagePath, publicUrl } = await uploadVideoStorage(G.pelada.id, arquivo);
     const row = await dbSalvarVideo({
       pelada_id: G.pelada.id,
       titulo, tipo,
-      storage_path: storagePath,
+      storage_path: `youtube:${youtubeVideoId(publicUrl)}`,
       video_url: publicUrl,
       ordem: PJ.videos.length
     });
     if(row) PJ.videos.push(row);
     pjRenderVideos();
     document.getElementById('pj-video-titulo').value='';
-    fileInput.value='';
+    urlInput.value='';
     prog.style.display='none';
     btn.disabled=false;
-    showToast('Vídeo enviado!');
+    showToast('Link salvo!');
   }catch(e){
     prog.style.display='none';
     btn.disabled=false;
-    showToast('Erro no upload: '+e.message);
+    showToast('Erro ao salvar: '+e.message);
   }
 }
 
+// Mantém compatibilidade com telas antigas em cache.
+async function pjUploadVideo(){
+  return pjSalvarLinkVideo();
+}
 // Remover Vídeo
 async function pjRemoverVideo(id){
   try{
@@ -357,22 +406,37 @@ function resumoNavCaixa() {
 
 function abrirVideoPlayer(url, titulo) {
   const vid = document.getElementById('vplayer-video');
+  const yt = document.getElementById('vplayer-youtube');
   const titEl = document.getElementById('vplayer-titulo');
-  if(titEl) titEl.textContent = titulo || 'Vídeo';
+  if(titEl) titEl.textContent = titulo || 'Video';
   goTo('s-video-player');
+  if(yt) {
+    yt.src = '';
+    yt.style.display = 'none';
+  }
   if(vid) {
     vid.pause();
-    vid.src = url;
+    vid.src = '';
+    vid.style.display = isYoutubeUrl(url) ? 'none' : '';
     vid.loop = false;
+  }
+  if(isYoutubeUrl(url)) {
+    if(yt) {
+      yt.style.display = 'block';
+      yt.src = youtubeEmbedUrl(url);
+    }
+  } else if(vid) {
+    vid.src = url;
     vid.load();
   }
 }
 function fecharVideoPlayer() {
   const vid = document.getElementById('vplayer-video');
+  const yt = document.getElementById('vplayer-youtube');
   if(vid) { vid.pause(); vid.src = ''; }
+  if(yt) { yt.src = ''; yt.style.display = 'none'; }
   goTo('s-resumo');
 }
-
 async function renderResumo(peladaId, pjCache){
   const p = G.peladas.find(x=>String(x.id)===String(peladaId));
   if(!p) return;
@@ -603,17 +667,35 @@ async function renderResumo(peladaId, pjCache){
   if(videos.length) {
     if(vEmpty)   vEmpty.style.display   = 'none';
     if(destaque) {
-      destaque.style.display = '';
       const v0 = videos[0];
+      const destaqueEhYoutube = isYoutubeUrl(v0.video_url);
+      destaque.style.display = destaqueEhYoutube ? '' : 'none';
       const destaqueVid = document.getElementById('resumo-destaque-player');
-      destaqueVid.src = v0.video_url;
-      destaqueVid.load();
+      const destaqueYt = document.getElementById('resumo-destaque-youtube');
+      const destaqueThumb = document.getElementById('resumo-destaque-thumb');
+      const destaqueThumbImg = document.getElementById('resumo-destaque-thumb-img');
+      if(destaqueYt) {
+        destaqueYt.style.display = 'none';
+        destaqueYt.src = '';
+      }
+      if(destaqueThumb) {
+        destaqueThumb.style.display = destaqueEhYoutube ? 'block' : 'none';
+        destaqueThumb.onclick = destaqueEhYoutube ? () => abrirVideoPlayer(v0.video_url, v0.titulo) : null;
+      }
+      if(destaqueThumbImg) {
+        destaqueThumbImg.src = destaqueEhYoutube ? youtubeThumbUrl(v0.video_url) : '';
+        destaqueThumbImg.alt = v0.titulo || 'Prévia do vídeo';
+      }
+      if(destaqueVid) {
+        destaqueVid.style.display = 'none';
+        destaqueVid.src = '';
+      }
       document.getElementById('resumo-destaque-titulo').textContent = v0.titulo;
       document.getElementById('resumo-destaque-tipo').textContent   = v0.tipo || '';
     }
     grid.innerHTML = videos.map(v => `
       <div class="resumo-video-grid-item">
-        <video src="${v.video_url}" preload="metadata" muted playsinline controls class="resumo-video-grid-thumb"></video>
+        ${videoCardPreviewHtml(v)}
         <div class="resumo-video-grid-info" onclick="abrirVideoPlayer('${v.video_url.replace(/'/g,"\\'")}','${escHtml(v.titulo).replace(/'/g,"\\'")}')">
           <div class="resumo-video-grid-play"><i class="ti ti-player-play" aria-hidden="true"></i></div>
           <span class="resumo-video-grid-titulo">${escHtml(v.titulo)}</span>
@@ -624,6 +706,10 @@ async function renderResumo(peladaId, pjCache){
     grid.innerHTML = '';
     if(vEmpty)   vEmpty.style.display   = '';
     if(destaque) destaque.style.display = 'none';
+    const destaqueYt = document.getElementById('resumo-destaque-youtube');
+    if(destaqueYt) destaqueYt.src = '';
+    const destaqueThumb = document.getElementById('resumo-destaque-thumb');
+    if(destaqueThumb) destaqueThumb.style.display = 'none';
   }
 }
 
