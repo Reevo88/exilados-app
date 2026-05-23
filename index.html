@@ -862,16 +862,16 @@
      PLAYER DE VÍDEO
 ========================================== -->
 <div class="screen" id="s-video-player">
-  <div class="vplayer-bottom">
-    <button onclick="fecharVideoPlayer()" class="vplayer-back-btn"><i class="ti ti-arrow-left"></i> Voltar aos vídeos</button>
-    <div class="vplayer-titulo-bottom" id="vplayer-titulo"></div>
-  </div>
   <div class="vplayer-body">
     <video id="vplayer-video" src="" controls playsinline preload="metadata"></video>
     <iframe id="vplayer-youtube" src="" title="Player do YouTube"
       referrerpolicy="strict-origin-when-cross-origin"
       allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowfullscreen></iframe>
+  </div>
+  <div class="vplayer-bottom">
+    <button onclick="fecharVideoPlayer()" class="vplayer-back-btn"><i class="ti ti-arrow-left"></i> Voltar aos vídeos</button>
+    <div class="vplayer-titulo-bottom" id="vplayer-titulo"></div>
   </div>
 </div>
 
