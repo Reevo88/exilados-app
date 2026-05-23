@@ -1589,7 +1589,8 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 /* Player de vídeo (tela cheia) */
 #s-video-player {
   background: #000;
-  min-height: 100dvh;
+  height: 100dvh;
+  min-height: 0;
   flex-direction: column;
 }
 .vplayer-bottom {
@@ -1604,15 +1605,12 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   padding-left: 16px;
   padding-right: 16px;
   gap: 12px;
-  order: -1;
 }
 .vplayer-body {
   flex: 1;
   min-height: 0;
+  width: 100%;
   background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
 }
 .vplayer-body video {
