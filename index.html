@@ -716,15 +716,12 @@
       </div>
       <div id="resumo-destaque-video" style="display:none;margin-bottom:12px;">
         <div class="resumo-video-card">
-          <video id="resumo-destaque-player" src="" preload="metadata" playsinline muted controls></video>
-          <iframe id="resumo-destaque-youtube" src="" title="Destaque do YouTube" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-          <button id="resumo-destaque-thumb" class="youtube-thumb-btn" type="button" style="display:none;">
-            <img id="resumo-destaque-thumb-img" alt="Prévia do vídeo"/>
-            <span class="youtube-thumb-play"><i class="ti ti-player-play-filled"></i></span>
-          </button>
+          <iframe id="resumo-destaque-player" src="" frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen="false"
+            style="width:100%;aspect-ratio:16/9;display:block;background:#000;border:none;border-radius:var(--radius-sm);"></iframe>
           <div class="resumo-video-info">
             <span class="resumo-video-titulo" id="resumo-destaque-titulo"></span>
-            <span class="resumo-video-tipo" id="resumo-destaque-tipo"></span>
           </div>
         </div>
       </div>
@@ -863,11 +860,10 @@
 ========================================== -->
 <div class="screen" id="s-video-player">
   <div class="vplayer-body">
-    <video id="vplayer-video" src="" controls playsinline preload="metadata"></video>
-    <iframe id="vplayer-youtube" src="" title="Player do YouTube"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen></iframe>
+    <iframe id="vplayer-iframe" src="" frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen="false"
+      style="width:100%;aspect-ratio:16/9;display:block;background:#000;border:none;"></iframe>
   </div>
   <div class="vplayer-bottom">
     <button onclick="fecharVideoPlayer()" class="vplayer-back-btn"><i class="ti ti-arrow-left"></i> Voltar aos vídeos</button>
@@ -918,30 +914,19 @@
       <div id="pj-gols-lista"><div class="empty" style="font-size:12px;">Nenhum gol cadastrado</div></div>
     </div>
 
-    <!-- Links de Vídeos -->
+    <!-- Vídeos via YouTube -->
     <div class="card" style="margin-bottom:12px;">
-      <div class="card-title"><i class="ti ti-video" style="font-size:14px;"></i> Vídeos / Melhores Momentos</div>
+      <div class="card-title"><i class="ti ti-brand-youtube" style="font-size:14px;color:#ff0000;"></i> Vídeos / Melhores Momentos</div>
       <div class="field" style="margin-bottom:8px;">
+        <label>Link do YouTube *</label>
+        <input type="url" id="pj-video-link" placeholder="https://youtu.be/..." autocomplete="off" inputmode="url"/>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Cole qualquer link do YouTube (youtu.be, watch?v=, shorts/)</div>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
         <label>Título do Vídeo *</label>
         <input type="text" id="pj-video-titulo" placeholder="Ex: Golaço do Teta" autocomplete="off"/>
       </div>
-      <div class="field" style="margin-bottom:8px;">
-        <label>Tipo</label>
-        <select id="pj-video-tipo">
-          <option value="melhores_momentos">Melhores Momentos</option>
-          <option value="gol">Gol</option>
-          <option value="defesa">Defesa</option>
-          <option value="bastidores">Bastidores</option>
-          <option value="outro">Outro</option>
-        </select>
-      </div>
-      <div class="field" style="margin-bottom:10px;">
-        <label>Link do YouTube *</label>
-        <input type="url" id="pj-video-url" placeholder="https://youtu.be/..." autocomplete="off"/>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Suba o vídeo como não listado no YouTube e cole o link aqui.</div>
-      </div>
-      <button class="btn btn-primary" onclick="pjSalvarLinkVideo()" id="pj-btn-upload"><i class="ti ti-link"></i> Salvar Link</button>
-      <div id="pj-upload-progress" style="display:none;margin-top:10px;font-size:13px;color:var(--text2);">Salvando…</div>
+      <button class="btn btn-primary" onclick="pjAdicionarVideoYoutube()" id="pj-btn-upload"><i class="ti ti-plus"></i> Adicionar Vídeo</button>
       <div style="margin-top:12px;" id="pj-videos-lista"></div>
     </div>
 
