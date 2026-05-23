@@ -164,7 +164,7 @@ const POSICOES = ['GOL','ZAG','LAT','MEI','ATA'];
 const _sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
     detectSessionInUrl: false,
-    flowType: 'pkce',
+    flowType: 'implicit',
   },
 });
 
