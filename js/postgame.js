@@ -411,15 +411,23 @@ function abrirVideoPlayer(url, titulo) {
   const titEl = document.getElementById('vplayer-titulo');
   if(titEl) titEl.textContent = titulo || 'Video';
   goTo('s-video-player');
+
   if(isYoutubeUrl(url)) {
     // Roda dentro do app via iframe (youtube-nocookie evita abrir app externo)
     if(vid) { vid.pause(); vid.src = ''; vid.style.display = 'none'; }
     if(yt) {
       yt.style.display = 'block';
+      // Força dimensões via JS para garantir preenchimento em todos os browsers Android
+      const body = document.getElementById('s-video-player');
+      const bar  = yt.closest('.screen')?.querySelector('.vplayer-bottom');
+      const barH = bar ? bar.offsetHeight : 56;
+      const totalH = window.innerHeight;
+      yt.style.width  = '100%';
+      yt.style.height = (totalH - barH) + 'px';
       yt.src = youtubeEmbedUrl(url);
     }
   } else {
-    if(yt) { yt.src = ''; yt.style.display = 'none'; }
+    if(yt) { yt.src = ''; yt.style.display = 'none'; yt.style.height = ''; }
     if(vid) {
       vid.style.display = '';
       vid.src = url;
