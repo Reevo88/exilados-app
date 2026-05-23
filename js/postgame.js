@@ -52,72 +52,37 @@ async function dbRemoverVideo(id){
   await sbFetch(`/videos_pelada?id=eq.${id}`,{method:'DELETE'});
 }
 
-// Upload para Supabase Storage
-async function uploadVideoStorage(peladaId, arquivo){
-  const ts = Date.now();
-  const nomeArquivo = `${ts}_${arquivo.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-  const caminho = `peladas/${peladaId}/${nomeArquivo}`;
-  const url = `${SUPABASE_URL}/storage/v1/object/melhores-momentos/${caminho}`;
-  const token = await getSupabaseAccessToken();
-  const resp = await fetch(url, {
-    method:'POST',
-    headers:{
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': arquivo.type || 'video/mp4',
-    },
-    body: arquivo
-  });
-  if(!resp.ok){
-    const err = await resp.text();
-    throw new Error('Erro no upload: '+err);
-  }
-  const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/melhores-momentos/${caminho}`;
-  return { storagePath: caminho, publicUrl };
-}
-
-function youtubeVideoId(url){
-  const raw = String(url || '').trim();
-  if(!raw) return '';
-  try{
-    const u = new URL(raw);
-    const host = u.hostname.replace(/^www\./,'').toLowerCase();
-    if(host === 'youtu.be') return u.pathname.split('/').filter(Boolean)[0] || '';
-    if(host === 'youtube.com' || host === 'm.youtube.com' || host === 'music.youtube.com'){
-      if(u.searchParams.get('v')) return u.searchParams.get('v');
-      const parts = u.pathname.split('/').filter(Boolean);
-      if(['shorts','embed','live'].includes(parts[0])) return parts[1] || '';
+// Extrai o ID do YouTube a partir de qualquer formato de URL válido
+function extrairYoutubeId(url) {
+  try {
+    const u = new URL(url.trim());
+    // youtu.be/ID
+    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+    // youtube.com/watch?v=ID  ou  youtube.com/shorts/ID  ou  youtube.com/embed/ID
+    if (u.hostname.includes('youtube.com')) {
+      if (u.searchParams.get('v')) return u.searchParams.get('v');
+      const m = u.pathname.match(/\/(?:shorts|embed|v)\/([^/?&]+)/);
+      if (m) return m[1];
     }
-  }catch(e){}
-  return '';
+  } catch(e) {}
+  return null;
 }
 
-function isYoutubeUrl(url){
-  return !!youtubeVideoId(url);
-}
-
-function youtubeWatchUrl(url){
-  const id = youtubeVideoId(url);
-  return id ? `https://www.youtube.com/watch?v=${encodeURIComponent(id)}` : '';
-}
-
-function youtubeEmbedUrl(url){
-  const id = youtubeVideoId(url);
-  if(!id) return '';
-  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0`;
-}
-
-function youtubeThumbUrl(url){
-  const id = youtubeVideoId(url);
-  return id ? `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg` : '';
-}
-
-function videoCardPreviewHtml(video){
-  const url = video.video_url || '';
-  if(isYoutubeUrl(url)){
-    return `<button class="resumo-video-grid-thumb youtube-thumb-btn" type="button" onclick="abrirVideoPlayer('${url.replace(/'/g,"\\'")}','${escHtml(video.titulo).replace(/'/g,"\\'")}')"><img src="${youtubeThumbUrl(url)}" alt="${escHtml(video.titulo)}" loading="lazy"><span class="youtube-thumb-play"><i class="ti ti-player-play-filled"></i></span></button>`;
-  }
-  return `<button class="resumo-video-grid-thumb resumo-video-placeholder" onclick="abrirVideoPlayer('${url.replace(/'/g,"\\'")}','${escHtml(video.titulo).replace(/'/g,"\\'")}')"><i class="ti ti-player-play"></i></button>`;
+// Monta URL de embed com parâmetros que evitam vazamento para o YouTube
+function ytEmbedUrl(videoId, autoplay = false) {
+  const params = new URLSearchParams({
+    autoplay:        autoplay ? '1' : '0',
+    loop:            '0',
+    rel:             '0',   // sem vídeos relacionados de outros canais
+    modestbranding:  '1',   // logo mínima do YouTube
+    controls:        '1',
+    playsinline:     '1',
+    fs:              '0',   // sem botão fullscreen (evita sair do app)
+    iv_load_policy:  '3',   // sem anotações
+    disablekb:       '0',
+  });
+  if (autoplay) params.set('mute', '1'); // autoplay exige muted
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 }
 
 // ==========================================
@@ -250,60 +215,48 @@ async function pjRemoverGol(id){
 function pjRenderVideos(){
   const el = document.getElementById('pj-videos-lista');
   if(!PJ.videos.length){
-    el.innerHTML='<div class="empty" style="font-size:12px;">Nenhum vídeo enviado</div>';
+    el.innerHTML='<div class="empty" style="font-size:12px;">Nenhum vídeo adicionado</div>';
     return;
   }
   el.innerHTML = PJ.videos.map(v=>`
     <div class="pj-video-item">
-      <i class="ti ti-video" style="font-size:16px;color:var(--text3);flex-shrink:0;"></i>
+      <i class="ti ti-brand-youtube" style="font-size:16px;color:#ff0000;flex-shrink:0;"></i>
       <span class="pj-video-nome">${escHtml(v.titulo)}</span>
-      <span class="pj-video-tipo-tag">${escHtml(v.tipo||'')}</span>
-      <button onclick="pjRemoverVideo('${v.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--red);"><i class="ti ti-trash" style="font-size:14px;"></i></button>
+      <button data-vid-id="${escHtml(String(v.id))}" class="pj-remover-video-btn" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--red);margin-left:auto;"><i class="ti ti-trash" style="font-size:14px;"></i></button>
     </div>`).join('');
+  el.querySelectorAll('.pj-remover-video-btn').forEach(btn => {
+    btn.addEventListener('click', () => pjRemoverVideo(btn.dataset.vidId));
+  });
 }
 
-// Upload de Vídeo
-async function pjSalvarLinkVideo(){
+// Adicionar Vídeo por link do YouTube
+async function pjAdicionarVideoYoutube(){
   const titulo = document.getElementById('pj-video-titulo').value.trim();
-  const tipo = document.getElementById('pj-video-tipo').value;
-  const urlInput = document.getElementById('pj-video-url');
-  if(!urlInput){ showToast('Atualize a página para cadastrar links do YouTube.'); return; }
-  const urlInformada = urlInput.value.trim();
+  const linkRaw = document.getElementById('pj-video-link').value.trim();
   if(!titulo){ showToast('Informe o título do vídeo.'); return; }
-  if(!urlInformada){ showToast('Cole o link do YouTube.'); return; }
-  const publicUrl = youtubeWatchUrl(urlInformada);
-  if(!publicUrl){ showToast('Link do YouTube inválido.'); return; }
+  if(!linkRaw){ showToast('Cole o link do YouTube.'); return; }
+  const ytId = extrairYoutubeId(linkRaw);
+  if(!ytId){ showToast('Link do YouTube inválido.'); return; }
   const btn = document.getElementById('pj-btn-upload');
-  const prog = document.getElementById('pj-upload-progress');
   btn.disabled = true;
-  prog.style.display = 'block';
-  prog.textContent = 'Salvando... aguarde';
   try{
     const row = await dbSalvarVideo({
       pelada_id: G.pelada.id,
-      titulo, tipo,
-      storage_path: `youtube:${youtubeVideoId(publicUrl)}`,
-      video_url: publicUrl,
+      titulo,
+      video_url: linkRaw,
       ordem: PJ.videos.length
     });
     if(row) PJ.videos.push(row);
     pjRenderVideos();
     document.getElementById('pj-video-titulo').value='';
-    urlInput.value='';
-    prog.style.display='none';
-    btn.disabled=false;
-    showToast('Link salvo!');
+    document.getElementById('pj-video-link').value='';
+    showToast('Vídeo adicionado!');
   }catch(e){
-    prog.style.display='none';
-    btn.disabled=false;
-    showToast('Erro ao salvar: '+e.message);
+    showToast('Erro ao salvar vídeo.');
   }
+  btn.disabled = false;
 }
 
-// Mantém compatibilidade com telas antigas em cache.
-async function pjUploadVideo(){
-  return pjSalvarLinkVideo();
-}
 // Remover Vídeo
 async function pjRemoverVideo(id){
   try{
@@ -404,27 +357,19 @@ function resumoNavCaixa() {
   abrirJCaixa();
 }
 
-function abrirVideoPlayer(url, titulo) {
-  const vid = document.getElementById('vplayer-video');
-  const yt  = document.getElementById('vplayer-youtube');
+function abrirVideoPlayer(videoId, titulo) {
+  const frame = document.getElementById('vplayer-iframe');
   const titEl = document.getElementById('vplayer-titulo');
-  if(titEl) titEl.textContent = titulo || 'Video';
+  if(titEl) titEl.textContent = titulo || 'Vídeo';
+  if(frame) frame.src = ytEmbedUrl(videoId, true);
   goTo('s-video-player');
-  if(isYoutubeUrl(url)) {
-    if(vid) { vid.pause(); vid.src = ''; vid.style.display = 'none'; }
-    if(yt)  { yt.style.display = 'block'; yt.src = youtubeEmbedUrl(url); }
-  } else {
-    if(yt)  { yt.src = ''; yt.style.display = 'none'; }
-    if(vid) { vid.style.display = ''; vid.src = url; vid.load(); }
-  }
 }
 function fecharVideoPlayer() {
-  const vid = document.getElementById('vplayer-video');
-  const yt = document.getElementById('vplayer-youtube');
-  if(vid) { vid.pause(); vid.src = ''; }
-  if(yt) { yt.src = ''; yt.style.display = 'none'; }
+  const frame = document.getElementById('vplayer-iframe');
+  if(frame) frame.src = '';
   goTo('s-resumo');
 }
+
 async function renderResumo(peladaId, pjCache){
   const p = G.peladas.find(x=>String(x.id)===String(peladaId));
   if(!p) return;
@@ -653,51 +598,46 @@ async function renderResumo(peladaId, pjCache){
   const destaque  = document.getElementById('resumo-destaque-video');
 
   if(videos.length) {
-    if(vEmpty)   vEmpty.style.display   = 'none';
+    if(vEmpty)   vEmpty.style.display = 'none';
+
+    // Destaque: primeiro vídeo com autoplay (muted), roda uma vez
     if(destaque) {
-      const v0 = videos[0];
-      const destaqueEhYoutube = isYoutubeUrl(v0.video_url);
-      destaque.style.display = destaqueEhYoutube ? '' : 'none';
-      const destaqueVid = document.getElementById('resumo-destaque-player');
-      const destaqueYt = document.getElementById('resumo-destaque-youtube');
-      const destaqueThumb = document.getElementById('resumo-destaque-thumb');
-      const destaqueThumbImg = document.getElementById('resumo-destaque-thumb-img');
-      if(destaqueYt) {
-        destaqueYt.style.display = 'none';
-        destaqueYt.src = '';
-      }
-      if(destaqueThumb) {
-        destaqueThumb.style.display = destaqueEhYoutube ? 'block' : 'none';
-        destaqueThumb.onclick = destaqueEhYoutube ? () => abrirVideoPlayer(v0.video_url, v0.titulo) : null;
-      }
-      if(destaqueThumbImg) {
-        destaqueThumbImg.src = destaqueEhYoutube ? youtubeThumbUrl(v0.video_url) : '';
-        destaqueThumbImg.alt = v0.titulo || 'Prévia do vídeo';
-      }
-      if(destaqueVid) {
-        destaqueVid.style.display = 'none';
-        destaqueVid.src = '';
+      destaque.style.display = '';
+      const v0    = videos[0];
+      const ytId0 = extrairYoutubeId(v0.video_url);
+      const frame0 = document.getElementById('resumo-destaque-player');
+      if(frame0 && ytId0) {
+        frame0.src = ytEmbedUrl(ytId0, true);  // autoplay=true, loop=false
       }
       document.getElementById('resumo-destaque-titulo').textContent = v0.titulo;
-      document.getElementById('resumo-destaque-tipo').textContent   = v0.tipo || '';
+      const tipoEl = document.getElementById('resumo-destaque-tipo');
+      if(tipoEl) tipoEl.textContent = '';
     }
-    grid.innerHTML = videos.map(v => `
-      <div class="resumo-video-grid-item">
-        ${videoCardPreviewHtml(v)}
-        <div class="resumo-video-grid-info" onclick="abrirVideoPlayer('${v.video_url.replace(/'/g,"\\'")}','${escHtml(v.titulo).replace(/'/g,"\\'")}')">
-          <div class="resumo-video-grid-play"><i class="ti ti-player-play" aria-hidden="true"></i></div>
-          <span class="resumo-video-grid-titulo">${escHtml(v.titulo)}</span>
-          ${v.tipo ? `<span class="resumo-video-grid-tipo">${escHtml(v.tipo)}</span>` : ''}
+
+    // Lista (aba Vídeos): todos os vídeos clicáveis, sem autoplay
+    const listVideos = videos.slice(1); // demais videos
+    grid.innerHTML = '';
+    const allForList = videos; // aba Vídeos mostra todos
+    allForList.forEach(v => {
+      const ytId = extrairYoutubeId(v.video_url);
+      if(!ytId) return;
+      const item = document.createElement('div');
+      item.className = 'resumo-video-list-item';
+      item.innerHTML = `
+        <div class="resumo-video-thumb-wrap">
+          <img src="https://i.ytimg.com/vi/${ytId}/mqdefault.jpg" alt="" class="resumo-video-thumb" loading="lazy">
+          <div class="resumo-video-play-btn"><i class="ti ti-player-play-filled"></i></div>
         </div>
-      </div>`).join('');
+        <div class="resumo-video-list-info">
+          <span class="resumo-video-list-titulo">${escHtml(v.titulo)}</span>
+        </div>`;
+      item.addEventListener('click', () => abrirVideoPlayer(ytId, v.titulo));
+      grid.appendChild(item);
+    });
   } else {
     grid.innerHTML = '';
-    if(vEmpty)   vEmpty.style.display   = '';
+    if(vEmpty)   vEmpty.style.display = '';
     if(destaque) destaque.style.display = 'none';
-    const destaqueYt = document.getElementById('resumo-destaque-youtube');
-    if(destaqueYt) destaqueYt.src = '';
-    const destaqueThumb = document.getElementById('resumo-destaque-thumb');
-    if(destaqueThumb) destaqueThumb.style.display = 'none';
   }
 }
 
