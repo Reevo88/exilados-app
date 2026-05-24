@@ -364,7 +364,16 @@ function credenciaisPerfil(){
 }
 
 function msgAuthErro(e){
-  return [e?.status, e?.code || e?.name, e?.message].filter(Boolean).join(' - ') || 'erro desconhecido';
+  const msg = (e?.message || '').toLowerCase();
+  const code = (e?.code || e?.name || '').toLowerCase();
+  const status = e?.status;
+  if(status===429 || code.includes('rate_limit') || msg.includes('rate limit') || msg.includes('email rate'))
+    return 'Aguarde antes de tentar de novo.';
+  if(code.includes('user_already_exists') || msg.includes('already registered') || msg.includes('already exists'))
+    return 'E-mail já cadastrado. Tente entrar.';
+  if(msg.includes('invalid email') || msg.includes('unable to validate email'))
+    return 'E-mail inválido.';
+  return 'Erro ao enviar. Tente novamente.';
 }
 
 async function entrarJogadorSenha(){
@@ -417,7 +426,7 @@ async function criarContaJogadorSenha(){
     ultimoErro=e;
     resendOk=await reenviarConfirmacaoCadastro();
     if(!resendOk){
-      showToast('Falha ao enviar cadastro: '+msgAuthErro(ultimoErro));
+      showToast(msgAuthErro(ultimoErro));
       console.error('Falha ao enviar/reenviar cadastro:', ultimoErro);
       if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-user-plus"></i> Criar conta'; }
       return;
@@ -445,7 +454,7 @@ async function recuperarSenhaJogador(){
     showToast('Se o e-mail existir e o envio não estiver limitado, você receberá o link em instantes.');
   }catch(e){
     console.error('Falha ao enviar redefinição:', e);
-    showToast('Falha ao enviar redefinição: '+msgAuthErro(e));
+    showToast(msgAuthErro(e));
   }
   finally{ if(btn){ btn.disabled=false; btn.textContent='Esqueci minha senha'; } }
 }
