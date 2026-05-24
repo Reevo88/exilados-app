@@ -119,6 +119,8 @@ async function abrirPosJogo(id){
   document.getElementById('pj-nome-header').textContent = p.nome;
   document.getElementById('pj-meta-header').textContent = `${fmtData(p.data)} · ${p.hora} · ${p.local}`;
   goTo('s-adm-posjogo');
+  const _tituloEl=document.getElementById('pj-video-titulo');
+  if(_tituloEl) _tituloEl.value='Melhores Momentos';
   try{
     const [res, gols, videos, estats] = await Promise.all([
       dbGetResultado(p.id),
@@ -248,7 +250,7 @@ async function pjAdicionarVideoYoutube(){
     });
     if(row) PJ.videos.push(row);
     pjRenderVideos();
-    document.getElementById('pj-video-titulo').value='';
+    document.getElementById('pj-video-titulo').value='Melhores Momentos';
     document.getElementById('pj-video-link').value='';
     showToast('Vídeo adicionado!');
   }catch(e){
