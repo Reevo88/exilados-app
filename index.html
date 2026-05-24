@@ -1099,6 +1099,29 @@
     });
   })();
 </script>
+
+<script>
+(function(){
+  function handleNavTap(e){
+    var btn = e.currentTarget;
+    if(navigator.vibrate) navigator.vibrate(10);
+    var ring = document.createElement('span');
+    ring.style.cssText = 'position:absolute;top:50%;left:50%;width:52px;height:52px;border-radius:50%;background:rgba(192,57,43,.18);transform:translate(-50%,-50%) scale(0);pointer-events:none;opacity:1;transition:transform .32s ease-out,opacity .32s ease-out;';
+    btn.appendChild(ring);
+    requestAnimationFrame(function(){
+      ring.style.transform = 'translate(-50%,-50%) scale(1.6)';
+      ring.style.opacity = '0';
+      setTimeout(function(){ ring.remove(); }, 360);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.nav-btn').forEach(function(btn){
+      btn.setAttribute('data-haptic','1');
+      btn.addEventListener('click', handleNavTap);
+    });
+  });
+})();
+</script>
 </body>
 </html>
 

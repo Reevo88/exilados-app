@@ -144,100 +144,80 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   left: 50%;
   bottom: calc(12px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
-  width: calc(100% - 18px);
-  max-width: 404px;
+  width: calc(100% - 24px);
+  max-width: 400px;
   display: flex;
-  align-items: stretch;
-  gap: 6px;
+  align-items: center;
+  gap: 2px;
   padding: 5px;
-  border-radius: 23px;
-  border: 1px solid rgba(255,255,255,.72);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.82), rgba(249,248,245,.64));
-  box-shadow:
-    0 18px 44px rgba(14,18,28,.14),
-    0 4px 14px rgba(14,18,28,.08),
-    inset 0 1px 0 rgba(255,255,255,.78);
-  backdrop-filter: blur(18px) saturate(1.15);
-  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  border-radius: 999px;
+  border: 0.5px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.72);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  box-shadow: 0 4px 20px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
   z-index: 140;
 }
 .nav-btn {
   position: relative;
   flex: 1;
-  min-height: 50px;
-  padding: 6px 5px 5px;
+  min-height: 52px;
+  padding: 7px 4px 6px;
   border: none;
-  border-radius: 17px;
+  border-radius: 999px;
   background: transparent;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  color: #777169;
-  font-size: 9px;
+  gap: 3px;
+  color: #888;
+  font-size: 10px;
   font-family: 'Inter',sans-serif;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: .01em;
   line-height: 1.05;
   overflow: hidden;
-  transition:
-    color .28s ease,
-    transform .28s ease,
-    opacity .28s ease;
+  transition: background .25s cubic-bezier(.4,0,.2,1);
 }
-.nav-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.92), rgba(244,241,235,.72));
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    0 10px 22px rgba(32,37,48,.10);
-  opacity: 0;
-  transform: scale(.78);
-  transition:
-    opacity .3s ease,
-    transform .34s cubic-bezier(.2,.8,.2,1);
+.nav-btn i {
+  font-size: 22px;
+  color: #888;
+  display: block;
+  transition: color .22s, transform .2s cubic-bezier(.34,1.56,.64,1);
+  position: relative;
+  z-index: 1;
 }
-.nav-btn.active {
-  color: #121212;
-  transform: translateY(-1px);
-}
-.nav-btn.active::before {
-  opacity: 1;
-  transform: scale(1);
-}
-.nav-btn i,
 .nav-btn span {
   position: relative;
   z-index: 1;
-  transition:
-    transform .3s ease,
-    opacity .3s ease,
-    color .3s ease;
+  display: block;
+  white-space: nowrap;
+  color: #888;
+  transition: color .22s;
 }
-.nav-btn i {
-  font-size: 19px;
+.nav-btn.active {
+  background: rgba(210,210,210,.55);
 }
 .nav-btn.active i {
-  transform: translateY(-1px) scale(1.04);
+  color: #c0392b;
+  transform: scale(1.08);
 }
 .nav-btn.active span {
-  transform: translateY(0);
+  color: #c0392b;
+  font-weight: 700;
 }
 .nav-btn:not(.active):active {
-  transform: translateY(1px) scale(.985);
+  transform: scale(.9);
+  transition: transform .1s ease;
 }
 .nav-btn.active:active {
-  transform: translateY(0) scale(.985);
+  transform: scale(.95);
+  transition: transform .1s ease;
 }
 .nav-btn.nav-disabled {
-  opacity: .42;
+  opacity: .38;
   pointer-events: none;
 }
 
@@ -1520,18 +1500,17 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 @media (max-width:390px){
   .page-body { padding-bottom: 116px; }
   .bottom-nav {
-    width: calc(100% - 14px);
+    width: calc(100% - 16px);
     bottom: calc(10px + env(safe-area-inset-bottom));
-    gap: 4px;
+    gap: 2px;
     padding: 4px;
-    border-radius: 21px;
   }
   .nav-btn {
-    min-height: 46px;
-    padding: 5px 4px 4px;
-    font-size: 8.5px;
+    min-height: 48px;
+    padding: 6px 3px 5px;
+    font-size: 9.5px;
   }
-  .nav-btn i { font-size: 17px; }
+  .nav-btn i { font-size: 20px; }
 }
 
 /* Player de vídeo (tela cheia) */
