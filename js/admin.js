@@ -932,13 +932,14 @@ function renderAdmFin(){
   </div>`;
 
   const pendHtml    = pendentes.length?pendentes.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'<div class="empty" style="padding:12px 0;">Nenhum avulso pendente</div>';
-  const soChurHtml  = soChurras.length?soChurras.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'<div class="empty" style="padding:12px 0;">Nenhum jogador</div>';
+  const soChurrasPagos = soChurras.filter(j=>j.pago);
+  const soChurHtml  = soChurrasPagos.length?soChurrasPagos.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'<div class="empty" style="padding:12px 0;">Nenhum jogador</div>';
   const pagosHtml   = pagos.length?pagos.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'<div class="empty" style="padding:12px 0;">Nenhum avulso pago ainda</div>';
   const mensHtml    = mensalistas.length?mensalistas.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'<div class="empty" style="padding:12px 0;">Nenhum mensalista</div>';
   const isentosHtml = isentos.length?isentos.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'';
 
-  const soChurSection = p.temChurras&&soChurras.length
-    ? `<div class="fin-section"><div class="section-title">Só Churras 🍖 (${soChurras.length})</div>${soChurHtml}</div>`
+  const soChurSection = p.temChurras&&soChurrasPagos.length
+    ? `<div class="fin-section"><div class="section-title">Só Churras 🍖 (${soChurrasPagos.length})</div>${soChurHtml}</div>`
     : '';
 
   el.innerHTML=`<div class="fin-section"><div class="section-title">Pendentes (${pendentes.length})</div>${pendHtml}</div>
