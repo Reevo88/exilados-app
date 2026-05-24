@@ -477,7 +477,7 @@
     <!-- Saldo principal -->
     <div class="caixa-hero" id="caixa-hero">
       <div class="caixa-label">SALDO ATUAL</div>
-      <div class="caixa-saldo" id="caixa-saldo-val">R$ 0,00</div>
+      <div class="caixa-saldo" id="caixa-saldo-val"><span class="skeleton-text skeleton-saldo"></span></div>
     </div>
     <!-- Ações rápidas -->
     <div class="caixa-acoes">
@@ -495,7 +495,7 @@
           <button class="cfiltro" onclick="filtrarExtrato('saida',this)">Saídas</button>
         </div>
       </div>
-      <div id="caixa-extrato"><div class="empty"><i class="ti ti-receipt-off"></i>Nenhuma movimentação</div></div>
+      <div id="caixa-extrato"><div class="skeleton-list"><span class="skeleton-row"></span><span class="skeleton-row"></span><span class="skeleton-row"></span></div></div>
     </div>
   </div>
   <div class="bottom-nav">
@@ -556,11 +556,11 @@
   <div class="page-body">
     <div class="caixa-hero">
       <div class="caixa-label">SALDO ATUAL</div>
-      <div class="caixa-saldo" id="jcaixa-saldo-val">R$ 0,00</div>
+      <div class="caixa-saldo" id="jcaixa-saldo-val"><span class="skeleton-text skeleton-saldo"></span></div>
     </div>
     <div class="card" style="padding:14px 16px; margin-bottom:10px;">
       <div class="section-title" style="margin-bottom:10px;">Extrato</div>
-      <div id="jcaixa-extrato"><div class="empty"><i class="ti ti-receipt-off"></i>Nenhuma movimentação</div></div>
+      <div id="jcaixa-extrato"><div class="skeleton-list"><span class="skeleton-row"></span><span class="skeleton-row"></span><span class="skeleton-row"></span></div></div>
     </div>
     <div class="readonly-badge" style="margin:0 0 12px 0;"><i class="ti ti-eye" style="font-size:14px;"></i> Modo leitura — apenas visualização</div>
   </div>
