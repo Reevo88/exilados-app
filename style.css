@@ -49,10 +49,10 @@
 /* -- RESET & BASE -------------------------- */
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; color:var(--text); font-size:15px; }
-#app { max-width:430px; margin:0 auto; min-height:100vh; background:var(--bg); }
+#app { max-width:430px; margin:0 auto; min-height:100vh; background:var(--bg); overflow:visible; }
 
 /* -- SCREENS ------------------------------- */
-.screen { display:none; flex-direction:column; min-height:100vh; }
+.screen { display:none; flex-direction:column; min-height:100vh; overflow:visible; }
 .screen.active { display:flex; }
 .page-body { flex:1; padding:0 16px 122px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 

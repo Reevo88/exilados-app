@@ -1114,7 +1114,37 @@
       {transform:'translate(-50%,-60%) scale(1.6)',opacity:0}
     ],{duration:300,easing:'ease-out',fill:'forwards'}).onfinish=function(){ring.remove();};
   }
+
+  function teleportarNavs(){
+    var app = document.getElementById('app');
+    if(!app) return;
+    // Para cada screen que tem uma bottom-nav dentro,
+    // move a nav para o body e associa ao id da screen
+    document.querySelectorAll('.screen').forEach(function(screen){
+      var nav = screen.querySelector('.bottom-nav');
+      if(!nav) return;
+      nav.setAttribute('data-screen', screen.id);
+      // Esconde por padrão; CSS .screen.active ~ não funciona fora do app
+      // então controlamos via atributo
+      nav.style.display = screen.classList.contains('active') ? '' : 'none';
+      document.body.appendChild(nav);
+    });
+
+    // Observa mudanças de classe nas screens para mostrar/esconder navs
+    var obs = new MutationObserver(function(){
+      document.querySelectorAll('.bottom-nav[data-screen]').forEach(function(nav){
+        var screenId = nav.getAttribute('data-screen');
+        var screen = document.getElementById(screenId);
+        nav.style.display = (screen && screen.classList.contains('active')) ? '' : 'none';
+      });
+    });
+    document.querySelectorAll('.screen').forEach(function(s){
+      obs.observe(s, {attributes:true, attributeFilter:['class']});
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
+    teleportarNavs();
     document.querySelectorAll('.nav-btn').forEach(function(btn){
       btn.setAttribute('data-haptic','1');
       btn.addEventListener('click', handleNavTap);
