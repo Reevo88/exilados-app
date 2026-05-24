@@ -151,18 +151,11 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   gap: 2px;
   padding: 5px;
   border-radius: 999px;
-  /* Borda visível para recortar a forma sobre qualquer fundo */
-  border: 1px solid rgba(255,255,255,.9);
-  /* Fundo semi-opaco com leve tom frio — visível sobre branco e sobre escuro */
-  background: rgba(242,242,246,.78);
-  /* Blur forte — o conteúdo que rola por baixo vai aparecer desfocado */
-  backdrop-filter: blur(28px) saturate(1.8) brightness(1.04);
-  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.04);
-  /* Sombra pronunciada para elevar a barra do fundo */
-  box-shadow:
-    0 8px 32px rgba(0,0,0,.14),
-    0 2px 8px rgba(0,0,0,.08),
-    inset 0 1px 0 rgba(255,255,255,.95);
+  border: 0.5px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.12);
+  backdrop-filter: blur(40px) saturate(2) brightness(1.06);
+  -webkit-backdrop-filter: blur(40px) saturate(2) brightness(1.06);
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
   z-index: 140;
 }
 .nav-btn {
@@ -206,10 +199,10 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 }
 /* Ativo: fundo branco com leve blur próprio — recorte limpo sobre a barra */
 .nav-btn.active {
-  background: rgba(255,255,255,.82);
+  background: rgba(255,255,255,.88);
   box-shadow:
-    0 2px 10px rgba(0,0,0,.10),
-    inset 0 1px 0 rgba(255,255,255,.9);
+    0 2px 12px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,1);
 }
 .nav-btn.active i {
   color: #c0392b;
