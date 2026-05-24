@@ -343,7 +343,7 @@ function abrirDestinoUsuarioLogado(){
 }
 
 function perfilJogadorCompleto(j){
-  return !!(j && j.nome && j.apelido && j.email);
+  return !!(j && j.nome && j.nome.trim() && j.apelido && j.apelido.trim() && j.telefone && j.data_nascimento);
 }
 
 function abrirDestinoPosLogin(){
@@ -481,7 +481,7 @@ async function carregarPerfilJogador(opts={}){
     jogador=await dbCriarJogador({
       auth_user_id:user.id,
       email:user.email||null,
-      nome:user.user_metadata?.full_name||user.email?.split('@')[0]||'Jogador',
+      nome:'',
       ativo:true,
       modalidade:'avulso',
       perfil_app:'jogador',
@@ -592,16 +592,19 @@ async function salvarMeuPerfil(){
   const id=document.getElementById('perfil-jogador-id').value;
   const nome=document.getElementById('perfil-nome').value.trim();
   const apelido=document.getElementById('perfil-apelido').value.trim();
-  if(!id || !nome){ showToast('Informe seu nome.'); return; }
+  if(!id || !nome){ document.getElementById('perfil-nome').focus(); showToast('Informe seu nome completo.'); return; }
   if(!apelido){ document.getElementById('perfil-apelido').focus(); showToast('Informe seu apelido.'); return; }
   const nascimento=document.getElementById('perfil-nascimento').value.trim();
-  const dataNascimento=nascimento?dataBrParaIso(nascimento):null;
-  if(nascimento && !dataNascimento){ document.getElementById('perfil-nascimento').focus(); showToast('Informe a data no formato DD/MM/AAAA.'); return; }
+  if(!nascimento){ document.getElementById('perfil-nascimento').focus(); showToast('Informe sua data de nascimento.'); return; }
+  const dataNascimento=dataBrParaIso(nascimento);
+  if(!dataNascimento){ document.getElementById('perfil-nascimento').focus(); showToast('Informe a data no formato DD/MM/AAAA.'); return; }
+  const telefoneRaw=formatarTelefone(document.getElementById('perfil-telefone').value);
+  if(!telefoneRaw){ document.getElementById('perfil-telefone').focus(); showToast('Informe seu telefone (WhatsApp).'); return; }
   const fields={
     nome,
     apelido,
     instagram:jogadorInstagram(document.getElementById('perfil-instagram').value)||null,
-    telefone:formatarTelefone(document.getElementById('perfil-telefone').value)||null,
+    telefone:telefoneRaw,
     email:document.getElementById('perfil-email').value.trim()||G.usuario?.email||null,
     foto_url:document.getElementById('perfil-foto-url').value.trim()||null,
     data_nascimento:dataNascimento,
