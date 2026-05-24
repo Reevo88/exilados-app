@@ -1104,15 +1104,15 @@
 (function(){
   function handleNavTap(e){
     var btn = e.currentTarget;
-    if(navigator.vibrate) navigator.vibrate(10);
+    if(navigator.vibrate) navigator.vibrate(8);
     var ring = document.createElement('span');
-    ring.style.cssText = 'position:absolute;top:50%;left:50%;width:52px;height:52px;border-radius:50%;background:rgba(192,57,43,.18);transform:translate(-50%,-50%) scale(0);pointer-events:none;opacity:1;transition:transform .32s ease-out,opacity .32s ease-out;';
+    ring.style.cssText = 'position:absolute;top:50%;left:50%;width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,.07);transform:translate(-50%,-60%) scale(0);pointer-events:none;z-index:1;';
     btn.appendChild(ring);
-    requestAnimationFrame(function(){
-      ring.style.transform = 'translate(-50%,-50%) scale(1.6)';
-      ring.style.opacity = '0';
-      setTimeout(function(){ ring.remove(); }, 360);
-    });
+    ring.animate([
+      {transform:'translate(-50%,-60%) scale(0)',opacity:.5},
+      {transform:'translate(-50%,-60%) scale(1.4)',opacity:.15},
+      {transform:'translate(-50%,-60%) scale(1.6)',opacity:0}
+    ],{duration:300,easing:'ease-out',fill:'forwards'}).onfinish=function(){ring.remove();};
   }
   document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.nav-btn').forEach(function(btn){
