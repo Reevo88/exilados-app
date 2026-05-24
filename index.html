@@ -1116,23 +1116,28 @@
   }
 
   function teleportarNavs(){
-    var app = document.getElementById('app');
-    if(!app) return;
-    // Para cada screen que tem uma bottom-nav dentro,
-    // move a nav para o body e associa ao id da screen
+    // Cria um container fixo fora do #app para hospedar as navs
+    var navHost = document.createElement('div');
+    navHost.id = 'nav-host';
+    navHost.style.cssText = 'position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:140;pointer-events:none;';
+    document.body.appendChild(navHost);
+
     document.querySelectorAll('.screen').forEach(function(screen){
       var nav = screen.querySelector('.bottom-nav');
       if(!nav) return;
       nav.setAttribute('data-screen', screen.id);
-      // Esconde por padrão; CSS .screen.active ~ não funciona fora do app
-      // então controlamos via atributo
+      nav.style.pointerEvents = 'auto';
+      // Reseta position:fixed para deixar o nav-host controlar o posicionamento
+      nav.style.position = 'relative';
+      nav.style.bottom = 'auto';
+      nav.style.left = 'auto';
+      nav.style.transform = 'none';
       nav.style.display = screen.classList.contains('active') ? '' : 'none';
-      document.body.appendChild(nav);
+      navHost.appendChild(nav);
     });
 
-    // Observa mudanças de classe nas screens para mostrar/esconder navs
     var obs = new MutationObserver(function(){
-      document.querySelectorAll('.bottom-nav[data-screen]').forEach(function(nav){
+      navHost.querySelectorAll('.bottom-nav[data-screen]').forEach(function(nav){
         var screenId = nav.getAttribute('data-screen');
         var screen = document.getElementById(screenId);
         nav.style.display = (screen && screen.classList.contains('active')) ? '' : 'none';
