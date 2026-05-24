@@ -151,11 +151,13 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   gap: 2px;
   padding: 5px;
   border-radius: 999px;
-  border: 0.5px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.04);
-  backdrop-filter: blur(48px) saturate(2.2) brightness(1.08);
-  -webkit-backdrop-filter: blur(48px) saturate(2.2) brightness(1.08);
-  box-shadow: 0 1px 8px rgba(0,0,0,.05);
+  border: 0.5px solid rgba(180,178,172,.35);
+  background: rgba(245,244,241,.92);
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,.95),
+    0 8px 28px rgba(0,0,0,.13),
+    0 2px 8px rgba(0,0,0,.07),
+    inset 0 1px 0 rgba(255,255,255,.98);
   z-index: 140;
 }
 .nav-btn {
@@ -183,7 +185,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 }
 .nav-btn i {
   font-size: 22px;
-  color: #6e6e73;
+  color: #8e8e93;
   display: block;
   transition: color .22s, transform .22s cubic-bezier(.34,1.56,.64,1);
   position: relative;
@@ -194,14 +196,15 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   z-index: 1;
   display: block;
   white-space: nowrap;
-  color: #6e6e73;
+  color: #8e8e93;
   transition: color .22s;
 }
 /* Ativo: fundo branco com leve blur próprio — recorte limpo sobre a barra */
 .nav-btn.active {
-  background: rgba(255,255,255,.88);
+  background: #ffffff;
   box-shadow:
-    0 2px 12px rgba(0,0,0,.12),
+    0 3px 14px rgba(0,0,0,.13),
+    0 1px 4px rgba(0,0,0,.08),
     inset 0 1px 0 rgba(255,255,255,1);
 }
 .nav-btn.active i {
