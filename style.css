@@ -1756,3 +1756,45 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .closed-btns-wrap.vote-ended-shift {
   justify-content: flex-end;
 }
+
+/* ==========================================
+   ID-SHEET — Seleção de identidade (admAdd)
+========================================== */
+.id-sheet-opt {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background .15s;
+}
+.id-sheet-opt:active {
+  background: var(--surface3, var(--border));
+}
+.id-sheet-opt .id-sheet-nome {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text1);
+  flex: 1;
+}
+.id-sheet-opt .id-sheet-mod {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.id-sheet-opt-new {
+  background: transparent;
+  border: 1.5px dashed var(--border);
+}
+.id-sheet-opt-new .id-sheet-nome {
+  color: var(--text2);
+  font-weight: 500;
+}

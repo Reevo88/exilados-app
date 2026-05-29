@@ -666,6 +666,16 @@
   </div>
 </div>
 
+<!-- SHEET DE IDENTIDADE DO JOGADOR (admAdd) -->
+<div class="adm-menu" id="id-sheet" onclick="fecharIdSheet(event)">
+  <div class="adm-sheet">
+    <div class="adm-sheet-title"><i class="ti ti-user-search" style="font-size:18px;margin-right:6px;"></i> Quem é esse jogador?</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Encontramos peladeiros cadastrados com nome parecido. Selecione o correto para usar a modalidade dele, ou adicione como novo.</div>
+    <div id="id-sheet-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+    <div class="adm-option" onclick="fecharIdSheet()"><i class="ti ti-x"></i><div><div class="adm-option-name">Cancelar</div></div></div>
+  </div>
+</div>
+
 <!-- ==========================================
      RESUMO DO JOGO (público, sem login)
 ========================================== -->
