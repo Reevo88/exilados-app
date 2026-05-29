@@ -914,11 +914,11 @@
 
       <!-- Artilharia -->
       <div class="section-title" style="margin-bottom:8px;">Artilharia</div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-        <select id="pj-gol-jogador" style="flex:1;">
+      <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
+        <select id="pj-gol-jogador" style="flex:1;min-height:48px;font-size:15px;padding:0 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text1);">
           <option value="">Selecione o jogador…</option>
         </select>
-        <input type="number" id="pj-gol-qtd" min="1" max="20" step="1" inputmode="numeric" value="1" style="width:56px;text-align:center;"/>
+        <input type="number" id="pj-gol-qtd" min="1" max="20" step="1" inputmode="numeric" value="1" style="width:62px;min-height:48px;text-align:center;font-size:18px;font-weight:700;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text1);padding:0;"/>
       </div>
       <button class="btn btn-primary" style="margin-bottom:10px;" onclick="pjAdicionarGol()"><i class="ti ti-plus"></i> Adicionar Gol</button>
       <div id="pj-gols-lista"><div class="empty" style="font-size:12px;">Nenhum gol cadastrado</div></div>
