@@ -1,4 +1,4 @@
-﻿// Exilados da Bola
+// Exilados da Bola
 // Fluxo administrativo: home, criacao, confirmacoes, times e financeiro da pelada
 // Extraido de app.js para reduzir o monolito mantendo o comportamento global atual.
 
@@ -8,25 +8,25 @@
 function renderAdmHome(){
   const el=document.getElementById('adm-lista');
   if(G.perfil==='escalador'){
-    if(!G.peladas.length){el.innerHTML='<div class="empty"><i class="ti ti-ball-football"></i>Nenhuma pelada disponÃ­vel</div>';return;}
+    if(!G.peladas.length){el.innerHTML='<div class="empty"><i class="ti ti-ball-football"></i>Nenhuma pelada disponível</div>';return;}
     const ord=[...G.peladas].sort((a,b)=>new Date(b.data+'T'+b.hora)-new Date(a.data+'T'+a.hora));
     el.innerHTML=ord.map(p=>{
       const st=peladaStatusInfo(p);
       const confirmadosJogo=totalJogadoresConfirmados(p);
-      const clickTop = st.aberta ? `onclick="setPeladaAdm('${p.id}','times')"` : '';
+      const clickTop = st.aberta ?`onclick="setPeladaAdm('${p.id}','times')"` : '';
       return `<div class="ahc${peladaEncerrada(p) || deveEncerrarAutomaticamente(p)?' fechada':''}">
         <div class="ahc-top" ${clickTop}>
           <div class="ahc-icon"><img src="icone-1.png" class="pelada-img-icon" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:10px;display:block;"/></div>
           <div class="ahc-info">
             <div class="ahc-nome">${escHtml(p.nome)}</div>
-            <div class="ahc-meta">${fmtData(p.data)} Â· ${p.hora} Â· ${escHtml(p.local)}</div>
+            <div class="ahc-meta">${fmtData(p.data)} · ${p.hora} · ${escHtml(p.local)}</div>
             <div class="ahc-stats">
               <span><i class="ti ti-users" style="font-size:11px;"></i> ${confirmadosJogo}/${p.max}</span>
               <span class="badge ${st.cls}" style="font-size:10px;">${st.label}</span>
-              ${st.lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
+              ${st.lotada ?'<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
             </div>
           </div>
-          ${st.aberta ? '<i class="ti ti-chevron-right" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>' : '<i class="ti ti-lock" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>'}
+          ${st.aberta ?'<i class="ti ti-chevron-right" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>' : '<i class="ti ti-lock" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>'}
         </div>
       </div>`;
     }).join('');
@@ -44,7 +44,7 @@ function renderAdmHome(){
     const confirmadosJogo=totalJogadoresConfirmados(p);
     const vagas=Math.max(p.max-confirmadosJogo,0);
     const encerrada=peladaEncerrada(p) || deveEncerrarAutomaticamente(p);
-    const btnPosJogo=encerrada?`<button class="ahc-sec blue" onclick="abrirPosJogo('${p.id}')"><i class="ti ti-trophy"></i> PÃ³s-jogo</button>`:'';
+    const btnPosJogo=encerrada?`<button class="ahc-sec blue" onclick="abrirPosJogo('${p.id}')"><i class="ti ti-trophy"></i> Pós-jogo</button>`:'';
     const btnEncerrar=encerrada
       ?`<button class="ahc-sec warn" onclick="reabrirPelada('${p.id}')"><i class="ti ti-lock-open"></i> Reabrir</button>`
       :`<button class="ahc-sec warn" onclick="encerrarPelada('${p.id}')"><i class="ti ti-lock"></i> Encerrar</button>`;
@@ -53,12 +53,12 @@ function renderAdmHome(){
         <div class="ahc-icon"><img src="icone-1.png" class="pelada-img-icon" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:10px;display:block;"/></div>
         <div class="ahc-info">
           <div class="ahc-nome">${escHtml(p.nome)}</div>
-          <div class="ahc-meta">${fmtData(p.data)} Â· ${p.hora} Â· ${escHtml(p.local)}</div>
+          <div class="ahc-meta">${fmtData(p.data)} · ${p.hora} · ${escHtml(p.local)}</div>
           <div class="ahc-stats">
             <span><i class="ti ti-users" style="font-size:11px;"></i> ${confirmadosJogo}/${p.max}</span>
             <span><i class="ti ti-door-enter" style="font-size:11px;"></i> ${vagas} vagas</span>
             <span class="badge ${st.cls}" style="font-size:10px;">${st.label}</span>
-            ${st.lotada ? '<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
+            ${st.lotada ?'<span class="badge badge-red" style="font-size:10px;">Lotada</span>' : ''}
           </div>
         </div>
         <i class="ti ti-chevron-right" style="color:var(--text3);font-size:18px;flex-shrink:0;"></i>
@@ -72,7 +72,7 @@ function renderAdmHome(){
       <div class="ahc-actions-row">
         <button class="ahc-sec wa" onclick="compartilharWhatsAppPelada('${p.id}')"><i class="ti ti-brand-whatsapp"></i> Compartilhar</button>
         <button class="ahc-sec blue" onclick="verFinanceiroPelada('${p.id}')"><i class="ti ti-cash"></i> Financeiro</button>
-        ${!encerrada ? `<button class="ahc-sec" onclick="prepararEditarPelada('${p.id}')"><i class="ti ti-pencil"></i> Editar</button>` : ''}
+        ${!encerrada ?`<button class="ahc-sec" onclick="prepararEditarPelada('${p.id}')"><i class="ti ti-pencil"></i> Editar</button>` : ''}
         ${btnPosJogo}
         ${btnEncerrar}
       </div>
@@ -83,24 +83,24 @@ function renderAdmHome(){
 async function excluirPelada(id){
   abrirConfirmSheet(
     'Excluir pelada',
-    'Essa aÃ§Ã£o apagarÃ¡ a pelada e todas as confirmaÃ§Ãµes. NÃ£o pode ser desfeita.',
+    'Essa ação apagará a pelada e todas as confirmações. Não pode ser desfeita.',
     'Excluir pelada',
     async () => {
       try{
         await dbExcluirPelada(id);
         G.peladas=G.peladas.filter(p=>String(p.id)!==String(id));
         if(G.pelada&&String(G.pelada.id)===String(id)) G.pelada=null;
-        G.editandoPeladaId=null; renderAdmHome(); goTo('s-adm-home'); showToast('Pelada excluÃ­da');
+        G.editandoPeladaId=null; renderAdmHome(); goTo('s-adm-home'); showToast('Pelada excluída');
       }catch(e){ showToast('Erro ao excluir.'); }
     }
   );
 }
 async function encerrarPelada(id){
-  if(G.perfil === 'escalador'){ showToast('Escalador nÃ£o pode encerrar partida.'); return; }
+  if(G.perfil === 'escalador'){ showToast('Escalador não pode encerrar partida.'); return; }
   const p=G.peladas.find(x=>String(x.id)===String(id)); if(!p)return;
   abrirConfirmSheet(
     'Encerrar pelada',
-    `${p.nome} serÃ¡ encerrada. Jogadores nÃ£o poderÃ£o confirmar presenÃ§a.`,
+    `${p.nome} será encerrada. Jogadores não poderão confirmar presença.`,
     'Encerrar pelada',
     async () => {
       try{ await dbAtualizarPelada(id,{status:'encerrada', reaberta:false}); p.status='encerrada'; p.reaberta=false; renderAdmHome(); showToast('Pelada encerrada.'); }
@@ -109,11 +109,11 @@ async function encerrarPelada(id){
   );
 }
 async function reabrirPelada(id){
-  if(G.perfil === 'escalador'){ showToast('Escalador nÃ£o pode reabrir partida.'); return; }
+  if(G.perfil === 'escalador'){ showToast('Escalador não pode reabrir partida.'); return; }
   const p=G.peladas.find(x=>String(x.id)===String(id)); if(!p)return;
   abrirConfirmSheet(
     'Reabrir pelada',
-    `${p.nome} voltarÃ¡ a aceitar confirmaÃ§Ãµes e ajustes de escalaÃ§Ã£o.`,
+    `${p.nome} voltará a aceitar confirmações e ajustes de escalação.`,
     'Reabrir pelada',
     async () => {
       try{
@@ -192,13 +192,13 @@ function configurarFormularioPelada(modo){
   const btnDup=document.getElementById('cp-btn-duplicar');
   const btnDel=document.getElementById('cp-btn-excluir');
   const ajuda=document.getElementById('cp-ajuda');
-  if(titulo) titulo.textContent = editando ? 'EDITAR PELADA' : 'MARCAR NOVA PELADA';
-  if(btn) btn.innerHTML = editando ? '<i class="ti ti-device-floppy"></i> Salvar alteraÃ§Ãµes' : '<i class="ti ti-check"></i> Criar e abrir confirmaÃ§Ãµes';
-  if(btnDup) btnDup.style.display = editando ? 'none' : 'flex';
-  if(btnDel) btnDel.style.display = editando ? 'flex' : 'none';
+  if(titulo) titulo.textContent = editando ?'EDITAR PELADA' : 'MARCAR NOVA PELADA';
+  if(btn) btn.innerHTML = editando ?'<i class="ti ti-device-floppy"></i> Salvar alterações' : '<i class="ti ti-check"></i> Criar e abrir confirmações';
+  if(btnDup) btnDup.style.display = editando ?'none' : 'flex';
+  if(btnDel) btnDel.style.display = editando ?'flex' : 'none';
   if(ajuda) ajuda.textContent = editando
-    ? 'Altere os dados principais da pelada. O limite nÃ£o pode ficar abaixo do nÃºmero atual de confirmados.'
-    : 'Preencha os dados bÃ¡sicos. Quando existir uma pelada anterior, o app reaproveita local, horÃ¡rio, valor e limite para agilizar o cadastro.';
+    ?'Altere os dados principais da pelada. O limite não pode ficar abaixo do número atual de confirmados.'
+    : 'Preencha os dados básicos. Quando existir uma pelada anterior, o app reaproveita local, horário, valor e limite para agilizar o cadastro.';
 }
 function prepararNovaPelada(){
   G.editandoPeladaId=null;
@@ -208,19 +208,19 @@ function prepararNovaPelada(){
   document.getElementById('cp-nome').value=base?.nome||'Pelada das Quintas';
   document.getElementById('cp-data').value=dataIsoParaInput(base?proximaDataSemanal(base.data):hojeISO());
   document.getElementById('cp-hora').value=base?.hora||'20:00';
-  document.getElementById('cp-local').value=base?.local||'Arena GaÃºcha';
+  document.getElementById('cp-local').value=base?.local||'Arena Gaúcha';
   document.getElementById('cp-valor').value=base?.valor||35;
   document.getElementById('cp-max').value=base?.max||14;
   setCpChurras(false);
   const ajuda=document.getElementById('cp-ajuda');
-  if(ajuda) ajuda.textContent=base?'Dados prÃ©-preenchidos com base na Ãºltima pelada. Revise principalmente a data antes de criar.':'Preencha os dados bÃ¡sicos da primeira pelada.';
+  if(ajuda) ajuda.textContent=base?'Dados pré-preenchidos com base na última pelada. Revise principalmente a data antes de criar.':'Preencha os dados básicos da primeira pelada.';
 }
 function prepararEditarPelada(id){
-  if(G.perfil==='escalador'){ showToast('Escalador nÃ£o pode editar pelada.'); return; }
+  if(G.perfil==='escalador'){ showToast('Escalador não pode editar pelada.'); return; }
   const p=G.peladas.find(x=>String(x.id)===String(id));
-  if(!p){ showToast('Pelada nÃ£o encontrada.'); return; }
+  if(!p){ showToast('Pelada não encontrada.'); return; }
   if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)){
-    showToast('Pelada encerrada nÃ£o permite editar dados principais.');
+    showToast('Pelada encerrada não permite editar dados principais.');
     return;
   }
   G.editandoPeladaId=p.id;
@@ -237,9 +237,9 @@ function prepararEditarPelada(id){
 }
 function duplicarUltimaPelada(){
   const base=ultimaPeladaBase();
-  if(!base){ prepararNovaPelada(); showToast('Ainda nÃ£o existe pelada anterior.'); return; }
+  if(!base){ prepararNovaPelada(); showToast('Ainda não existe pelada anterior.'); return; }
   prepararNovaPelada();
-  showToast('Ãšltima pelada duplicada. Revise a data.');
+  showToast('Última pelada duplicada. Revise a data.');
 }
 function validarCriarPelada(){
   limparErrosCriarPelada();
@@ -253,11 +253,11 @@ function validarCriarPelada(){
   if(!nome){ erros.push('nome'); campoErro('cp-nome'); }
   if(nome.length>20){ erros.push('nome'); campoErro('cp-nome'); }
   if(!data || !/^\d{4}-\d{2}-\d{2}$/.test(data)){ erros.push('data'); campoErro('cp-data'); }
-  if(!hora){ erros.push('horÃ¡rio'); campoErro('cp-hora'); }
+  if(!hora){ erros.push('horário'); campoErro('cp-hora'); }
   if(!local){ erros.push('local'); campoErro('cp-local'); }
   if(!Number.isFinite(valor)||valor<1){ erros.push('valor'); campoErro('cp-valor'); }
   if(!Number.isFinite(max)||max<2||max>50){ erros.push('limite'); campoErro('cp-max'); }
-  if(erros.length){ showToast('Preencha os campos obrigatÃ³rios corretamente.'); return null; }
+  if(erros.length){ showToast('Preencha os campos obrigatórios corretamente.'); return null; }
   const temChurras = document.getElementById('cp-churras').value === 'true';
   return {nome,data,hora,local,valor,max,temChurras,status:'aberta',confirmados:[],jogadores:[],naoVao:[],espera:[]};
 }
@@ -270,25 +270,25 @@ async function criarPelada(){
     const row=await dbCriarPelada(nova);
     nova.id=row.id; G.peladas.push(nova); G.pelada=nova;
     G.editandoPeladaId=null;
-    showToast('Pelada criada! âš½');
+    showToast('Pelada criada!');
     renderAdmConf(); goTo('s-adm-conf');
   }catch(e){ console.error('Erro ao criar pelada:', e); showToast('Erro ao criar pelada: '+(e.message||'verifique o Supabase.')); }
   finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
 }
 async function editarPelada(){
-  if(G.perfil==='escalador'){ showToast('Escalador nÃ£o pode editar pelada.'); return; }
+  if(G.perfil==='escalador'){ showToast('Escalador não pode editar pelada.'); return; }
   const id=G.editandoPeladaId;
   const p=G.peladas.find(x=>String(x.id)===String(id));
-  if(!p){ showToast('Pelada nÃ£o encontrada.'); return; }
+  if(!p){ showToast('Pelada não encontrada.'); return; }
   if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)){
-    showToast('Pelada encerrada nÃ£o permite editar dados principais.');
+    showToast('Pelada encerrada não permite editar dados principais.');
     return;
   }
   const dados=validarCriarPelada(); if(!dados) return;
   const confirmados=(p.confirmados||[]).length;
   if(dados.max < confirmados){
     campoErro('cp-max');
-    showToast(`NÃ£o Ã© possÃ­vel reduzir para ${dados.max}. JÃ¡ existem ${confirmados} confirmados.`);
+    showToast(`Não é possível reduzir para ${dados.max}. Já existem ${confirmados} confirmados.`);
     return;
   }
   const btn=document.getElementById('cp-btn-criar');
@@ -302,7 +302,7 @@ async function editarPelada(){
     G.editandoPeladaId=null;
     showToast('Pelada atualizada!');
     renderAdmHome(); goTo('s-adm-home');
-  }catch(e){ showToast('Erro ao salvar alteraÃ§Ãµes.'); }
+  }catch(e){ showToast('Erro ao salvar alterações.'); }
   finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
 }
 function salvarFormularioPelada(){
@@ -313,22 +313,22 @@ function excluirPeladaEditando(){
   if(!G.editandoPeladaId){ return; }
   const id=G.editandoPeladaId;
   const p=G.peladas.find(x=>String(x.id)===String(id));
-  if(!p){ showToast('Pelada nÃ£o encontrada.'); return; }
+  if(!p){ showToast('Pelada não encontrada.'); return; }
   if(peladaEncerrada(p) || deveEncerrarAutomaticamente(p)){
-    showToast('Pelada encerrada nÃ£o permite exclusÃ£o por esta tela.');
+    showToast('Pelada encerrada não permite exclusão por esta tela.');
     return;
   }
   excluirPelada(id);
 }
 
 // ==========================================
-// ADM - CONFIRMAÃ‡Ã•ES
+// ADM - CONFIRMA??ES
 // ==========================================
 function renderAdmConf(){
   const p=G.pelada; if(!p)return;
   p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
   document.getElementById('aconf-nome').textContent=p.nome.toUpperCase();
-  document.getElementById('aconf-meta').textContent=`${fmtData(p.data)} Â· ${p.hora} Â· ${p.local}`;
+  document.getElementById('aconf-meta').textContent=`${fmtData(p.data)} · ${p.hora} · ${p.local}`;
   document.getElementById('aconf-link').textContent=linkPelada(p);
   document.getElementById('aconf-max').textContent=p.max;
   const confirmados=p.confirmados.length;
@@ -342,7 +342,7 @@ function renderAdmConf(){
   const tabConf=document.querySelector('#s-adm-conf .tabs .tab.active, #s-adm-conf .tabs .tab');
   const tabNao=document.getElementById('aconf-btn-nao');
   if(tabConf) tabConf.textContent=`Confirmados (${confirmados})`;
-  if(tabNao) tabNao.textContent=`NÃ£o vÃ£o (${(p.naoVao||[]).length})`;
+  if(tabNao) tabNao.textContent=`Não vão (${(p.naoVao||[]).length})`;
   document.getElementById('aconf-caixa').textContent=money(recebido);
   document.getElementById('aconf-pendente').textContent=money(pendente);
   document.getElementById('aconf-previsto').textContent=money(previsto);
@@ -350,26 +350,26 @@ function renderAdmConf(){
   vagasEl.textContent=vagas===0?'Lotada':`${vagas} vaga${vagas===1?'':'s'} restante${vagas===1?'':'s'}`;
   vagasEl.classList.toggle('lotada',vagas===0);
   const admChurrasSel = document.getElementById('adm-churras-sel');
-  if(admChurrasSel) admChurrasSel.style.display = p.temChurras ? '' : 'none';
+  if(admChurrasSel) admChurrasSel.style.display = p.temChurras ?'' : 'none';
   const el=document.getElementById('aconf-lista');
   const badgeChurrasAdm = (j) => j.churras==='jogo_churras'
-    ? ' <span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">+ churras</span>'
+    ?' <span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">+ churras</span>'
     : '';
-  const confJogoAdm = p.temChurras ? p.confirmados.filter(j=>j.churras==='jogo'||j.churras==='jogo_churras') : p.confirmados;
-  const confSoChurrasAdm = p.temChurras ? p.confirmados.filter(j=>j.churras==='churras') : [];
+  const confJogoAdm = p.temChurras ?p.confirmados.filter(j=>j.churras==='jogo'||j.churras==='jogo_churras') : p.confirmados;
+  const confSoChurrasAdm = p.temChurras ?p.confirmados.filter(j=>j.churras==='churras') : [];
   const rowAdm = (j,i) => `<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-green" style="font-size:10px;"><i class="ti ti-check" style="font-size:10px;"></i> Jogo</span>${badgeChurrasAdm(j)}<div class="player-actions"><button class="btn-mini btn-danger" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`;
-  const rowSoChurrasAdm = (j,i) => `<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">SÃ³ churras</span><div class="player-actions"><button class="btn-mini btn-danger" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`;
+  const rowSoChurrasAdm = (j,i) => `<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">Só churras</span><div class="player-actions"><button class="btn-mini btn-danger" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`;
 
   const confJogoHtml = confJogoAdm.length
-    ? confJogoAdm.map(j=>rowAdm(j,p.confirmados.indexOf(j))).join('')
-    : '<div class="empty" style="padding:12px 0;"><i class="ti ti-clock"></i>Aguardando confirmaÃ§Ãµes</div>';
+    ?confJogoAdm.map(j=>rowAdm(j,p.confirmados.indexOf(j))).join('')
+    : '<div class="empty" style="padding:12px 0;"><i class="ti ti-clock"></i>Aguardando confirmações</div>';
   const soChurrasAdmHtml = confSoChurrasAdm.length
-    ? `<div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);"><div class="section-title" style="margin-bottom:8px;">SÃ³ Churras (${confSoChurrasAdm.length})</div>`
+    ?`<div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);"><div class="section-title" style="margin-bottom:8px;">Só Churras (${confSoChurrasAdm.length})</div>`
       + confSoChurrasAdm.map(j=>rowSoChurrasAdm(j,p.confirmados.indexOf(j))).join('')
       + `</div>`
     : '';
   const esperaAdmHtml = p.espera.length
-    ? `<div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);"><div class="section-title" style="margin-bottom:8px;">Lista de espera (${p.espera.length})</div>`
+    ?`<div style="margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);"><div class="section-title" style="margin-bottom:8px;">Lista de espera (${p.espera.length})</div>`
       + p.espera.map((j,i)=>`<div class="player-row"><div class="avatar" style="background:var(--warn-bg);color:var(--warn-text);">${i+1}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-gray" style="font-size:10px;">Espera</span>${badgeChurrasAdm(j)}<div class="player-actions"><button class="btn-mini btn-mini-pay" onclick="promoverEspera(${i})"><i class="ti ti-user-plus" style="font-size:12px;"></i> Promover</button><button class="btn-mini btn-danger" onclick="remEspera(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join('')
       + `</div>`
     : '';
@@ -377,16 +377,16 @@ function renderAdmConf(){
   const nao=document.getElementById('aconf-nao-lista');
   const podeExcluirNaoVai = G.perfil === 'full';
   nao.innerHTML=p.naoVao.length
-    ?p.naoVao.map((j,i)=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-red" style="font-size:10px;"><i class="ti ti-x" style="font-size:10px;"></i> NÃ£o vai</span><div class="player-actions"><button class="btn-mini btn-mini-muted" onclick="voltarNaoVai(${i})"><i class="ti ti-user-plus" style="font-size:12px;"></i> Confirmar</button>${podeExcluirNaoVai?`<button class="btn-mini btn-danger" onclick="remNaoVai(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button>`:''}</div></div>`).join('')
+    ?p.naoVao.map((j,i)=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-red" style="font-size:10px;"><i class="ti ti-x" style="font-size:10px;"></i> Não vai</span><div class="player-actions"><button class="btn-mini btn-mini-muted" onclick="voltarNaoVai(${i})"><i class="ti ti-user-plus" style="font-size:12px;"></i> Confirmar</button>${podeExcluirNaoVai?`<button class="btn-mini btn-danger" onclick="remNaoVai(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button>`:''}</div></div>`).join('')
     :'<div class="empty" style="padding:12px 0;"><i class="ti ti-user-x"></i>Nenhuma recusa registrada</div>';
 }
 async function admAdd(){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel adicionar jogadores.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível adicionar jogadores.')) return;
   const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=input.value.trim();
   if(!nome){input.focus();return;}
   const n=normNome(nome);
-  if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome jÃ¡ estÃ¡ na lista');return;}
-  const churras = p.temChurras ? (document.querySelector('#adm-churras-sel .churras-pill.active')?.dataset.val || 'jogo') : null;
+  if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
+  const churras = p.temChurras ?(document.querySelector('#adm-churras-sel .churras-pill.active')?.dataset.val || 'jogo') : null;
   const vaiParaEspera = churras !== 'churras' && peladaLotada(p);
   try{
     const row=await dbConfirmar(p.id,nome,churras,vaiParaEspera?'espera':'confirmado');
@@ -397,18 +397,18 @@ async function admAdd(){
       p.confirmados.push(novo);
       if(churras !== 'churras') p.jogadores.push({...novo});
     }
-    input.value=''; input.focus(); renderAdmConf(); showToast(vaiParaEspera?'Jogador adicionado Ã  espera!':'Jogador adicionado!');
+    input.value=''; input.focus(); renderAdmConf(); showToast(vaiParaEspera?'Jogador adicionado à espera!':'Jogador adicionado!');
   }catch(e){ showToast('Erro ao adicionar jogador.'); }
 }
 async function togglePago(i){
   const j=G.pelada.confirmados[i];
-  if(j.modalidade==='mensalista'){showToast('Mensalista nÃ£o entra na cobranÃ§a avulsa.');return;}
+  if(j.modalidade==='mensalista'){showToast('Mensalista não entra na cobrança avulsa.');return;}
   j.pago=!j.pago; renderAdmConf(); renderAdmFin(); renderAdmHome();
   try{await dbAtualizar(j.id,{pago:j.pago});}
   catch(e){j.pago=!j.pago;renderAdmConf();renderAdmFin();renderAdmHome();showToast('Erro ao salvar.');}
 }
 async function toggleModalidade(i){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar modalidade.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar modalidade.')) return;
   const j=G.pelada.confirmados[i];
   const anterior={modalidade:j.modalidade,pago:j.pago,isento:!!j.isento};
   j.modalidade=j.modalidade==='mensalista'?'avulso':'mensalista';
@@ -428,9 +428,9 @@ async function toggleModalidade(i){
 }
 
 async function toggleIsento(i){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar isenÃ§Ã£o.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar isenção.')) return;
   const j=G.pelada.confirmados[i];
-  if(j.modalidade!=='avulso'){showToast('SÃ³ avulsos podem ser isentos.');return;}
+  if(j.modalidade!=='avulso'){showToast('Só avulsos podem ser isentos.');return;}
   const anterior={isento:!!j.isento,pago:j.pago};
   j.isento=!j.isento;
   if(j.isento) j.pago=false;
@@ -445,9 +445,9 @@ async function toggleIsento(i){
     showToast('Erro ao salvar.');
   }
 }
-async function remConf(i){ if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel remover jogadores.')) return; const j=G.pelada.confirmados[i]; try{await dbDeletar(j.id); G.pelada.confirmados.splice(i,1); G.pelada.jogadores=G.pelada.jogadores.filter(jg=>jg.id!==j.id); renderAdmConf(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
+async function remConf(i){ if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return; const j=G.pelada.confirmados[i]; try{await dbDeletar(j.id); G.pelada.confirmados.splice(i,1); G.pelada.jogadores=G.pelada.jogadores.filter(jg=>jg.id!==j.id); renderAdmConf(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
 async function promoverEspera(i){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar confirmaÃ§Ãµes.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar confirmações.')) return;
   const p=G.pelada; p.espera=p.espera||[];
   const j=p.espera[i]; if(!j)return;
   if(peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
@@ -461,7 +461,7 @@ async function promoverEspera(i){
   }catch(e){showToast('Erro ao promover jogador.');}
 }
 async function remEspera(i){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel remover jogadores.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return;
   const p=G.pelada; p.espera=p.espera||[];
   const j=p.espera[i]; if(!j)return;
   try{
@@ -473,9 +473,9 @@ async function remEspera(i){
 }
 async function remNaoVai(i){
   if(G.perfil !== 'full'){ showToast('Apenas ADM/Presidente pode excluir.'); return; }
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel remover jogadores.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; const j=p.naoVao[i]; if(!j)return;
-  const ok=confirm(`Excluir ${j.nome} da lista de NÃ£o vÃ£o?`);
+  const ok=confirm(`Excluir ${j.nome} da lista de Não vão?`);
   if(!ok)return;
   try{
     await dbDeletar(j.id);
@@ -487,21 +487,21 @@ async function remNaoVai(i){
   }
 }
 async function moverParaNaoVai(i){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar confirmaÃ§Ãµes.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar confirmações.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; const j=p.confirmados[i];
   try{
     await dbAtualizar(j.id,{status:'nao_vai',pago:false,time:'pool'});
     p.confirmados.splice(i,1);
     p.jogadores=p.jogadores.filter(jg=>jg.id!==j.id);
     p.naoVao.push({id:j.id, nome:j.nome});
-    renderAdmConf(); renderAdmFin(); showToast('Movido para NÃ£o vÃ£o');
+    renderAdmConf(); renderAdmFin(); showToast('Movido para Não vão');
   }catch(e){ showToast('Erro ao mover jogador.'); }
 }
 async function voltarNaoVai(i){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar confirmaÃ§Ãµes.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar confirmações.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; const item=p.naoVao[i]; if(!item)return;
   if(peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
-  if(p.confirmados.find(j=>normNome(j.nome)===normNome(item.nome))){showToast('Esse nome jÃ¡ estÃ¡ confirmado');return;}
+  if(p.confirmados.find(j=>normNome(j.nome)===normNome(item.nome))){showToast('Esse nome já está confirmado');return;}
   try{
     await dbAtualizar(item.id,{status:'confirmado',time:'pool',posicao:'?'});
     const novo={id:item.id,nome:item.nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',isento:false,ordem:0};
@@ -512,27 +512,27 @@ async function voltarNaoVai(i){
 }
 function compartilharWhatsAppPelada(id){
   const p=G.peladas.find(x=>String(x.id)===String(id)); if(!p)return;
-  const msg=`âš½ ${p.nome}\n${fmtData(p.data)} Â· ${p.hora} Â· ${p.local}\n\nConfirme presenÃ§a aqui:\n${linkPelada(p)}`;
+  const msg=`⚽ ${p.nome}\n${fmtData(p.data)} · ${p.hora} · ${p.local}\n\nConfirme presença aqui:\n${linkPelada(p)}`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 function compartilharWhatsApp(){
   const p=G.pelada; if(!p)return;
-  const msg=`âš½ ${p.nome}\n${fmtData(p.data)} Â· ${p.hora} Â· ${p.local}\n\nConfirme presenÃ§a aqui:\n${linkPelada(p)}`;
+  const msg=`⚽ ${p.nome}\n${fmtData(p.data)} · ${p.hora} · ${p.local}\n\nConfirme presença aqui:\n${linkPelada(p)}`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
 function compartilharConviteCadastroApp(){
-  const msg=`Fala, Exilado! âš½
+  const msg=`Fala, Exilado! ⚽
 
-Agora o cadastro dos jogadores estÃ¡ sendo feito pelo app oficial do Exilados da Bola.
+Agora o cadastro dos jogadores está sendo feito pelo app oficial do Exilados da Bola.
 
-Acesse o link abaixo, crie sua conta e complete seu perfil com nome, apelido, posiÃ§Ã£o e foto:
+Acesse o link abaixo, crie sua conta e complete seu perfil com nome, apelido, posição e foto:
 
 ${appPerfilUrl()}
 
-Depois do cadastro, vocÃª jÃ¡ consegue confirmar presenÃ§a nas prÃ³ximas peladas com seu usuÃ¡rio identificado.
+Depois do cadastro, você já consegue confirmar presença nas próximas peladas com seu usuário identificado.
 
-Bora! ðŸ”´âš«`;
+Bora!`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
@@ -554,7 +554,7 @@ function jogadorBadge(j){
 }
 let jogadoresSort='apelido';
 function setJogadoresSort(tipo){
-  jogadoresSort = tipo === 'nome' ? 'nome' : 'apelido';
+  jogadoresSort = tipo === 'nome' ?'nome' : 'apelido';
   renderJogadoresLista();
 }
 function atualizarJogadoresSortUI(){
@@ -564,8 +564,8 @@ function atualizarJogadoresSortUI(){
   if(btnNome) btnNome.classList.toggle('active',jogadoresSort==='nome');
 }
 function chaveOrdenacaoJogador(j){
-  const prim = jogadoresSort === 'nome' ? j.nome : (j.apelido||j.nome);
-  const sec = jogadoresSort === 'nome' ? (j.apelido||'') : (j.nome||'');
+  const prim = jogadoresSort === 'nome' ?j.nome : (j.apelido||j.nome);
+  const sec = jogadoresSort === 'nome' ?(j.apelido||'') : (j.nome||'');
   return [normNome(prim||''), normNome(sec||'')];
 }
 async function abrirJogadoresAdm(){
@@ -602,7 +602,7 @@ function renderJogadoresLista(){
     const insta=j.instagram?`<span><i class="ti ti-brand-instagram" style="font-size:11px;"></i> @${escHtml(j.instagram)}</span>`:'';
     const pos=j.posicao_favorita?`<span>${posBadge(j.posicao_favorita)}</span>`:'';
     const contato=j.telefone?`<span><i class="ti ti-brand-whatsapp" style="font-size:11px;"></i> ${escHtml(j.telefone)}</span>`:'';
-    const foto=j.foto_url ? `<img src="${escHtml(j.foto_url)}" alt="" />` : jogadorIniciais(j);
+    const foto=j.foto_url ?`<img src="${escHtml(j.foto_url)}" alt="" />` : jogadorIniciais(j);
     const nomePrincipal=j.apelido||j.nome||'Jogador';
     const nomeCompleto=j.apelido&&j.nome&&normNome(j.nome)!==normNome(j.apelido)?` <span>${escHtml(j.nome)}</span>`:'';
     return `<div class="jog-row" onclick="editarJogadorAdm('${j.id}')">
@@ -731,14 +731,14 @@ async function excluirJogadorAdm(){
   const j=(G.jogadores||[]).find(x=>String(x.id)===String(id));
   const nome=j?.nome||document.getElementById('jog-nome')?.value.trim()||'este jogador';
   const apelido=j?.apelido||document.getElementById('jog-apelido')?.value.trim()||'';
-  if(!confirm(`Excluir ${nome} da base de jogadores? Essa aÃ§Ã£o nÃ£o pode ser desfeita.`)) return;
+  if(!confirm(`Excluir ${nome} da base de jogadores?Essa ação não pode ser desfeita.`)) return;
   showToast('Excluindo jogador...');
   try{
     await dbExcluirVotosDoJogador([nome, apelido]);
     await dbExcluirJogador(id);
     await carregarJogadoresAdm();
     fecharFormJogador();
-    showToast('Jogador excluÃ­do!');
+    showToast('Jogador excluído!');
   }catch(e){
     console.error('Erro ao excluir jogador', e);
     showToast('Erro ao excluir jogador.');
@@ -750,12 +750,12 @@ async function excluirJogadorAdm(){
 // ==========================================
 function renderAdmTimes(){
   const p=G.pelada; if(!p)return;
-  // Reseta estilo de todos os botÃµes do nav
+  // Reseta estilo de todos os botões do nav
   document.querySelectorAll('#s-adm-times .nav-btn').forEach(btn=>{
     btn.style.opacity=''; btn.style.pointerEvents='';
   });
   document.getElementById('atimes-nome').textContent=p.nome.toUpperCase();
-  document.getElementById('atimes-meta').textContent=`${fmtData(p.data)} Â· ${p.hora} Â· ${p.local}`;
+  document.getElementById('atimes-meta').textContent=`${fmtData(p.data)} · ${p.hora} · ${p.local}`;
   const pool=p.jogadores.filter(j=>j.time==='pool');
   const tA=p.jogadores.filter(j=>j.time==='azul');
   const tB=p.jogadores.filter(j=>j.time==='vermelho');
@@ -769,12 +769,12 @@ function renderAdmTimes(){
   if(alerta){
     const faltaA=tA.length>0 && !tA.some(j=>j.pos==='GOL');
     const faltaB=tB.length>0 && !tB.some(j=>j.pos==='GOL');
-    if(faltaA||faltaB){ alerta.style.display='flex'; alerta.querySelector('span').textContent='AtenÃ§Ã£o: '+[faltaA?'Time Azul sem goleiro':null,faltaB?'Time Vermelho sem goleiro':null].filter(Boolean).join(' Â· '); }
+    if(faltaA||faltaB){ alerta.style.display='flex'; alerta.querySelector('span').textContent='Atenção: '+[faltaA?'Time Azul sem goleiro':null,faltaB?'Time Vermelho sem goleiro':null].filter(Boolean).join(' · '); }
     else alerta.style.display='none';
   }
 }
 function renderAtTeam(cid,list,t,dz){
-  document.getElementById(cid).innerHTML=list.map((j,i)=>`<div class="team-slot editable"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)}</span><div class="slot-controls">${posSelect(j)}<div class="slot-order-btns"><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',-1)" title="Subir" ${i===0?'disabled':''}>â–²</button><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',1)" title="Descer" ${i===list.length-1?'disabled':''}>â–¼</button></div><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join('');
+  document.getElementById(cid).innerHTML=list.map((j,i)=>`<div class="team-slot editable"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)}</span><div class="slot-controls">${posSelect(j)}<div class="slot-order-btns"><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',-1)" title="Subir" ${i===0?'disabled':''}>↑</button><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',1)" title="Descer" ${i===list.length-1?'disabled':''}>↓</button></div><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join('');
 }
 function renderAtPool(list){
   const el=document.getElementById('at-pool');
@@ -786,13 +786,13 @@ function renderAtAll(){
   document.getElementById('at-all').innerHTML=p.jogadores.length?p.jogadores.map(j=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);margin-bottom:6px;"><div class="pool-av" style="width:26px;height:26px;font-size:10px;">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;font-size:13px;font-weight:500;">${escHtml(j.nome)}</span>${posSelect(j)}<span style="font-size:11px;color:var(--text2);min-width:50px;text-align:right;">${j.time==='pool'?'sem time':j.time==='azul'?'Azul':'Verm.'}</span><button class="btn-sm btn-danger" onclick="rmJog('${j.id}')" style="padding:4px 7px;"><i class="ti ti-trash" style="font-size:12px;"></i></button></div>`).join('')
     :'<div class="empty" style="padding:12px 0;">Nenhum jogador</div>';
 }
-async function setPos(id,pos){ if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar posiÃ§Ãµes.')) return; const p=G.pelada; [p.jogadores,p.confirmados].forEach(arr=>{const j=arr.find(x=>x.id===id);if(j)j.pos=pos;}); renderAdmTimes(); try{await dbAtualizar(id,{posicao:pos});}catch(e){showToast('Erro ao salvar posiÃ§Ã£o.');} }
+async function setPos(id,pos){ if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar posições.')) return; const p=G.pelada; [p.jogadores,p.confirmados].forEach(arr=>{const j=arr.find(x=>x.id===id);if(j)j.pos=pos;}); renderAdmTimes(); try{await dbAtualizar(id,{posicao:pos});}catch(e){showToast('Erro ao salvar posição.');} }
 
 async function moverJogadorTime(id,time){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar escalaÃ§Ãµes.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')) return;
   const p=G.pelada;
   if(!p)return;
-  const timeValido = ['azul','vermelho','pool'].includes(time) ? time : 'pool';
+  const timeValido = ['azul','vermelho','pool'].includes(time) ?time : 'pool';
   let achou=false;
   [p.jogadores,p.confirmados].forEach(arr=>{
     const j=arr.find(x=>String(x.id)===String(id));
@@ -802,19 +802,19 @@ async function moverJogadorTime(id,time){
       achou=true;
     }
   });
-  if(!achou){ showToast('Jogador nÃ£o encontrado.'); return; }
+  if(!achou){ showToast('Jogador não encontrado.'); return; }
   renderAdmTimes();
   try{
     await dbAtualizar(id,{time:timeValido, ...(timeValido==='pool'?{ordem:0}:{})});
   }catch(e){
-    showToast('Erro ao salvar a alteraÃ§Ã£o do time.');
+    showToast('Erro ao salvar a alteração do time.');
   }
 }
 
 async function rmTime(id){ await moverJogadorTime(id,'pool'); }
 async function removerDoTime(id){ await moverJogadorTime(id,'pool'); }
 async function moverOrdem(id,time,dir){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar escalaÃ§Ãµes.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')) return;
   const p=G.pelada; if(!p)return;
   const doTime=p.jogadores.filter(j=>j.time===time);
   const idx=doTime.findIndex(j=>j.id===id);
@@ -834,18 +834,18 @@ async function moverOrdem(id,time,dir){
   }catch(e){showToast('Erro ao salvar ordem.');}
 }
 async function mvTo(id,t){ await moverJogadorTime(id,t); }
-async function rmJog(id){ if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel remover jogadores.')) return; const p=G.pelada; try{await dbDeletar(id); p.jogadores=p.jogadores.filter(j=>j.id!==id); p.confirmados=p.confirmados.filter(j=>j.id!==id); renderAdmTimes(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
-async function atAdd(){ if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel adicionar jogadores.')) return; const p=G.pelada; const nome=document.getElementById('at-add-nome').value.trim(); if(!nome)return; const pos=document.getElementById('at-add-pos').value; const time=document.getElementById('at-add-time').value;
+async function rmJog(id){ if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return; const p=G.pelada; try{await dbDeletar(id); p.jogadores=p.jogadores.filter(j=>j.id!==id); p.confirmados=p.confirmados.filter(j=>j.id!==id); renderAdmTimes(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
+async function atAdd(){ if(bloquearSeEncerrada('Partida encerrada. Não é possível adicionar jogadores.')) return; const p=G.pelada; const nome=document.getElementById('at-add-nome').value.trim(); if(!nome)return; const pos=document.getElementById('at-add-pos').value; const time=document.getElementById('at-add-time').value;
   try{ const row=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify({pelada_id:p.id,nome,posicao:pos,time,pago:false,modalidade:'avulso'})}); const novo={id:row[0].id,nome,pos,time,pago:false,modalidade:'avulso'}; p.jogadores.push({...novo}); p.confirmados.push(novo); document.getElementById('at-add-nome').value=''; renderAdmTimes(); showToast('Adicionado!');
   }catch(e){ showToast('Erro ao adicionar.'); }
 }
 
 async function limparTimes(){
-  if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel limpar times.')) return;
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível limpar times.')) return;
   const p=G.pelada; if(!p)return;
   abrirConfirmSheet(
     'Limpar times',
-    'Todos os jogadores voltarÃ£o para "sem time". Essa aÃ§Ã£o nÃ£o pode ser desfeita.',
+    'Todos os jogadores voltarão para "sem time". Essa ação não pode ser desfeita.',
     'Limpar times',
     async () => {
       p.jogadores.forEach(j=>j.time='pool'); p.confirmados.forEach(j=>j.time='pool');
@@ -861,7 +861,7 @@ function compartilharTimes(){
   const tB=p.jogadores.filter(j=>j.time==='vermelho');
   const pool=p.jogadores.filter(j=>j.time==='pool');
   const lista=arr=>arr.length?arr.map(j=>`- ${j.nome}${j.pos&&j.pos!=='?'?' ('+j.pos+')':''}`).join('\n'):'- nenhum';
-  const msg=`âš½ ${p.nome}\n${fmtData(p.data)} Â· ${p.hora} Â· ${p.local}\n\nðŸ”µ Time Azul\n${lista(tA)}\n\nðŸ”´ Time Vermelho\n${lista(tB)}${pool.length?`\n\nâ³ Sem time\n${lista(pool)}`:''}`;
+  const msg=`⚽ ${p.nome}\n${fmtData(p.data)} · ${p.hora} · ${p.local}\n\n🔵 Time Azul\n${lista(tA)}\n\n🔴 Time Vermelho\n${lista(tB)}${pool.length?`\n\n⏳ Sem time\n${lista(pool)}`:''}`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
@@ -869,19 +869,19 @@ function compartilharTimes(){
 function ds(e,id){drag=id;e.dataTransfer.effectAllowed='move';}
 function de(){document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));}
 function allowDrop(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
-async function dropTo(e,t){e.preventDefault();e.stopPropagation();document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));if(bloquearSeEncerrada('Partida encerrada. NÃ£o Ã© possÃ­vel alterar escalaÃ§Ãµes.')){drag=null;return;}if(drag){const id=drag;drag=null;await moverJogadorTime(id,t);}}
+async function dropTo(e,t){e.preventDefault();e.stopPropagation();document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')){drag=null;return;}if(drag){const id=drag;drag=null;await moverJogadorTime(id,t);}}
 
 // ==========================================
 // ADM - FINANCEIRO
 // ==========================================
 function renderAdmFin(){
   const p=G.pelada; if(!p)return;
-  document.getElementById('afin-meta').textContent=`${fmtData(p.data)} Â· ${p.hora} Â· ${p.local||''}`;
+  document.getElementById('afin-meta').textContent=`${fmtData(p.data)} · ${p.hora} · ${p.local||''}`;
 
   // Valor do churras para avulsos (lido da config global; fallback 0)
   const valorChurras = Number(G.valorChurras||0);
 
-  // FunÃ§Ã£o que retorna o valor total que um jogador deve pagar
+  // Função que retorna o valor total que um jogador deve pagar
   function valorJogador(j){
     if(j.modalidade==='mensalista'||j.isento) return 0;
     let v = p.valor;
@@ -893,10 +893,10 @@ function renderAdmFin(){
   // Separar grupos
   const mensalistas = p.confirmados.filter(j=>j.modalidade==='mensalista');
   const isentos     = p.confirmados.filter(j=>j.modalidade==='avulso'&&j.isento);
-  // Avulsos do jogo (jogo | jogo_churras | null quando nÃ£o tem churras)
+  // Avulsos do jogo (jogo | jogo_churras | null quando não tem churras)
   const avulsosJogo = p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento&&(j.churras!=='churras'));
-  // SÃ³ churras
-  const soChurras   = p.temChurras ? p.confirmados.filter(j=>j.churras==='churras'&&j.modalidade!=='mensalista'&&!j.isento) : [];
+  // Só churras
+  const soChurras   = p.temChurras ?p.confirmados.filter(j=>j.churras==='churras'&&j.modalidade!=='mensalista'&&!j.isento) : [];
 
   const cobraveis   = [...avulsosJogo, ...soChurras];
   const pagos       = cobraveis.filter(j=>j.pago);
@@ -911,7 +911,7 @@ function renderAdmFin(){
   document.getElementById('fin-pend').textContent=money(pend);
   document.getElementById('fin-tot').textContent=money(tot);
   document.getElementById('fin-resumo-titulo').textContent=pendentes.length?`${pendentes.length} pendente${pendentes.length===1?'':'s'}`:'Tudo certo por aqui';
-  document.getElementById('fin-resumo-sub').textContent=`${pagos.length}/${cobraveis.length} avulsos pagos Â· ${mensalistas.length} mensalista${mensalistas.length===1?'':'s'} Â· ${isentos.length} isento${isentos.length===1?'':'s'}`;
+  document.getElementById('fin-resumo-sub').textContent=`${pagos.length}/${cobraveis.length} avulsos pagos · ${mensalistas.length} mensalista${mensalistas.length===1?'':'s'} · ${isentos.length} isento${isentos.length===1?'':'s'}`;
   document.getElementById('fin-status-pill').textContent=`${perc}% recebido`;
   document.getElementById('fin-status-pill').className='fin-pill'+(pendentes.length?' warn':'');
   document.getElementById('fin-progress').style.width=perc+'%';
@@ -922,14 +922,14 @@ function renderAdmFin(){
   if(!p.confirmados.length){el.innerHTML='<div class="empty"><i class="ti ti-cash"></i>Nenhum jogador confirmado</div>';return;}
 
   const modLabel=(j)=>{
-    if(j.modalidade==='mensalista') return 'Mensalista Â· nÃ£o entra no rateio avulso';
+    if(j.modalidade==='mensalista') return 'Mensalista · não entra no rateio avulso';
     if(j.isento)                    return 'Isento desta rodada';
     const v = valorJogador(j);
     const temC = p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras');
-    return (temC?'Avulso ðŸ–':'Avulso')+' Â· '+money(v);
+    return (temC?'Avulso 🍖':'Avulso')+' · '+money(v);
   };
   const btnAvulsoLabel=(j)=>{
-    if(p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras')) return 'Avulso ðŸ–';
+    if(p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras')) return 'Avulso 🍖';
     return 'Avulso';
   };
   const pagoDisabled=(j)=>j.modalidade!=='avulso'||j.isento;
@@ -943,7 +943,7 @@ function renderAdmFin(){
     <div class="fin-row-actions">
       <button class="btn-mini btn-mini-muted" onclick="toggleModalidade(${i})">${j.modalidade==='mensalista'?'Mensalista':btnAvulsoLabel(j)}</button>
       ${j.modalidade==='avulso'?`<button class="btn-mini ${j.isento?'btn-mini-muted':''}" onclick="toggleIsento(${i})" style="${j.isento?'background:var(--surface2);color:var(--text2);':''}">Isento</button>`:''}
-      <button class="btn-mini ${j.pago?'btn-mini-pay':'btn-mini-pend'}" onclick="togglePago(${i})" ${pagoDisabled(j)?'disabled style="opacity:.45;cursor:not-allowed;"':''}>${pagoDisabled(j)?'â€”':(j.pago?'âœ“ Pago':'Pendente')}</button>
+      <button class="btn-mini ${j.pago?'btn-mini-pay':'btn-mini-pend'}" onclick="togglePago(${i})" ${pagoDisabled(j)?'disabled style="opacity:.45;cursor:not-allowed;"':''}>${pagoDisabled(j)?'—':(j.pago?'✓ Pago':'Pendente')}</button>
     </div>
   </div>`;
 
@@ -955,7 +955,7 @@ function renderAdmFin(){
   const isentosHtml = isentos.length?isentos.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'';
 
   const soChurSection = p.temChurras&&soChurrasPagos.length
-    ? `<div class="fin-section"><div class="section-title">SÃ³ Churras ðŸ– (${soChurrasPagos.length})</div>${soChurHtml}</div>`
+    ?`<div class="fin-section"><div class="section-title">Só Churras 🍖 (${soChurrasPagos.length})</div>${soChurHtml}</div>`
     : '';
 
   el.innerHTML=`<div class="fin-section"><div class="section-title">Pendentes (${pendentes.length})</div>${pendHtml}</div>
@@ -971,7 +971,7 @@ async function marcarTodosPagos(){
   if(!pendentes.length){showToast('Nenhum pendente.');return;}
   abrirConfirmSheet(
     'Marcar todos como pagos',
-    `${pendentes.length} jogador${pendentes.length===1?'':'es'} pendente${pendentes.length===1?'':'s'} serÃ¡${pendentes.length===1?'':'Ã£o'} marcado${pendentes.length===1?'':'s'} como pago.`,
+    `${pendentes.length} jogador${pendentes.length===1?'':'es'} pendente${pendentes.length===1?'':'s'} será${pendentes.length===1?'':'ão'} marcado${pendentes.length===1?'':'s'} como pago.`,
     'Confirmar pagamentos',
     async () => {
       pendentes.forEach(j=>j.pago=true);
@@ -986,7 +986,7 @@ async function marcarTodosPagos(){
               data:new Date().toISOString().slice(0,10),
               tipo:'entrada',origem:'avulso',
               categoria:'avulso',
-              descricao:`${j.nome} â€” ${p.nome}`,
+              descricao:`${j.nome} ? ${p.nome}`,
               valor:p.valor,
               referencia_id:refId
             });
@@ -1001,9 +1001,9 @@ async function marcarTodosPagos(){
 function cobrarPendentes(){
   const p=G.pelada; if(!p)return;
   const pendentes=p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento&&!j.pago);
-  if(!pendentes.length){showToast('Sem pendÃªncias para cobrar.');return;}
+  if(!pendentes.length){showToast('Sem pendências para cobrar.');return;}
   const nomes=pendentes.map(j=>`- ${j.nome}: ${money(p.valor)}`).join('\n');
-  const msg=`âš½ ${p.nome}\n${fmtData(p.data)} Â· ${p.hora} Â· ${p.local}\n\nPendÃªncias de pagamento:\n${nomes}\n\nValor avulso: ${money(p.valor)}\nPor favor, regularizem o pagamento da rodada.`;
+  const msg=`⚽ ${p.nome}\n${fmtData(p.data)} · ${p.hora} · ${p.local}\n\nPendências de pagamento:\n${nomes}\n\nValor avulso: ${money(p.valor)}\nPor favor, regularizem o pagamento da rodada.`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
