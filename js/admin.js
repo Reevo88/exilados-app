@@ -1002,7 +1002,7 @@ function cobrarPendentes(){
   const p=G.pelada; if(!p)return;
   const pendentes=p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento&&!j.pago);
   if(!pendentes.length){showToast('Sem pendências para cobrar.');return;}
-  const nomes=pendentes.map(j=>`- ${j.nome}: ${money(p.valor)}`).join('\n');
+  const nomes=pendentes.map(j=>`- ${j.nome}`).join('\n');
   const msg=`⚽ ${p.nome}\n${fmtData(p.data)} · ${p.hora} · ${p.local}\n\nPendências de pagamento:\n${nomes}\n\nValor avulso: ${money(p.valor)}\nPor favor, regularizem o pagamento da rodada.`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
