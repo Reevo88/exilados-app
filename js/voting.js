@@ -52,19 +52,19 @@ async function dbEnviarVotos(peladaId, nomeVotante, votos, escalados) {
   const votosExistentes = await dbGetVotosDoVotante(peladaId, nomeVotante);
   if(votosExistentes && votosExistentes.length) throw new Error('votante_duplicado');
 
-  for (const v of votos) {
-    await sbFetch('/votos_pelada', {
-      method: 'POST',
-      prefer: 'return=minimal',
-      body: JSON.stringify({
-        pelada_id: peladaId,
-        nome_votante: nomeVotante,
-        nome_votado: v.nome_votado,
-        nota: v.nota,
-        ip_votante: ip || null
-      })
-    });
-  }
+  const payload = votos.map(v => ({
+    pelada_id: peladaId,
+    nome_votante: nomeVotante,
+    nome_votado: v.nome_votado,
+    nota: v.nota,
+    ip_votante: ip || null
+  }));
+
+  await sbFetch('/votos_pelada', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify(payload)
+  });
 }
 async function dbGetVotos(peladaId) {
   try {
@@ -104,6 +104,17 @@ function compilarVotos(votos, jogadores) {
 }
 
 // -- Publicar resultado automatico --------
+function votosPersistidosConferem(votosPersistidos, votosEnviados) {
+  if(!Array.isArray(votosPersistidos) || !Array.isArray(votosEnviados)) return false;
+  if(votosPersistidos.length !== votosEnviados.length) return false;
+  const esperado = votosEnviados
+    .map(v => normNome(v.nome_votado) + ':' + (Number(v.nota) || 0))
+    .sort();
+  const gravado = votosPersistidos
+    .map(v => normNome(v.nome_votado) + ':' + (Number(v.nota) || 0))
+    .sort();
+  return esperado.every((item, idx) => item === gravado[idx]);
+}
 async function publicarResultadoVotacao(pelada) {
   try {
     const votos = await dbGetVotos(pelada.id);
@@ -308,7 +319,7 @@ async function enviarVotos() {
   try {
     await dbEnviarVotos(p.id, nomeSalvo, votos, escalados);
     const votosPersistidos = await dbGetVotosDoVotante(p.id, nomeSalvo);
-    if(!votosPersistidos.length) throw new Error('persistencia_vazia');
+    if(!votosPersistidosConferem(votosPersistidos, votos)) throw new Error('persistencia_incompleta');
     lsMarcarVotou(p.id);
     document.getElementById('vot-form').style.display = 'none';
     document.getElementById('vot-aviso-janela').style.display = 'none';
@@ -324,12 +335,12 @@ async function enviarVotos() {
       showToastDanger('Seu nome não está na lista desta pelada.');
     } else if(isDuplicado) {
       const votosExistentes = await dbGetVotosDoVotante(p.id, nomeSalvo);
-      if(votosExistentes.length) {
+      if(votosPersistidosConferem(votosExistentes, votos)) {
         lsMarcarVotou(p.id);
         document.getElementById('vot-form').style.display = 'none';
         document.getElementById('vot-aviso-janela').style.display = 'none';
         document.getElementById('vot-ja-votou').style.display = '';
-        showToast('Voto já registrado para este jogador! ★');
+        showToast('Votação já registrada para este jogador! ★');
       } else {
         showToastDanger('Seus votos não foram gravados no banco. Tente novamente.');
       }
@@ -340,3 +351,6 @@ async function enviarVotos() {
     }
   }
 }
+
+
+
