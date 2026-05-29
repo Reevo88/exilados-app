@@ -1,12 +1,8 @@
-// Exilados da Bola
-// Votacao da partida e ranking de votos
-// Extraido de app.js para reduzir o monolito mantendo o comportamento global atual.
-
-// ==========================================
-// VOTAÇÃO DA PARTIDA
-// ==========================================
+﻿// Exilados da Bola
+// Votacao da partida e ranking de votos.
 
 const LS_VOTOS_KEY = 'exilados_votou'; // { peladaId: true }
+let _votPollingTimer = null;
 
 // -- Helpers de tempo --------------------
 function votacaoAberta(pelada) {
@@ -82,6 +78,15 @@ async function dbGetVotosDoVotante(peladaId, nomeVotante) {
     return r || [];
   } catch(e) { return []; }
 }
+async function dbJaVotou(peladaId, nomeVotante) {
+  if(!peladaId || !nomeVotante) return false;
+  try {
+    const r = await sbFetch(`/votos_pelada?pelada_id=eq.${peladaId}&nome_votante=eq.${encodeURIComponent(nomeVotante)}&select=nome_votante&limit=1`);
+    return Array.isArray(r) && r.length > 0;
+  } catch(e) {
+    return lsJaVotou(peladaId);
+  }
+}
 
 // -- Compilar resultado -------------------
 function compilarVotos(votos, jogadores) {
@@ -98,239 +103,7 @@ function compilarVotos(votos, jogadores) {
     .sort((a, b) => b.media - a.media || b.votos - a.votos);
 }
 
-// -- Publicar resultado automático --------
-async function publicarResultadoVotacao(pelada) {
-  try {
-    const votos = await dbGetVotos(pelada.id);
-    if(!votos.length) return;
-    const jogadores = (pelada.jogadores && pelada.jogadores.length)
-      ? pelada.jogadores
-      : pelada.confirmados;
-    const ranking = compilarVotos(votos, jogadores);
-    if(!ranking.length) return;
-    const craque = ranking[0];
-    const pereba = ranking[ranking.length - 1];
-    if(craque.nome !== pereba.nome) {
-      await dbSalvarEstatistica(pelada.id, 'craque', craque.nome);
-      await dbSalvarEstatistica(pelada.id, 'pereba', pereba.nome);
-    }
-  } catch(e) { console.warn('Erro ao publicar resultado votação:', e); }
-}
-
-// -- Botão de votação no resumo público ---
-function _resumoAtualizarBotaoVotacao(pelada) {
-  const wrap  = document.getElementById('resumo-vot-btn-wrap');
-  const tempo = document.getElementById('resumo-vot-tempo');
-  if(!wrap) return;
-  if(!pelada || G.appContext === 'admin' || !votacaoAberta(pelada)) {
-    wrap.style.display = 'none';
-    return;
-  }
-  // Verifica se o jogador está escalado - usa nome confirmado nesta pelada específica
-  const escalados = (pelada.jogadores && pelada.jogadores.length)
-    ? pelada.jogadores : pelada.confirmados;
-  const jogadorAtual = jogadorAtualNaPelada(pelada);
-  const escalado = !!jogadorAtual;
-  if(!escalado) { wrap.style.display = 'none'; return; }
-  // Já votou
-  if(lsJaVotou(pelada.id)) { wrap.style.display = 'none'; return; }
-  wrap.style.display = '';
-  if(tempo) tempo.textContent = `· até ${fmtDeadline(pelada)}`;
-}
-
-// -- Abrir tela de votação ----------------
-let _votPollingTimer = null;
-
-async function _atualizarContadorVotos(peladaId, totalJogadores) {
-  try {
-    const votos = await dbGetVotos(peladaId);
-    // Conta votantes únicos
-    const votantes = new Set(votos.map(v => v.nome_votante)).size;
-    const x = document.getElementById('vot-cnt-x');
-    const y = document.getElementById('vot-cnt-y');
-    const barra = document.getElementById('vot-cnt-barra');
-    const contador = document.getElementById('vot-contador');
-    if(x) x.textContent = votantes;
-    if(y) y.textContent = totalJogadores;
-    if(barra) barra.style.width = totalJogadores > 0 ? `${Math.round(votantes/totalJogadores*100)}%` : '0%';
-    if(contador) contador.style.display = '';
-
-    // Atualiza também no resumo público se estiver visível
-    const resumoCnt = document.getElementById('resumo-vot-contador');
-    if(resumoCnt) {
-      resumoCnt.textContent = `${votantes} de ${totalJogadores} jogadores votaram`;
-      resumoCnt.style.display = '';
-    }
-  } catch(e) {}
-}
-
-function _iniciarPollingVotos(peladaId, totalJogadores) {
-  _pararPollingVotos();
-  _atualizarContadorVotos(peladaId, totalJogadores);
-  _votPollingTimer = setInterval(() => {
-    _atualizarContadorVotos(peladaId, totalJogadores);
-  }, 30000);
-}
-
-function _pararPollingVotos() {
-  if(_votPollingTimer) { clearInterval(_votPollingTimer); _votPollingTimer = null; }
-}
-
-function abrirVotacao() {
-  const p = G.pelada;
-  if(!p) return;
-  document.getElementById('vot-meta').textContent =
-    `${p.nome} · ${fmtData(p.data)}`;
-  // Esconde tudo
-  ['vot-encerrado','vot-aviso-janela','vot-ja-votou','vot-sem-permissao','vot-form']
-    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
-
-  goTo('s-votacao');
-
-  if(votacaoEncerrada(p)) {
-    document.getElementById('vot-encerrado').style.display = '';
-    return;
-  }
-  if(!votacaoAberta(p)) {
-    document.getElementById('vot-encerrado').style.display = '';
-    return;
-  }
-
-  // Verifica se está escalado - usa nome confirmado nesta pelada específica
-  const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
-  const jogadorAtual = jogadorAtualNaPelada(p);
-  const nomeSalvo = jogadorAtual?.nome || '';
-  const escalado  = !!jogadorAtual;
-
-  if(!escalado) {
-    document.getElementById('vot-sem-permissao').style.display = '';
-    return;
-  }
-  if(lsJaVotou(p.id)) {
-    document.getElementById('vot-ja-votou').style.display = '';
-    _iniciarPollingVotos(p.id, escalados.length);
-    return;
-  }
-
-  // Aviso de janela
-  const aviso = document.getElementById('vot-aviso-janela');
-  const avisoTxt = document.getElementById('vot-aviso-texto');
-  if(aviso && avisoTxt) {
-    aviso.style.display = 'flex';
-    avisoTxt.textContent = `Votação aberta até ${fmtDeadline(p)}. Os resultados saem em até 12h após o jogo.`;
-  }
-
-  // Monta formulário
-  const outros = escalados.filter(j => normNome(j.nome) !== normNome(nomeSalvo));
-  const lista  = document.getElementById('vot-lista-jogadores');
-  lista.innerHTML = outros.map(j => `
-    <div class="vot-jogador-row" id="vot-row-${escHtml(j.nome).replace(/\s/g,'_')}">
-      <div class="avatar">${escHtml((j.nome[0]||'?').toUpperCase())}</div>
-      <span class="vot-jogador-nome">${escHtml(j.nome)}</span>
-      <div class="vot-stars" data-nome="${escHtml(j.nome)}">
-        ${[1,2,3,4,5].map(n =>
-          `<button class="vot-star" data-val="${n}" onclick="votarEstrela(this)" aria-label="${n} estrela">★</button>`
-        ).join('')}
-      </div>
-    </div>`).join('');
-
-  document.getElementById('vot-form').style.display = '';
-
-  // Inicia polling do contador
-  _iniciarPollingVotos(p.id, escalados.length);
-}
-
-function votarEstrela(btn) {
-  const container = btn.closest('.vot-stars');
-  const val = parseInt(btn.dataset.val);
-  container.querySelectorAll('.vot-star').forEach(s => {
-    s.classList.toggle('ativa', parseInt(s.dataset.val) <= val);
-  });
-  container.dataset.nota = val;
-}
-
-async function enviarVotosBasico() {
-  const p = G.pelada;
-  if(!p) return;
-  const nomeSalvo = jogadorAtualNaPelada(p)?.nome || '';
-  if(!nomeSalvo) return;
-
-  const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
-
-  const rows = [...document.querySelectorAll('#vot-lista-jogadores .vot-stars')];
-  const votos = [];
-  let semNota = false;
-  rows.forEach(container => {
-    const nota = parseInt(container.dataset.nota || '0');
-    if(!nota) { semNota = true; return; }
-    votos.push({ nome_votado: container.dataset.nome, nota });
-  });
-
-  if(semNota) {
-    showToast('Avalie todos os jogadores antes de enviar.');
-    return;
-  }
-  if(!votos.length) {
-    showToast('Nenhum jogador para votar.');
-    return;
-  }
-
-  try {
-    await dbEnviarVotos(p.id, nomeSalvo, votos, escalados);
-    lsMarcarVotou(p.id);
-    document.getElementById('vot-form').style.display = 'none';
-    document.getElementById('vot-aviso-janela').style.display = 'none';
-    document.getElementById('vot-ja-votou').style.display = '';
-    showToast('Votos enviados! ⭐');
-    await _atualizarContadorVotos(p.id, escalados.length);
-    _resumoAtualizarBotaoVotacao(p);
-  } catch(e) {
-    const msg = e.message || '';
-    const isDuplicado = msg === 'ip_duplicado' || msg === 'votante_duplicado' || msg.includes('23505') || msg.includes('uq_votos_pelada') || msg.includes('duplicate key');
-    if(msg === 'nome_invalido') {
-      showToastDanger('Seu nome não está na lista desta pelada.');
-    } else if(isDuplicado) {
-      lsMarcarVotou(p.id);
-      document.getElementById('vot-form').style.display = 'none';
-      document.getElementById('vot-aviso-janela').style.display = 'none';
-      document.getElementById('vot-ja-votou').style.display = '';
-      showToast('Voto já registrado para este dispositivo! ⭐');
-    } else {
-      showToast('Erro ao enviar votos. Tente novamente.');
-    }
-  }
-}
-
-function fecharVotacao() {
-  _pararPollingVotos();
-  goTo('s-resumo');
-}
-
-// -- Ranking de votos na aba Estatísticas -
-async function _resumoRenderRanking(peladaId, jogadores) {
-  const el = document.getElementById('resumo-stats-ranking');
-  if(!el) return;
-  try {
-    const votos = await dbGetVotos(peladaId);
-    if(!votos.length) { el.style.display = 'none'; return; }
-    const ranking = compilarVotos(votos, jogadores);
-    if(!ranking.length) { el.style.display = 'none'; return; }
-    const lista = document.getElementById('resumo-stats-ranking-lista');
-    if(lista) {
-      lista.innerHTML = ranking.map((r, i) => {
-        const estrelas = '★'.repeat(Math.round(r.media)) + '☆'.repeat(5 - Math.round(r.media));
-        return `<div class="vot-ranking-row">
-          <span class="vot-ranking-pos">${i + 1}º</span>
-          <span class="vot-ranking-nome">${escHtml(r.nome)}</span>
-          <span class="vot-ranking-stars">${estrelas}</span>
-          <span class="vot-ranking-nota">${r.media.toFixed(1)}</span>
-        </div>`;
-      }).join('');
-    }
-    el.style.display = '';
-  } catch(e) { el.style.display = 'none'; }
-}
-
+// -- Publicar resultado automatico --------
 async function publicarResultadoVotacao(pelada) {
   try {
     const votos = await dbGetVotos(pelada.id);
@@ -353,6 +126,157 @@ async function publicarResultadoVotacao(pelada) {
     console.warn('Erro ao publicar resultado votacao:', e);
   }
   return null;
+}
+
+async function jogadorJaVotouNaPelada(pelada) {
+  const jogadorAtual = jogadorAtualNaPelada(pelada);
+  const nomeVotante = jogadorAtual?.nome || '';
+  if(!nomeVotante) return false;
+  const jaVotou = await dbJaVotou(pelada.id, nomeVotante);
+  if(jaVotou) lsMarcarVotou(pelada.id);
+  return jaVotou;
+}
+
+// -- Botao de votacao no resumo publico ---
+async function _resumoAtualizarBotaoVotacao(pelada) {
+  const wrap  = document.getElementById('resumo-vot-btn-wrap');
+  const tempo = document.getElementById('resumo-vot-tempo');
+  if(!wrap) return;
+
+  wrap.style.display = 'none';
+  if(!pelada || G.appContext === 'admin' || !votacaoAberta(pelada)) return;
+
+  const jogadorAtual = jogadorAtualNaPelada(pelada);
+  if(!jogadorAtual) return;
+
+  if(await jogadorJaVotouNaPelada(pelada)) return;
+
+  wrap.style.display = '';
+  if(tempo) tempo.textContent = `· até ${fmtDeadline(pelada)}`;
+}
+
+async function _atualizarContadorVotos(peladaId, totalJogadores) {
+  try {
+    const votos = await dbGetVotos(peladaId);
+    const votantes = new Set(votos.map(v => v.nome_votante)).size;
+    const x = document.getElementById('vot-cnt-x');
+    const y = document.getElementById('vot-cnt-y');
+    const barra = document.getElementById('vot-cnt-barra');
+    const contador = document.getElementById('vot-contador');
+    if(x) x.textContent = votantes;
+    if(y) y.textContent = totalJogadores;
+    if(barra) barra.style.width = totalJogadores > 0 ? `${Math.round(votantes/totalJogadores*100)}%` : '0%';
+    if(contador) contador.style.display = '';
+
+    const resumoCnt = document.getElementById('resumo-vot-contador');
+    if(resumoCnt) {
+      resumoCnt.textContent = `${votantes} de ${totalJogadores} jogadores votaram`;
+      resumoCnt.style.display = '';
+    }
+  } catch(e) {}
+}
+
+function _iniciarPollingVotos(peladaId, totalJogadores) {
+  _pararPollingVotos();
+  _atualizarContadorVotos(peladaId, totalJogadores);
+  _votPollingTimer = setInterval(() => {
+    _atualizarContadorVotos(peladaId, totalJogadores);
+  }, 30000);
+}
+
+function _pararPollingVotos() {
+  if(_votPollingTimer) { clearInterval(_votPollingTimer); _votPollingTimer = null; }
+}
+
+async function abrirVotacao() {
+  const p = G.pelada;
+  if(!p) return;
+  document.getElementById('vot-meta').textContent = `${p.nome} · ${fmtData(p.data)}`;
+  ['vot-encerrado','vot-aviso-janela','vot-ja-votou','vot-sem-permissao','vot-form']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+
+  goTo('s-votacao');
+
+  if(votacaoEncerrada(p) || !votacaoAberta(p)) {
+    document.getElementById('vot-encerrado').style.display = '';
+    return;
+  }
+
+  const escalados = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
+  const jogadorAtual = jogadorAtualNaPelada(p);
+  const nomeSalvo = jogadorAtual?.nome || '';
+  if(!jogadorAtual) {
+    document.getElementById('vot-sem-permissao').style.display = '';
+    return;
+  }
+
+  if(await jogadorJaVotouNaPelada(p)) {
+    document.getElementById('vot-ja-votou').style.display = '';
+    _iniciarPollingVotos(p.id, escalados.length);
+    return;
+  }
+
+  const aviso = document.getElementById('vot-aviso-janela');
+  const avisoTxt = document.getElementById('vot-aviso-texto');
+  if(aviso && avisoTxt) {
+    aviso.style.display = 'flex';
+    avisoTxt.textContent = `Votação aberta até ${fmtDeadline(p)}. Os resultados saem em até 12h após o jogo.`;
+  }
+
+  const outros = escalados.filter(j => normNome(j.nome) !== normNome(nomeSalvo));
+  const lista  = document.getElementById('vot-lista-jogadores');
+  lista.innerHTML = outros.map(j => `
+    <div class="vot-jogador-row" id="vot-row-${escHtml(j.nome).replace(/\s/g,'_')}">
+      <div class="avatar">${escHtml((j.nome[0]||'?').toUpperCase())}</div>
+      <span class="vot-jogador-nome">${escHtml(j.nome)}</span>
+      <div class="vot-stars" data-nome="${escHtml(j.nome)}">
+        ${[1,2,3,4,5].map(n =>
+          `<button class="vot-star" data-val="${n}" onclick="votarEstrela(this)" aria-label="${n} estrela">★</button>`
+        ).join('')}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('vot-form').style.display = '';
+  _iniciarPollingVotos(p.id, escalados.length);
+}
+
+function votarEstrela(btn) {
+  const container = btn.closest('.vot-stars');
+  const val = parseInt(btn.dataset.val);
+  container.querySelectorAll('.vot-star').forEach(s => {
+    s.classList.toggle('ativa', parseInt(s.dataset.val) <= val);
+  });
+  container.dataset.nota = val;
+}
+
+function fecharVotacao() {
+  _pararPollingVotos();
+  goTo('s-resumo');
+}
+
+// -- Ranking de votos na aba Estatisticas -
+async function _resumoRenderRanking(peladaId, jogadores) {
+  const el = document.getElementById('resumo-stats-ranking');
+  if(!el) return;
+  try {
+    const votos = await dbGetVotos(peladaId);
+    if(!votos.length) { el.style.display = 'none'; return; }
+    const ranking = compilarVotos(votos, jogadores);
+    if(!ranking.length) { el.style.display = 'none'; return; }
+    const lista = document.getElementById('resumo-stats-ranking-lista');
+    if(lista) {
+      lista.innerHTML = ranking.map((r, i) => {
+        const estrelas = '★'.repeat(Math.round(r.media)) + '☆'.repeat(5 - Math.round(r.media));
+        return `<div class="vot-ranking-row">
+          <span class="vot-ranking-pos">${i + 1}º</span>
+          <span class="vot-ranking-nome">${escHtml(r.nome)}</span>
+          <span class="vot-ranking-stars">${estrelas}</span>
+          <span class="vot-ranking-nota">${r.media.toFixed(1)}</span>
+        </div>`;
+      }).join('');
+    }
+    el.style.display = '';
+  } catch(e) { el.style.display = 'none'; }
 }
 
 async function enviarVotos() {
@@ -389,7 +313,7 @@ async function enviarVotos() {
     document.getElementById('vot-form').style.display = 'none';
     document.getElementById('vot-aviso-janela').style.display = 'none';
     document.getElementById('vot-ja-votou').style.display = '';
-    showToast('Votos enviados! ⭐');
+    showToast('Votos enviados! ★');
     await _atualizarContadorVotos(p.id, escalados.length);
     _resumoAtualizarBotaoVotacao(p);
   } catch(e) {
@@ -405,7 +329,7 @@ async function enviarVotos() {
         document.getElementById('vot-form').style.display = 'none';
         document.getElementById('vot-aviso-janela').style.display = 'none';
         document.getElementById('vot-ja-votou').style.display = '';
-        showToast('Voto já registrado para este dispositivo! ⭐');
+        showToast('Voto já registrado para este jogador! ★');
       } else {
         showToastDanger('Seus votos não foram gravados no banco. Tente novamente.');
       }
