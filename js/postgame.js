@@ -468,8 +468,8 @@ async function renderResumo(peladaId, pjCache){
   const statsLista= document.getElementById('resumo-stats-gols-lista');
   const statsEmpty= document.getElementById('resumo-stats-empty');
 
-  // Top 5 para aba pública
-  const top5 = gols.slice(0,5);
+  // Todos os goleadores para aba pública
+  const top5 = gols;
   const golsHtml = top5.length
     ? top5.map(g => `
         <div class="artilheiro-row">
