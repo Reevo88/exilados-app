@@ -68,10 +68,14 @@ async function dbCarregarPeladas() {
   }));
   if(G.peladas.length){
     const ids=G.peladas.map(p=>p.id).join(',');
-    const [confs, resultados]=await Promise.all([
+    const [confs, resultados, jogadoresCad]=await Promise.all([
       sbFetch('/confirmacoes?pelada_id=in.('+ids+')&order=ordem.asc,created_at.asc'),
-      sbFetch('/resultados_pelada?pelada_id=in.('+ids+')')
+      sbFetch('/resultados_pelada?pelada_id=in.('+ids+')'),
+      (G.jogadores && G.jogadores.length)
+        ? Promise.resolve(G.jogadores)
+        : sbFetch('/jogadores?select=id,nome,apelido,modalidade,posicao_favorita&order=apelido.asc').catch(()=>[])
     ]);
+    if(jogadoresCad && jogadoresCad.length) G.jogadores = jogadoresCad;
     (resultados||[]).forEach(r=>{
       const p=G.peladas.find(x=>x.id===r.pelada_id);
       if(!p)return;
