@@ -90,12 +90,15 @@ async function dbJaVotou(peladaId, nomeVotante) {
 
 // -- Compilar resultado -------------------
 function compilarVotos(votos, jogadores) {
+  const validos = new Map((jogadores || []).map(j => [normNome(j.nome), j.nome]));
   const medias = {};
-  jogadores.forEach(j => { medias[j.nome] = { soma: 0, count: 0 }; });
   votos.forEach(v => {
-    if(!medias[v.nome_votado]) medias[v.nome_votado] = { soma: 0, count: 0 };
-    medias[v.nome_votado].soma  += v.nota;
-    medias[v.nome_votado].count += 1;
+    const chave = normNome(v.nome_votado);
+    const nomeCanonico = validos.get(chave);
+    if(!nomeCanonico) return;
+    if(!medias[nomeCanonico]) medias[nomeCanonico] = { soma: 0, count: 0 };
+    medias[nomeCanonico].soma  += Number(v.nota) || 0;
+    medias[nomeCanonico].count += 1;
   });
   return Object.entries(medias)
     .filter(([,d]) => d.count > 0)

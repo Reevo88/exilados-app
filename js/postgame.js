@@ -505,6 +505,10 @@ async function renderResumo(peladaId, pjCache){
   }
 
   const jogadores = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
+  const nomesValidosJogadores = new Set((jogadores || []).map(j => normNome(j.nome)));
+  const estatisticaValida = (item) => !!(item && item.nome_jogador && nomesValidosJogadores.has(normNome(item.nome_jogador)));
+  if(!estatisticaValida(craque)) craque = null;
+  if(!estatisticaValida(pereba)) pereba = null;
 
   if(votacaoAberta(p)) {
     // DURANTE VOTAÇÃO: card de andamento + ranking parcial + artilharia
@@ -561,6 +565,8 @@ async function renderResumo(peladaId, pjCache){
         estats = novasEstatsPublicadas;
         craque = estats.find(e => e.tipo === 'craque');
         pereba = estats.find(e => e.tipo === 'pereba');
+        if(!estatisticaValida(craque)) craque = null;
+        if(!estatisticaValida(pereba)) pereba = null;
       }
     }
 
@@ -571,8 +577,8 @@ async function renderResumo(peladaId, pjCache){
           novasEstats = novasEstats || [];
           const nc = novasEstats.find(e => e.tipo === 'craque');
           const np = novasEstats.find(e => e.tipo === 'pereba');
-          if(statsCraque && nc) { statsCraque.style.display = ''; if(statsCraqueNome) statsCraqueNome.textContent = nc.nome_jogador; }
-          if(statsPereba && np) { statsPereba.style.display = ''; if(statsPerebaNome) statsPerebaNome.textContent = np.nome_jogador; }
+          if(statsCraque && estatisticaValida(nc)) { statsCraque.style.display = ''; if(statsCraqueNome) statsCraqueNome.textContent = nc.nome_jogador; }
+          if(statsPereba && estatisticaValida(np)) { statsPereba.style.display = ''; if(statsPerebaNome) statsPerebaNome.textContent = np.nome_jogador; }
         });
       });
     } else {
