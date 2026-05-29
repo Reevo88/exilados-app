@@ -2,7 +2,7 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v73-rappi-nav';
+const CACHE_NAME = 'exilados-v4-rappi-nav-fino-crystal';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
