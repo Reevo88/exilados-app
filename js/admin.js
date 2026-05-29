@@ -479,11 +479,92 @@ async function admAdd(){
     }catch(e){ showToast('Erro ao adicionar jogador.'); }
   };
 
+  // Fluxo 4: nome parecido com alguém já confirmado na pelada → alerta de possível duplicata
+  const todosNaPelada = [
+    ...(p.confirmados || []),
+    ...(p.espera      || []),
+    ...(p.naoVao      || []),
+  ];
+  const similaresNaPelada = todosNaPelada.filter(j => {
+    const jn = normNome(j.nome);
+    return jn !== n && (jn.includes(n) || n.includes(jn) || _levenshtein(n, jn) <= 2);
+  });
+  if(similaresNaPelada.length > 0){
+    _abrirSheetDuplicataPelada(similaresNaPelada, nome, async (confirmaNovoJogador) => {
+      if(!confirmaNovoJogador) return; // ADM cancelou ou era duplicata
+      // Segue para os fluxos normais de cadastro
+      await _resolverFluxosCadastro(nome, n, matches, jogadores, _executarAdd);
+    });
+    return;
+  }
+
+  // Fluxos 1, 2 e 3: sem similar na pelada, segue para lookup no cadastro
+  await _resolverFluxosCadastro(nome, n, matches, jogadores, _executarAdd);
+}
+
+// -- Distância de Levenshtein (máx. 2 edições para pegar erros de digitação) --
+function _levenshtein(a, b){
+  const m = a.length, ln = b.length;
+  if(Math.abs(m - ln) > 2) return 99;
+  const dp = [];
+  for(let i=0;i<=m;i++){ dp[i]=[]; for(let j=0;j<=ln;j++) dp[i][j]=i===0?j:j===0?i:0; }
+  for(let i=1;i<=m;i++) for(let j=1;j<=ln;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][ln];
+}
+
+// -- Sheet de alerta de duplicata na pelada (Fluxo 4) --
+function _abrirSheetDuplicataPelada(similares, nomeDigitado, callback){
+  const lista = document.getElementById('id-sheet-lista');
+  const sheet = document.getElementById('id-sheet');
+  if(!lista || !sheet){ callback(true); return; }
+
+  lista.innerHTML =
+    `<div style="background:var(--warn-bg,#fffbe6);border:1px solid var(--warn-border,#f5e07a);border-radius:10px;padding:12px 14px;margin-bottom:4px;">
+      <div style="font-size:13px;font-weight:600;color:var(--warn-text,#7a6000);margin-bottom:6px;"><i class="ti ti-alert-triangle"></i> Possível duplicata na pelada</div>
+      <div style="font-size:12px;color:var(--warn-text,#7a6000);line-height:1.5;">O nome <strong>"${escHtml(nomeDigitado)}"</strong> é parecido com quem já está na lista:</div>
+    </div>` +
+    similares.map(j =>
+      `<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;">
+        <div class="avatar" style="flex-shrink:0;">${escHtml((j.nome[0]||'?').toUpperCase())}</div>
+        <span style="font-size:14px;font-weight:600;flex:1;">${escHtml(j.nome)}</span>
+      </div>`
+    ).join('') +
+    `<button class="id-sheet-opt id-sheet-opt-new" onclick="_responderDuplicata(true)">
+      <span class="id-sheet-nome">➕ São pessoas diferentes, adicionar mesmo assim</span>
+    </button>`;
+
+  // Guarda callback temporariamente
+  _admAddPendente = { nomeDigitado, onConfirm: (ok) => { callback(ok); } };
+
+  // Troca o título do sheet
+  const titulo = sheet.querySelector('.adm-sheet-title');
+  if(titulo) titulo.innerHTML = '<i class="ti ti-user-search" style="font-size:18px;margin-right:6px;"></i> Verificar duplicata';
+  const subtitulo = sheet.querySelector('div[style*="font-size:13px"]');
+  if(subtitulo) subtitulo.style.display = 'none';
+
+  sheet.classList.add('open');
+}
+function _responderDuplicata(confirma){
+  const sheet = document.getElementById('id-sheet');
+  if(sheet) sheet.classList.remove('open');
+  // Restaura título padrão do sheet
+  const titulo = sheet && sheet.querySelector('.adm-sheet-title');
+  if(titulo) titulo.innerHTML = '<i class="ti ti-user-search" style="font-size:18px;margin-right:6px;"></i> Quem é esse jogador?';
+  const subtitulo = sheet && sheet.querySelector('div[style*="font-size:13px"]');
+  if(subtitulo) subtitulo.style.display = '';
+  if(!_admAddPendente) return;
+  const { onConfirm } = _admAddPendente;
+  _admAddPendente = null;
+  onConfirm(confirma);
+}
+
+// -- Resolve fluxos 1, 2 e 3 (lookup no cadastro) --
+async function _resolverFluxosCadastro(nome, n, matches, jogadores, _executarAdd){
   // Fluxo 1: match exato e único → adiciona direto com modalidade do cadastro
   if(matches.length === 1){
     const j = matches[0];
     const nomeUsar = j.apelido || j.nome;
-    // Só pula a confirmação se o nome bater exatamente
     if(normNome(nomeUsar) === n){
       await _executarAdd(nomeUsar, j.modalidade || 'avulso', j.id);
       return;
