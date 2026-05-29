@@ -380,25 +380,126 @@ function renderAdmConf(){
     ?p.naoVao.map((j,i)=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-red" style="font-size:10px;"><i class="ti ti-x" style="font-size:10px;"></i> Não vai</span><div class="player-actions"><button class="btn-mini btn-mini-muted" onclick="voltarNaoVai(${i})"><i class="ti ti-user-plus" style="font-size:12px;"></i> Confirmar</button>${podeExcluirNaoVai?`<button class="btn-mini btn-danger" onclick="remNaoVai(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button>`:''}</div></div>`).join('')
     :'<div class="empty" style="padding:12px 0;"><i class="ti ti-user-x"></i>Nenhuma recusa registrada</div>';
 }
+// -- Busca peladeiros cadastrados para lookup de modalidade --
+async function _buscarJogadoresCadastrados(){
+  if(G.jogadores && G.jogadores.length) return G.jogadores;
+  try{
+    G.jogadores = await sbFetch('/jogadores?select=id,nome,apelido,modalidade,posicao_favorita&order=apelido.asc');
+  }catch(e){ G.jogadores = []; }
+  return G.jogadores || [];
+}
+
+// -- Encontra matches parciais pelo nome digitado --
+function _encontrarMatchesCadastro(nomeDigitado, jogadores){
+  const n = normNome(nomeDigitado);
+  return jogadores.filter(j => {
+    const nomeNorm    = normNome(j.nome   || '');
+    const apelidoNorm = normNome(j.apelido|| '');
+    return nomeNorm.includes(n) || apelidoNorm.includes(n) || n.includes(nomeNorm) || n.includes(apelidoNorm);
+  });
+}
+
+// -- Sheet de confirmação de identidade do jogador --
+let _admAddPendente = null;
+function _abrirSheetIdentidade(matches, nomeDigitado, onConfirm){
+  _admAddPendente = { nomeDigitado, onConfirm };
+  const lista = document.getElementById('id-sheet-lista');
+  const sheet = document.getElementById('id-sheet');
+  if(!lista || !sheet) { onConfirm(nomeDigitado, 'avulso', null); return; }
+
+  lista.innerHTML = matches.map((j,i) => {
+    const modalLabel = j.modalidade === 'mensalista' ? '🟡 Mensalista' : '🔵 Avulso';
+    const apelido = j.apelido ? ` (${escHtml(j.apelido)})` : '';
+    return `<button class="id-sheet-opt" onclick="_confirmarIdentidade(${i})">
+      <span class="id-sheet-nome">${escHtml(j.nome)}${apelido}</span>
+      <span class="id-sheet-mod">${modalLabel}</span>
+    </button>`;
+  }).join('') +
+  `<button class="id-sheet-opt id-sheet-opt-new" onclick="_confirmarIdentidade(-1)">
+    <span class="id-sheet-nome">➕ Adicionar "${escHtml(nomeDigitado)}" como novo</span>
+    <span class="id-sheet-mod">🔵 Avulso</span>
+  </button>`;
+
+  sheet.classList.add('open');
+}
+function _confirmarIdentidade(idx){
+  const sheet = document.getElementById('id-sheet');
+  if(sheet) sheet.classList.remove('open');
+  if(!_admAddPendente) return;
+  const { nomeDigitado, onConfirm } = _admAddPendente;
+  _admAddPendente = null;
+  const jogadores = G.jogadores || [];
+  const matches = _encontrarMatchesCadastro(nomeDigitado, jogadores);
+  if(idx >= 0 && matches[idx]){
+    const j = matches[idx];
+    const nomeUsar = j.apelido || j.nome;
+    onConfirm(nomeUsar, j.modalidade || 'avulso', j.id);
+  } else {
+    onConfirm(nomeDigitado, 'avulso', null);
+  }
+}
+function fecharIdSheet(e){
+  if(e && e.target?.id !== 'id-sheet') return;
+  const sheet = document.getElementById('id-sheet');
+  if(sheet) sheet.classList.remove('open');
+  _admAddPendente = null;
+}
+
 async function admAdd(){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível adicionar jogadores.')) return;
   const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=input.value.trim();
   if(!nome){input.focus();return;}
   const n=normNome(nome);
   if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
+
   const churras = p.temChurras ?(document.querySelector('#adm-churras-sel .churras-pill.active')?.dataset.val || 'jogo') : null;
   const vaiParaEspera = churras !== 'churras' && peladaLotada(p);
-  try{
-    const row=await dbConfirmar(p.id,nome,churras,vaiParaEspera?'espera':'confirmado');
-    const novo={id:row.id,nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',churras:churras};
-    if(vaiParaEspera){
-      p.espera.push(novo);
-    } else {
-      p.confirmados.push(novo);
-      if(churras !== 'churras') p.jogadores.push({...novo});
+
+  // Busca matches no cadastro de peladeiros
+  const jogadores = await _buscarJogadoresCadastrados();
+  const matches = _encontrarMatchesCadastro(nome, jogadores);
+
+  const _executarAdd = async (nomeUsar, modalidade, jogadorId) => {
+    try{
+      const pos = jogadorId ? (jogadores.find(j=>j.id===jogadorId)?.posicao_favorita || null) : null;
+      const row = await dbConfirmar(p.id, nomeUsar, churras, vaiParaEspera?'espera':'confirmado', jogadorId, pos);
+      // Persiste modalidade correta no banco
+      if(modalidade === 'mensalista'){
+        await dbAtualizar(row.id, { modalidade: 'mensalista' });
+      }
+      const novo={id:row.id, jogador_id:jogadorId||null, nome:nomeUsar, pos:pos||'?', time:'pool', pago:false, modalidade, churras};
+      if(vaiParaEspera){
+        p.espera.push(novo);
+      } else {
+        p.confirmados.push(novo);
+        if(churras !== 'churras') p.jogadores.push({...novo});
+      }
+      input.value=''; input.focus(); renderAdmConf(); renderAdmFin();
+      showToast(vaiParaEspera?'Jogador adicionado à espera!':'Jogador adicionado!');
+    }catch(e){ showToast('Erro ao adicionar jogador.'); }
+  };
+
+  // Fluxo 1: match exato e único → adiciona direto com modalidade do cadastro
+  if(matches.length === 1){
+    const j = matches[0];
+    const nomeUsar = j.apelido || j.nome;
+    // Só pula a confirmação se o nome bater exatamente
+    if(normNome(nomeUsar) === n){
+      await _executarAdd(nomeUsar, j.modalidade || 'avulso', j.id);
+      return;
     }
-    input.value=''; input.focus(); renderAdmConf(); showToast(vaiParaEspera?'Jogador adicionado à espera!':'Jogador adicionado!');
-  }catch(e){ showToast('Erro ao adicionar jogador.'); }
+  }
+
+  // Fluxo 2: match(es) encontrado(s) mas não exato → pede confirmação
+  if(matches.length > 0){
+    _abrirSheetIdentidade(matches, nome, async (nomeUsar, modalidade, jogadorId) => {
+      await _executarAdd(nomeUsar, modalidade, jogadorId);
+    });
+    return;
+  }
+
+  // Fluxo 3: nenhum match → avulso direto
+  await _executarAdd(nome, 'avulso', null);
 }
 async function togglePago(i){
   const j=G.pelada.confirmados[i];
@@ -978,6 +1079,14 @@ async function marcarTodosPagos(){
       renderAdmFin(); renderAdmConf(); renderAdmHome();
       try{
         await Promise.all(pendentes.map(j=>dbAtualizar(j.id,{pago:true})));
+        const valorChurrasM = Number(G.valorChurras||0);
+        function valorJogadorM(j){
+          if(j.modalidade==='mensalista'||j.isento) return 0;
+          let v = p.valor;
+          if(p.temChurras && j.churras==='jogo_churras') v += valorChurrasM;
+          if(p.temChurras && j.churras==='churras')      v  = valorChurrasM;
+          return v;
+        }
         await Promise.all(pendentes.map(async j=>{
           const refId='avulso_'+j.id;
           const exist=await dbGetMovimentoPorRef('avulso',refId);
@@ -986,8 +1095,8 @@ async function marcarTodosPagos(){
               data:new Date().toISOString().slice(0,10),
               tipo:'entrada',origem:'avulso',
               categoria:'avulso',
-              descricao:`${j.nome} ? ${p.nome}`,
-              valor:p.valor,
+              descricao:`${j.nome} — ${p.nome}`,
+              valor:valorJogadorM(j),
               referencia_id:refId
             });
           }
