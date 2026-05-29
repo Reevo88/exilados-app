@@ -1118,12 +1118,15 @@
     var btnRect = btn.getBoundingClientRect();
     if(!navRect.width || !btnRect.width) return;
 
-    var width = Math.max(54, Math.min(82, btnRect.width - 8));
+    var isTouching = nav.classList.contains('nav-touching');
+    var width = Math.max(56, Math.min(88, btnRect.width - (isTouching ? 2 : 8)));
     var x = (btnRect.left - navRect.left) + ((btnRect.width - width) / 2);
+    var centerPct = Math.max(0, Math.min(100, ((x + width / 2) / navRect.width) * 100));
 
     nav.style.setProperty('--nav-indicator-x', x.toFixed(1) + 'px');
     nav.style.setProperty('--nav-indicator-w', width.toFixed(1) + 'px');
     nav.style.setProperty('--nav-indicator-opacity', '1');
+    nav.style.setProperty('--nav-glow-x', centerPct.toFixed(1) + '%');
 
     nav.querySelectorAll('.nav-btn.nav-hover').forEach(function(b){ b.classList.remove('nav-hover'); });
     if(soft) btn.classList.add('nav-hover');
@@ -1155,7 +1158,7 @@
 
     var ring = document.createElement('span');
     ring.className = 'nav-ripple';
-    ring.style.cssText = 'position:absolute;top:50%;left:50%;width:54px;height:54px;border-radius:50%;background:rgba(245,200,0,.22);transform:translate(-50%,-50%) scale(.25);pointer-events:none;z-index:0;';
+    ring.style.cssText = 'position:absolute;top:50%;left:50%;width:58px;height:58px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,.72), rgba(245,200,0,.24) 52%, rgba(245,200,0,0) 72%);transform:translate(-50%,-50%) scale(.22);pointer-events:none;z-index:0;filter:blur(.2px);';
     btn.appendChild(ring);
     ring.animate([
       {transform:'translate(-50%,-50%) scale(.25)',opacity:.58},
@@ -1178,6 +1181,9 @@
     nav.addEventListener('pointermove', function(e){
       var btn = nearestButtonFromPoint(nav, e.clientX, e.clientY);
       if(btn){
+        var r = nav.getBoundingClientRect();
+        var pct = ((e.clientX - r.left) / Math.max(1, r.width));
+        nav.style.setProperty('--nav-tilt', ((pct - .5) * 1.2).toFixed(2) + 'deg');
         nav.classList.add('nav-touching');
         setIndicator(nav, btn, true);
       }
@@ -1188,6 +1194,9 @@
       if(!t) return;
       var btn = nearestButtonFromPoint(nav, t.clientX, t.clientY);
       if(btn){
+        var r = nav.getBoundingClientRect();
+        var pct = ((t.clientX - r.left) / Math.max(1, r.width));
+        nav.style.setProperty('--nav-tilt', ((pct - .5) * 1.2).toFixed(2) + 'deg');
         nav.classList.add('nav-touching');
         setIndicator(nav, btn, true);
       }
@@ -1196,6 +1205,7 @@
     ['pointerleave','touchend','touchcancel','blur'].forEach(function(evt){
       nav.addEventListener(evt, function(){
         nav.classList.remove('nav-touching');
+        nav.style.setProperty('--nav-tilt', '0deg');
         nav.querySelectorAll('.nav-btn.nav-hover').forEach(function(b){ b.classList.remove('nav-hover'); });
         setIndicator(nav, getActiveButton(nav), false);
       }, true);
