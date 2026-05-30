@@ -68,14 +68,10 @@ async function dbCarregarPeladas() {
   }));
   if(G.peladas.length){
     const ids=G.peladas.map(p=>p.id).join(',');
-    const [confs, resultados, jogadoresCad]=await Promise.all([
+    const [confs, resultados]=await Promise.all([
       sbFetch('/confirmacoes?pelada_id=in.('+ids+')&order=ordem.asc,created_at.asc'),
-      sbFetch('/resultados_pelada?pelada_id=in.('+ids+')'),
-      (G.jogadores && G.jogadores.length)
-        ? Promise.resolve(G.jogadores)
-        : sbFetch('/jogadores?select=id,nome,apelido,modalidade,posicao_favorita&order=apelido.asc').catch(()=>[])
+      sbFetch('/resultados_pelada?pelada_id=in.('+ids+')')
     ]);
-    if(jogadoresCad && jogadoresCad.length) G.jogadores = jogadoresCad;
     (resultados||[]).forEach(r=>{
       const p=G.peladas.find(x=>x.id===r.pelada_id);
       if(!p)return;
@@ -298,6 +294,12 @@ function dataBrParaIso(v){
   const dt=new Date(`${ano}-${mes}-${dia}T12:00:00`);
   if(Number.isNaN(dt.getTime()) || dt.getFullYear()!==Number(ano) || dt.getMonth()+1!==Number(mes) || dt.getDate()!==Number(dia)) return null;
   return `${ano}-${mes}-${dia}`;
+}
+function isAniversarianteMes(j){
+  const raw=String(j?.data_nascimento||'');
+  const m=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m) return false;
+  return parseInt(m[2],10)-1 === new Date().getMonth(); // mês 0-based
 }
 function formatarDataNascimento(v){
   const d=apenasDigitos(v).slice(0,8);

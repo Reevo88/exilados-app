@@ -368,6 +368,7 @@ function renderPeladeirosLista(){
         ${social}
       </div>
       <img class="peladeiro-logo" src="logo.png" alt="Exilados da Bola"/>
+      ${isAniversarianteMes(j) ? `<div class="peladeiro-birthday" title="Aniversariante do mês! 🎂">🎂</div>` : ""}
     </div>`;
   }).join('');
 }
@@ -390,7 +391,7 @@ function abrirJogador(id){
 // ==========================================
 // JOGADOR - CONFIRMAR
 // ==========================================
-function renderJConf(){
+async function renderJConf(){
   const p=G.pelada;
   if(!p){ showToast('Selecione uma pelada primeiro!'); voltarLista(); return; }
   p.espera=p.espera||[];
@@ -427,14 +428,21 @@ function renderJConf(){
   const badgeChurras = (j) => j.churras==='jogo_churras'
     ? ' <span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">+ churras</span>'
     : '';
+  if(!G.jogadores || !G.jogadores.length) await _buscarJogadoresCadastrados();
+  const _jogCad = (j) => (G.jogadores||[]).find(jj=>
+    (j.jogador_id && String(jj.id)===String(j.jogador_id)) ||
+    normNome(jj.nome)===normNome(j.nome) ||
+    normNome(jj.apelido||'')===normNome(j.nome)
+  ) || null;
+  const badgeAniv = (j) => { const jc=_jogCad(j); return (jc && isAniversarianteMes(jc)) ? ' <span class="badge-aniv-mini" title="Aniversariante do mês">🎂</span>' : ''; };
   const confHtml=confJogo.length
-    ?confJogo.map(j=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-green" style="font-size:10px;"><i class="ti ti-check" style="font-size:10px;"></i> Jogo</span>${badgeChurras(j)}</div>`).join('')
+    ?confJogo.map(j=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)} ${badgeAniv(j)}</span><span class="badge badge-green" style="font-size:10px;"><i class="ti ti-check" style="font-size:10px;"></i> Jogo</span>${badgeChurras(j)}</div>`).join('')
     :'<div class="empty"><i class="ti ti-users"></i>Nenhuma confirmação ainda</div>';
 
   const soChurrasHtml = confSoChurras.length
     ? `<div style="margin-top:12px;padding-top:10px;border-top:.5px solid var(--border);">
         <div class="section-title" style="margin-bottom:8px;">Só Churras 🍖 (${confSoChurras.length})</div>`
-      + confSoChurras.map(j=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-green" style="font-size:10px;">🍖 Churras</span></div>`).join('')
+      + confSoChurras.map(j=>`<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)} ${badgeAniv(j)}</span><span class="badge badge-green" style="font-size:10px;">🍖 Churras</span></div>`).join('')
       + `</div>` : '';
 
   const esperaHtml = p.espera.length
@@ -644,7 +652,7 @@ async function jogadorCancelar(){
 // ==========================================
 // JOGADOR - TIMES (leitura)
 // ==========================================
-function renderJTimes(){
+async function renderJTimes(){
   const p=G.pelada;
   if(!p){ showToast('Selecione uma pelada primeiro!'); voltarLista(); return; }
   document.getElementById('jt-nome-header').textContent=p.nome;
@@ -655,10 +663,17 @@ function renderJTimes(){
   document.getElementById('jt-cnt-a').textContent=tA.length+' jog.';
   document.getElementById('jt-cnt-b').textContent=tB.length+' jog.';
   document.getElementById('jt-sem-cnt').textContent=pool.length;
-  const slot=(j,t)=>`<div class="team-slot"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)}</span>${posBadge(j.pos)}</div>`;
+  if(!G.jogadores || !G.jogadores.length) await _buscarJogadoresCadastrados();
+  const _jc = (j) => (G.jogadores||[]).find(jj=>
+    (j.jogador_id && String(jj.id)===String(j.jogador_id)) ||
+    normNome(jj.nome)===normNome(j.nome) ||
+    normNome(jj.apelido||'')===normNome(j.nome)
+  ) || null;
+  const bAniv = (j) => { const jc=_jc(j); return (jc && isAniversarianteMes(jc)) ? ' <span class="badge-aniv-mini" title="Aniversariante do mês">🎂</span>' : ''; };
+  const slot=(j,t)=>`<div class="team-slot"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)} ${bAniv(j)}</span>${posBadge(j.pos)}</div>`;
   document.getElementById('jt-team-a').innerHTML=tA.length?tA.map(j=>slot(j,'azul')).join(''):'<div style="padding:8px;font-size:12px;color:var(--text3);">Nenhum jogador</div>';
   document.getElementById('jt-team-b').innerHTML=tB.length?tB.map(j=>slot(j,'vermelho')).join(''):'<div style="padding:8px;font-size:12px;color:var(--text3);">Nenhum jogador</div>';
   document.getElementById('jt-pool').innerHTML=pool.length
-    ?pool.map(j=>`<div class="pool-item"><div class="pool-av">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;font-size:13px;font-weight:500;">${escHtml(j.nome)}</span>${posBadge(j.pos)}</div>`).join('')
+    ?pool.map(j=>`<div class="pool-item"><div class="pool-av">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;font-size:13px;font-weight:500;">${escHtml(j.nome)} ${bAniv(j)}</span>${posBadge(j.pos)}</div>`).join('')
     :'<div style="padding:8px;font-size:12px;color:var(--text3);">Todos escalados!</div>';
 }

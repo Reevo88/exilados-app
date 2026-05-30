@@ -324,7 +324,7 @@ function excluirPeladaEditando(){
 // ==========================================
 // ADM - CONFIRMA??ES
 // ==========================================
-function renderAdmConf(){
+async function renderAdmConf(){
   const p=G.pelada; if(!p)return;
   p.naoVao=p.naoVao||[]; p.espera=p.espera||[];
   document.getElementById('aconf-nome').textContent=p.nome.toUpperCase();
@@ -355,10 +355,20 @@ function renderAdmConf(){
   const badgeChurrasAdm = (j) => j.churras==='jogo_churras'
     ?' <span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">+ churras</span>'
     : '';
+  if(!G.jogadores || !G.jogadores.length) await _buscarJogadoresCadastrados();
+  const _jogCadConf = (j) => (G.jogadores||[]).find(jj=>
+    (j.jogador_id && String(jj.id)===String(j.jogador_id)) ||
+    normNome(jj.nome)===normNome(j.nome) ||
+    normNome(jj.apelido||'')===normNome(j.nome)
+  ) || null;
+  const badgeAnivConf = (j) => {
+    const jc=_jogCadConf(j);
+    return (jc && isAniversarianteMes(jc)) ? ' <span class="badge-aniv-mini" title="Aniversariante do mês">🎂</span>' : '';
+  };
   const confJogoAdm = p.temChurras ?p.confirmados.filter(j=>j.churras==='jogo'||j.churras==='jogo_churras') : p.confirmados;
   const confSoChurrasAdm = p.temChurras ?p.confirmados.filter(j=>j.churras==='churras') : [];
-  const rowAdm = (j,i) => `<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span class="badge badge-green" style="font-size:10px;"><i class="ti ti-check" style="font-size:10px;"></i> Jogo</span>${badgeChurrasAdm(j)}<div class="player-actions"><button class="btn-mini btn-danger" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`;
-  const rowSoChurrasAdm = (j,i) => `<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)}</span><span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">Só churras</span><div class="player-actions"><button class="btn-mini btn-danger" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`;
+  const rowAdm = (j,i) => `<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)} ${badgeAnivConf(j)}</span><span class="badge badge-green" style="font-size:10px;"><i class="ti ti-check" style="font-size:10px;"></i> Jogo</span>${badgeChurrasAdm(j)}<div class="player-actions"><button class="btn-mini btn-danger" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`;
+  const rowSoChurrasAdm = (j,i) => `<div class="player-row"><div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="player-name">${escHtml(j.nome)} ${badgeAnivConf(j)}</span><span style="background:#fef0e0;color:#c46a00;border:1px solid #f5c87a;border-radius:99px;font-size:11px;font-weight:600;padding:2px 8px;white-space:nowrap;">Só churras</span><div class="player-actions"><button class="btn-mini btn-danger" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`;
 
   const confJogoHtml = confJogoAdm.length
     ?confJogoAdm.map(j=>rowAdm(j,p.confirmados.indexOf(j))).join('')
@@ -384,7 +394,7 @@ function renderAdmConf(){
 async function _buscarJogadoresCadastrados(){
   if(G.jogadores && G.jogadores.length) return G.jogadores;
   try{
-    G.jogadores = await sbFetch('/jogadores?select=id,nome,apelido,modalidade,posicao_favorita&order=apelido.asc');
+    G.jogadores = await sbFetch('/jogadores?select=id,nome,apelido,modalidade,posicao_favorita,data_nascimento&order=apelido.asc');
   }catch(e){ G.jogadores = []; }
   return G.jogadores || [];
 }
@@ -479,92 +489,11 @@ async function admAdd(){
     }catch(e){ showToast('Erro ao adicionar jogador.'); }
   };
 
-  // Fluxo 4: nome parecido com alguém já confirmado na pelada → alerta de possível duplicata
-  const todosNaPelada = [
-    ...(p.confirmados || []),
-    ...(p.espera      || []),
-    ...(p.naoVao      || []),
-  ];
-  const similaresNaPelada = todosNaPelada.filter(j => {
-    const jn = normNome(j.nome);
-    return jn !== n && (jn.includes(n) || n.includes(jn) || _levenshtein(n, jn) <= 2);
-  });
-  if(similaresNaPelada.length > 0){
-    _abrirSheetDuplicataPelada(similaresNaPelada, nome, async (confirmaNovoJogador) => {
-      if(!confirmaNovoJogador) return; // ADM cancelou ou era duplicata
-      // Segue para os fluxos normais de cadastro
-      await _resolverFluxosCadastro(nome, n, matches, jogadores, _executarAdd);
-    });
-    return;
-  }
-
-  // Fluxos 1, 2 e 3: sem similar na pelada, segue para lookup no cadastro
-  await _resolverFluxosCadastro(nome, n, matches, jogadores, _executarAdd);
-}
-
-// -- Distância de Levenshtein (máx. 2 edições para pegar erros de digitação) --
-function _levenshtein(a, b){
-  const m = a.length, ln = b.length;
-  if(Math.abs(m - ln) > 2) return 99;
-  const dp = [];
-  for(let i=0;i<=m;i++){ dp[i]=[]; for(let j=0;j<=ln;j++) dp[i][j]=i===0?j:j===0?i:0; }
-  for(let i=1;i<=m;i++) for(let j=1;j<=ln;j++)
-    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
-  return dp[m][ln];
-}
-
-// -- Sheet de alerta de duplicata na pelada (Fluxo 4) --
-function _abrirSheetDuplicataPelada(similares, nomeDigitado, callback){
-  const lista = document.getElementById('id-sheet-lista');
-  const sheet = document.getElementById('id-sheet');
-  if(!lista || !sheet){ callback(true); return; }
-
-  lista.innerHTML =
-    `<div style="background:var(--warn-bg,#fffbe6);border:1px solid var(--warn-border,#f5e07a);border-radius:10px;padding:12px 14px;margin-bottom:4px;">
-      <div style="font-size:13px;font-weight:600;color:var(--warn-text,#7a6000);margin-bottom:6px;"><i class="ti ti-alert-triangle"></i> Possível duplicata na pelada</div>
-      <div style="font-size:12px;color:var(--warn-text,#7a6000);line-height:1.5;">O nome <strong>"${escHtml(nomeDigitado)}"</strong> é parecido com quem já está na lista:</div>
-    </div>` +
-    similares.map(j =>
-      `<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;">
-        <div class="avatar" style="flex-shrink:0;">${escHtml((j.nome[0]||'?').toUpperCase())}</div>
-        <span style="font-size:14px;font-weight:600;flex:1;">${escHtml(j.nome)}</span>
-      </div>`
-    ).join('') +
-    `<button class="id-sheet-opt id-sheet-opt-new" onclick="_responderDuplicata(true)">
-      <span class="id-sheet-nome">➕ São pessoas diferentes, adicionar mesmo assim</span>
-    </button>`;
-
-  // Guarda callback temporariamente
-  _admAddPendente = { nomeDigitado, onConfirm: (ok) => { callback(ok); } };
-
-  // Troca o título do sheet
-  const titulo = sheet.querySelector('.adm-sheet-title');
-  if(titulo) titulo.innerHTML = '<i class="ti ti-user-search" style="font-size:18px;margin-right:6px;"></i> Verificar duplicata';
-  const subtitulo = sheet.querySelector('div[style*="font-size:13px"]');
-  if(subtitulo) subtitulo.style.display = 'none';
-
-  sheet.classList.add('open');
-}
-function _responderDuplicata(confirma){
-  const sheet = document.getElementById('id-sheet');
-  if(sheet) sheet.classList.remove('open');
-  // Restaura título padrão do sheet
-  const titulo = sheet && sheet.querySelector('.adm-sheet-title');
-  if(titulo) titulo.innerHTML = '<i class="ti ti-user-search" style="font-size:18px;margin-right:6px;"></i> Quem é esse jogador?';
-  const subtitulo = sheet && sheet.querySelector('div[style*="font-size:13px"]');
-  if(subtitulo) subtitulo.style.display = '';
-  if(!_admAddPendente) return;
-  const { onConfirm } = _admAddPendente;
-  _admAddPendente = null;
-  onConfirm(confirma);
-}
-
-// -- Resolve fluxos 1, 2 e 3 (lookup no cadastro) --
-async function _resolverFluxosCadastro(nome, n, matches, jogadores, _executarAdd){
   // Fluxo 1: match exato e único → adiciona direto com modalidade do cadastro
   if(matches.length === 1){
     const j = matches[0];
     const nomeUsar = j.apelido || j.nome;
+    // Só pula a confirmação se o nome bater exatamente
     if(normNome(nomeUsar) === n){
       await _executarAdd(nomeUsar, j.modalidade || 'avulso', j.id);
       return;
@@ -930,8 +859,17 @@ async function excluirJogadorAdm(){
 // ==========================================
 // ADM - TIMES
 // ==========================================
-function renderAdmTimes(){
+function bAnivAdm(j){
+  const jc=(G.jogadores||[]).find(jj=>
+    (j.jogador_id && String(jj.id)===String(j.jogador_id)) ||
+    normNome(jj.nome)===normNome(j.nome) ||
+    normNome(jj.apelido||'')===normNome(j.nome)
+  ) || null;
+  return (jc && isAniversarianteMes(jc)) ? '<span class="badge-aniv-mini" title="Aniversariante do mês">🎂</span>' : '';
+}
+async function renderAdmTimes(){
   const p=G.pelada; if(!p)return;
+  if(!G.jogadores || !G.jogadores.length) await _buscarJogadoresCadastrados();
   // Reseta estilo de todos os botões do nav
   document.querySelectorAll('#s-adm-times .nav-btn').forEach(btn=>{
     btn.style.opacity=''; btn.style.pointerEvents='';
@@ -956,11 +894,11 @@ function renderAdmTimes(){
   }
 }
 function renderAtTeam(cid,list,t,dz){
-  document.getElementById(cid).innerHTML=list.map((j,i)=>`<div class="team-slot editable"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)}</span><div class="slot-controls">${posSelect(j)}<div class="slot-order-btns"><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',-1)" title="Subir" ${i===0?'disabled':''}>↑</button><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',1)" title="Descer" ${i===list.length-1?'disabled':''}>↓</button></div><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join('');
+  document.getElementById(cid).innerHTML=list.map((j,i)=>`<div class="team-slot editable"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j)}</span><div class="slot-controls">${posSelect(j)}<div class="slot-order-btns"><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',-1)" title="Subir" ${i===0?'disabled':''}>↑</button><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',1)" title="Descer" ${i===list.length-1?'disabled':''}>↓</button></div><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join('');
 }
 function renderAtPool(list){
   const el=document.getElementById('at-pool');
-  el.innerHTML=list.length?list.map(j=>`<div class="pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;min-width:0;font-size:13px;font-weight:500;">${escHtml(j.nome)}</span>${posSelect(j)}<div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
+  el.innerHTML=list.length?list.map(j=>`<div class="pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;min-width:0;font-size:13px;font-weight:500;">${escHtml(j.nome)} ${bAnivAdm(j)}</span>${posSelect(j)}<div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
     :'<div style="padding:8px;font-size:12px;color:var(--text3);">Todos escalados!</div>';
 }
 function renderAtAll(){
