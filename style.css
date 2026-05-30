@@ -1040,6 +1040,37 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   object-fit:contain;
   filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));
 }
+/* ---- Selo de aniversariante do mês ---- */
+.peladeiro-birthday {
+  position:absolute;
+  z-index:4;
+  right:6.5%;
+  top:64%;
+  width:13%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(24px, 6vw, 36px);
+  line-height:1;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
+  animation:bday-pulse 2.4s ease-in-out infinite;
+  cursor:default;
+  user-select:none;
+}
+@keyframes bday-pulse {
+  0%,100%  { transform:scale(1)   rotate(-4deg); }
+  30%      { transform:scale(1.18) rotate(6deg);  }
+  60%      { transform:scale(1.08) rotate(-2deg); }
+}
+/* Mini badge nas listas de confirmação e escalação */
+.badge-aniv-mini {
+  font-size:13px;
+  line-height:1;
+  vertical-align:middle;
+  margin-left:2px;
+  cursor:default;
+  user-select:none;
+}
 .peladeiro-field {
   position:absolute;
   z-index:1;
@@ -1111,6 +1142,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   .peladeiro-social-link { font-size:clamp(8px,2.2vw,10px); }
   .peladeiro-social-link i { font-size:12px; }
   .peladeiro-logo { width:11.2%; right:3%; top:8%; opacity:.92; }
+  .peladeiro-birthday { width:11.2%; right:6%; top:64%; font-size:clamp(22px,5.5vw,32px); }
   .peladeiro-field { width:32%; height:40%; opacity:.24; }
 }
 @media (max-width:340px) {
@@ -1128,6 +1160,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   .peladeiro-social-link i { font-size:11px; }
   .peladeiro-chip-mod i { display:none; }
   .peladeiro-logo { width:10.2%; right:2.4%; opacity:.75; }
+  .peladeiro-birthday { width:10.2%; right:5.5%; top:64%; font-size:clamp(20px,5vw,28px); }
 }
 
 .photo-zoom {
