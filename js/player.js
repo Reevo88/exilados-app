@@ -865,7 +865,8 @@ function renderPeladeirosLista(){
     const posClasse=peladeiroPosClasse(j.posicao_favorita||'POS');
     const modalidade=j.modalidade==='mensalista'?'Mensalista':'Avulso';
     const zoom=j.foto_url?'abrirZoomFotoUrl(this.dataset.url)':'return false';
-    const tema=i % 2 === 0 ? 'blue' : 'red';
+    const _temaHash = String(j.id||'').split('').reduce((acc,c)=>acc+c.charCodeAt(0),0);
+    const tema=_temaHash % 2 === 0 ? 'blue' : 'red';
     const seloPerfil=peladeiroSeloPerfil(j);
     const apelidoLen=apelido.length;
     const apelidoSize=apelidoLen>13?'xlong':apelidoLen>10?'long':apelidoLen>7?'medium':'short';
