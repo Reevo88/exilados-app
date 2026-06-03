@@ -71,7 +71,8 @@
     if(id === 's-j-conf') return 'conf';
     if(id === 's-j-times') return 'times';
     if(id === 's-j-caixa') return 'caixa';
-    if(id === 's-j-perfil' || id === 's-j-peladeiros') return 'perfil';
+    if(id === 's-j-perfil') return 'perfil';
+    if(id === 's-j-peladeiros') return 'home';
     return null;
   }
 
