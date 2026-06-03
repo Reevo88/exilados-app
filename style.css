@@ -1598,7 +1598,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .perfil-novo-wrap {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 14px;
 }
 /* Hero card */
 .perfil-hero-card {
@@ -1606,7 +1606,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   border: none;
   border-radius: 16px;
   padding: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   box-shadow: 0 2px 10px rgba(0,0,0,.08);
 }
 .perfil-hero-card--jogador {
@@ -1712,7 +1712,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 }
 /* Seções */
 .perfil-section {
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 .perfil-section-label {
   font-size: 9px;
@@ -3930,6 +3930,9 @@ section[id*="home"] .btn:not(.btn-primary){
   border:1px solid #343434 !important;
   box-shadow:none !important;
 }
+#s-j-perfil #perfil-form-card{
+  gap:8px;
+}
 #s-j-perfil .perfil-hero-card{
   border-radius:16px !important;
 }
@@ -4294,6 +4297,9 @@ section[id*="home"] .btn:not(.btn-primary){
   display:flex;
   flex-direction:column;
   gap:14px;
+}
+.peladeiro-inline-section{
+  margin-bottom:0;
 }
 .peladeiro-inline-fields{
   background:rgba(17,17,17,.92);
