@@ -4176,8 +4176,6 @@ section[id*="home"] .btn:not(.btn-primary){
 }
 .peladeiro-card-red{--team-main:#d92a22;--team-dark:#211010;--team-accent:#F5E400;}
 .peladeiro-card-blue{--team-main:#185FA5;--team-dark:#07131f;--team-accent:#F5E400;}
-.peladeiro-pos-gol,.peladeiro-pos-zag,.peladeiro-pos-mei{--team-main:#185FA5;--team-dark:#07131f;--team-accent:#185FA5;}
-.peladeiro-pos-ata{--team-main:#d92a22;--team-dark:#211010;--team-accent:#d92a22;}
 .peladeiro-sash{
   left:-8%;
   top:-26%;
@@ -4253,6 +4251,20 @@ section[id*="home"] .btn:not(.btn-primary){
   color:#050505;
 }
 .peladeiro-chip-pos{color:#fff;}
+.peladeiro-card.peladeiro-pos-gol .peladeiro-chip-pos,
+.peladeiro-card.peladeiro-pos-zag .peladeiro-chip-pos,
+.peladeiro-card.peladeiro-pos-mei .peladeiro-chip-pos{
+  background:#185FA5;
+  border-color:#185FA5;
+}
+.peladeiro-card.peladeiro-pos-ata .peladeiro-chip-pos{
+  background:#d92a22;
+  border-color:#d92a22;
+}
+.peladeiro-card.peladeiro-pos-lat .peladeiro-chip-pos{
+  background:#B88A12;
+  border-color:#B88A12;
+}
 .peladeiro-chip-mod i{color:#f5e400;}
 .peladeiro-social-link{color:#dcdcdc;font-size:clamp(9px,2.4vw,12px);}
 .peladeiro-inline-detail{
