@@ -738,7 +738,6 @@ function peladeiroFichaExpandidaCard(j){
     <div class="peladeiro-inline-sections">
       <div class="perfil-section peladeiro-inline-section">
         <div class="perfil-section-label">DADOS</div>
-        <div class="perfil-section-title">Cadastro</div>
         <div class="perfil-fields-card peladeiro-inline-fields">
           ${peladeiroCampoIcone('ti-user','Nome completo', j.nome)}
           ${peladeiroCampoIcone('ti-shirt','Apelido', j.apelido||j.nome)}
