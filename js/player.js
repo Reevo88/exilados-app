@@ -814,7 +814,8 @@ function peladeiroUltimaPresencaInfo(j){
 
 function peladeiroFichaExpandidaCard(j){
   if(!j) return '';
-  const emVisaoAdm=!!(G && G.podeGerirJogadores);
+  const telaAtiva=document.querySelector('.screen.active')?.id || '';
+  const emVisaoAdm=telaAtiva==='s-adm-jogadores';
   const insta=peladeiroInstagram(j.instagram);
   const instaHandle=insta ? `@${insta}` : '';
   const telefone=formatarTelefone(j.telefone||'');
