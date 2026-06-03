@@ -2,10 +2,14 @@
 // Fluxo do jogador: lista, confirmacao, times e identidade local
 // Extraido de app.js para reduzir o monolito mantendo o comportamento global atual.
 
+let _openPeladaSheetRows = [];
+let _openPeladaSheetDestino = 'conf';
+
 // ==========================================
 // JOGADOR - LISTA
 // ==========================================
 function renderJLista(){
+  initPlayerHomeBottomNavOverride();
   const el = document.getElementById('j-lista');
   if(!G.peladas.length){
     el.innerHTML = '<div class="empty"><i class="ti ti-ball-football"></i>Nenhuma partida cadastrada</div>';
@@ -205,6 +209,108 @@ function renderJLista(){
         if(carousel) carousel.innerHTML = chipsFn();
       }).catch(()=>{});
   }
+}
+
+function initPlayerHomeBottomNavOverride(){
+  const nav=document.querySelector('#s-j-lista .bottom-nav');
+  if(!nav || nav.dataset.playerHomeNavReady==='1') return;
+  nav.dataset.playerHomeNavReady='1';
+  const btns=nav.querySelectorAll('.nav-btn');
+  const destinos={1:'conf',2:'times'};
+  Object.keys(destinos).forEach(idx=>{
+    const btn=btns[Number(idx)];
+    if(!btn) return;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof e.stopImmediatePropagation==='function') e.stopImmediatePropagation();
+      abrirPeladaEmAbertoJogador(destinos[idx]);
+    }, true);
+  });
+}
+
+function peladasAbertasJogador(){
+  return [...(G.peladas||[])]
+    .filter(p=>pelAdaberta(p))
+    .sort((a,b)=>new Date(a.data+'T'+a.hora) - new Date(b.data+'T'+b.hora));
+}
+
+function garantirOpenPeladaSheet(){
+  if(document.getElementById('open-pelada-sheet')) return;
+  const wrap=document.createElement('div');
+  wrap.className='adm-menu';
+  wrap.id='open-pelada-sheet';
+  wrap.onclick=function(event){ fecharOpenPeladaSheet(event); };
+  wrap.innerHTML=`<div class="adm-sheet">
+    <div class="adm-sheet-title"><i class="ti ti-ball-football" style="font-size:18px;margin-right:6px;"></i> Escolha a pelada</div>
+    <div id="open-pelada-sheet-desc" style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Ha mais de uma pelada aberta. Escolha qual voce quer abrir.</div>
+    <div id="open-pelada-sheet-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+    <div class="adm-option" onclick="fecharOpenPeladaSheet()"><i class="ti ti-x"></i><div><div class="adm-option-name">Cancelar</div></div></div>
+  </div>`;
+  document.body.appendChild(wrap);
+}
+
+function abrirSheetEscolhaPeladaJogador(peladas, destino='conf'){
+  garantirOpenPeladaSheet();
+  const sheet=document.getElementById('open-pelada-sheet');
+  const lista=document.getElementById('open-pelada-sheet-lista');
+  const desc=document.getElementById('open-pelada-sheet-desc');
+  if(!sheet || !lista) return;
+  _openPeladaSheetRows=[...(peladas||[])];
+  _openPeladaSheetDestino=destino==='times' ? 'times' : 'conf';
+  if(desc){
+    desc.textContent=_openPeladaSheetDestino==='times'
+      ? 'Ha mais de uma pelada aberta. Escolha qual escalacao voce quer ver.'
+      : 'Ha mais de uma pelada aberta. Escolha qual confirmacao voce quer abrir.';
+  }
+  lista.innerHTML=_openPeladaSheetRows.map((p,i)=>{
+    const meta=[fmtData(p.data), p.hora||'', p.local||''].filter(Boolean).join(' • ');
+    const status=peladaLotada(p) ? 'Lotada' : 'Aberta';
+    return `<button class="id-sheet-opt" onclick="_selecionarPeladaAbertaJogador(${i})">
+      <span class="id-sheet-nome">${escHtml(p.nome||'Pelada')}</span>
+      <span class="id-sheet-mod">${escHtml(meta)} | ${status}</span>
+    </button>`;
+  }).join('');
+  sheet.classList.add('open');
+}
+
+function fecharOpenPeladaSheet(event){
+  if(event && event.target?.id!=='open-pelada-sheet') return;
+  const sheet=document.getElementById('open-pelada-sheet');
+  if(sheet) sheet.classList.remove('open');
+}
+
+async function _selecionarPeladaAbertaJogador(index){
+  const pelada=_openPeladaSheetRows[Number(index)];
+  const destino=_openPeladaSheetDestino || 'conf';
+  fecharOpenPeladaSheet();
+  if(!pelada) return;
+  await abrirJogador(pelada.id, destino);
+}
+
+async function abrirPeladaEmAbertoJogador(destino='conf'){
+  if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario(true);
+  initPlayerHomeBottomNavOverride();
+  const abertas=peladasAbertasJogador();
+  if(!abertas.length){
+    showToast('Nenhuma pelada aberta no momento.');
+    return;
+  }
+  if(abertas.length===1){
+    await abrirJogador(abertas[0].id, destino);
+    return;
+  }
+  abrirSheetEscolhaPeladaJogador(abertas, destino);
+}
+
+function abrirTelaJogadorPorDestino(destino='conf'){
+  if(destino==='times'){
+    renderJTimes();
+    goTo('s-j-times');
+    return;
+  }
+  renderJConf();
+  goTo('s-j-conf');
 }
 
 function abrirHistorico(){
@@ -854,6 +960,10 @@ function renderPeladeirosLista(){
   } else if(peladeiroAutoOpenId){
     peladeiroAutoOpenId = '';
   }
+  // Pré-calcula tema por id para não quebrar ao expandir cards
+  const _temaMap = {};
+  arr.forEach((j,i) => { _temaMap[String(j.id)] = i % 2 === 0 ? 'blue' : 'red'; });
+
   el.innerHTML=arr.map((j,i)=>{
     const insta=peladeiroInstagram(j.instagram);
     const foto=j.foto_url ? `<img src="${escHtml(j.foto_url)}" alt="" />` : peladeiroIniciais(j);
@@ -865,8 +975,7 @@ function renderPeladeirosLista(){
     const posClasse=peladeiroPosClasse(j.posicao_favorita||'POS');
     const modalidade=j.modalidade==='mensalista'?'Mensalista':'Avulso';
     const zoom=j.foto_url?'abrirZoomFotoUrl(this.dataset.url)':'return false';
-    const _temaHash = String(j.id||'').split('').reduce((acc,c)=>acc+c.charCodeAt(0),0);
-    const tema=_temaHash % 2 === 0 ? 'blue' : 'red';
+    const tema=_temaMap[String(j.id)] || 'blue';
     const seloPerfil=peladeiroSeloPerfil(j);
     const apelidoLen=apelido.length;
     const apelidoSize=apelidoLen>13?'xlong':apelidoLen>10?'long':apelidoLen>7?'medium':'short';
@@ -906,20 +1015,22 @@ function renderPeladeirosLista(){
   }
 }
 
-async function abrirJogador(id){
+async function abrirJogador(id, destino='conf'){
   if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario(true);
   G.pelada=G.peladas.find(p=>String(p.id)===String(id));
+  if(!G.pelada){
+    showToast('Nao foi possivel localizar a pelada.');
+    return;
+  }
   if(peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada)){
     if(encerradaAntesDoJogo(G.pelada)){
-      renderJTimes();
-      goTo('s-j-times');
+      abrirTelaJogadorPorDestino('times');
     } else {
       abrirResumoPublico(id);
     }
     return;
   }
-  renderJConf();
-  goTo('s-j-conf');
+  abrirTelaJogadorPorDestino(destino);
 }
 
 // ==========================================
