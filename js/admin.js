@@ -395,11 +395,14 @@ async function renderAdmConf(){
     const jc=_jogCadConf(j);
     return (jc && isAniversarianteMes(jc)) ? '<span class="conf-birthday-badge" title="Aniversariante"><i class="ti ti-crown"></i></span>' : '';
   };
+  const badgeModalidadeAdm = (j) => j.modalidade==='mensalista'
+    ? '<span class="conf-player-badge is-monthly"><i class="ti ti-wallet"></i> MENSALISTA</span>'
+    : '<span class="conf-player-badge is-avulso"><i class="ti ti-user"></i> AVULSO</span>';
   const badgesAdm = (j,tipo) => {
-    if(tipo==='fora') return '<span class="conf-player-badge is-out"><i class="ti ti-x"></i> FORA</span>';
-    if(tipo==='churras') return '<span class="conf-player-badge is-bbq"><i class="ti ti-grill"></i> CHURRAS</span>';
-    if(tipo==='espera') return '<span class="conf-player-badge is-wait"><i class="ti ti-hourglass"></i> ESPERA</span>';
-    let html='<span class="conf-player-badge is-game"><i class="ti ti-shirt"></i> JOGO</span>';
+    if(tipo==='fora') return badgeModalidadeAdm(j)+'<span class="conf-player-badge is-out"><i class="ti ti-x"></i> FORA</span>';
+    if(tipo==='churras') return badgeModalidadeAdm(j)+'<span class="conf-player-badge is-bbq"><i class="ti ti-grill"></i> CHURRAS</span>';
+    if(tipo==='espera') return badgeModalidadeAdm(j)+'<span class="conf-player-badge is-wait"><i class="ti ti-hourglass"></i> ESPERA</span>';
+    let html=badgeModalidadeAdm(j)+'<span class="conf-player-badge is-game"><i class="ti ti-shirt"></i> JOGO</span>';
     if(j.churras==='jogo_churras') html += '<span class="conf-player-badge is-bbq"><i class="ti ti-grill"></i> CHURRAS</span>';
     return html;
   };

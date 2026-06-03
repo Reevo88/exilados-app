@@ -769,10 +769,13 @@ async function renderJConf(){
   };
   const avatarLetra = (j) => escHtml((j.nome||'?')[0]).toUpperCase();
   const anivBadge = (j) => { const jc=_jogCad(j); return (jc && isAniversarianteMes(jc)) ? '<span class="conf-birthday-badge" title="Aniversariante"><i class="ti ti-crown"></i></span>' : ''; };
+  const badgeModalidade = (j) => j.modalidade==='mensalista'
+    ? '<span class="conf-player-badge is-monthly"><i class="ti ti-wallet"></i> MENSALISTA</span>'
+    : '<span class="conf-player-badge is-avulso"><i class="ti ti-user"></i> AVULSO</span>';
   const badges = (j, tipo) => {
-    if(tipo === 'fora') return '<span class="conf-player-badge is-out"><i class="ti ti-x"></i> FORA</span>';
-    if(tipo === 'churras') return '<span class="conf-player-badge is-bbq"><i class="ti ti-grill"></i> CHURRAS</span>';
-    let html = '<span class="conf-player-badge is-game"><i class="ti ti-shirt"></i> JOGO</span>';
+    if(tipo === 'fora') return badgeModalidade(j)+'<span class="conf-player-badge is-out"><i class="ti ti-x"></i> FORA</span>';
+    if(tipo === 'churras') return badgeModalidade(j)+'<span class="conf-player-badge is-bbq"><i class="ti ti-grill"></i> CHURRAS</span>';
+    let html = badgeModalidade(j)+'<span class="conf-player-badge is-game"><i class="ti ti-shirt"></i> JOGO</span>';
     if(j.churras === 'jogo_churras') html += '<span class="conf-player-badge is-bbq"><i class="ti ti-grill"></i> CHURRAS</span>';
     return html;
   };
