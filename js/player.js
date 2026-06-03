@@ -269,7 +269,7 @@ async function _homeCarregarCaixa(){
 }
 
 function _valorPendenteJogadorHome(p, j){
-  if(!p || !j || j.modalidade==='mensalista' || j.isento || j.pago) return 0;
+  if(!p || !j || modalidadeConfirmacaoEhMensalista(j) || j.isento || j.pago) return 0;
   const valorJogo = Number(p.valor||0);
   const valorChurras = Number(G.valorChurras||0);
   if(p.temChurras && j.churras==='churras') return valorChurras;
@@ -769,7 +769,7 @@ async function renderJConf(){
   };
   const avatarLetra = (j) => escHtml((j.nome||'?')[0]).toUpperCase();
   const anivBadge = (j) => { const jc=_jogCad(j); return (jc && isAniversarianteMes(jc)) ? '<span class="conf-birthday-badge" title="Aniversariante"><i class="ti ti-crown"></i></span>' : ''; };
-  const badgeModalidade = (j) => j.modalidade==='mensalista'
+  const badgeModalidade = (j) => resolveModalidadeConfirmacao(j, _jogCad(j))==='mensalista'
     ? '<span class="conf-player-badge is-monthly"><i class="ti ti-wallet"></i> MENSALISTA</span>'
     : '<span class="conf-player-badge is-avulso"><i class="ti ti-user"></i> AVULSO</span>';
   const badges = (j, tipo) => {
@@ -863,6 +863,7 @@ async function jogadorVaiImpl(churrasOpt){
         nome: nome,
         churras: churrasVal,
         jogador_id: G.jogadorLogado?.id || existente.jogador_id || null,
+        modalidade: resolveModalidadeConfirmacao({ ...existente, jogador_id: G.jogadorLogado?.id || existente.jogador_id || null, nome }),
         pago: existente.pago || false,
         time: novoStatus === 'confirmado' ? (existente.time || 'pool') : 'pool',
       });
@@ -879,7 +880,7 @@ async function jogadorVaiImpl(churrasOpt){
         nome, pos: existente.posicao || existente.pos || '?',
         time: novoStatus === 'confirmado' ? (existente.time || 'pool') : 'pool',
         pago: existente.pago || false,
-        modalidade: existente.modalidade || 'avulso',
+        modalidade: resolveModalidadeConfirmacao({ ...existente, jogador_id: G.jogadorLogado?.id || existente.jogador_id || null, nome }),
         churras: churrasVal,
       };
       if(vaiParaEspera){
@@ -896,7 +897,7 @@ async function jogadorVaiImpl(churrasOpt){
         id: row.id,
         jogador_id: G.jogadorLogado?.id || null,
         nome, pos: _posIns||'?', time: 'pool',
-        pago: false, modalidade: 'avulso', churras: churrasVal,
+        pago: false, modalidade: resolveModalidadeConfirmacao({ jogador_id: G.jogadorLogado?.id || null, nome, modalidade: row.modalidade }), churras: churrasVal,
       };
       if(vaiParaEspera){
         p.espera.push(novo);
@@ -952,7 +953,9 @@ async function jogadorNaoVaiImpl(){
         body: JSON.stringify({
           pelada_id: p.id, nome,
           jogador_id: G.jogadorLogado?.id || null,
-          posicao:'?', time:'pool', pago:false, modalidade:'avulso', status:'nao_vai',
+          posicao:'?', time:'pool', pago:false,
+          modalidade: resolveModalidadeConfirmacao({ jogador_id: G.jogadorLogado?.id || null, nome }),
+          status:'nao_vai',
         }),
       });
       p.naoVao.push({id:rows[0].id, nome});

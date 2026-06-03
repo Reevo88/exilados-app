@@ -55,7 +55,7 @@ function renderAdmHome(){
 
   const cardAdm = p => {
     const st=peladaStatusInfo(p);
-    const cobraveis=p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento);
+    const cobraveis=p.confirmados.filter(j=>!modalidadeConfirmacaoEhMensalista(j)&&!j.isento);
     const pagos=cobraveis.filter(j=>j.pago).length;
     const arr=pagos*p.valor;
     const previsto=cobraveis.length*p.valor;
@@ -362,7 +362,7 @@ async function renderAdmConf(){
   const confirmados=p.confirmados.length;
   const confirmadosJogo=totalJogadoresConfirmados(p);
   const vagas=Math.max(0,p.max-confirmadosJogo);
-  const cobraveis=p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento);
+  const cobraveis=p.confirmados.filter(j=>!modalidadeConfirmacaoEhMensalista(j)&&!j.isento);
   const recebido=cobraveis.filter(j=>j.pago).length*p.valor;
   const previsto=cobraveis.length*p.valor;
   const pendente=Math.max(0,previsto-recebido);
@@ -395,7 +395,7 @@ async function renderAdmConf(){
     const jc=_jogCadConf(j);
     return (jc && isAniversarianteMes(jc)) ? '<span class="conf-birthday-badge" title="Aniversariante"><i class="ti ti-crown"></i></span>' : '';
   };
-  const badgeModalidadeAdm = (j) => j.modalidade==='mensalista'
+  const badgeModalidadeAdm = (j) => resolveModalidadeConfirmacao(j, _jogCadConf(j))==='mensalista'
     ? '<span class="conf-player-badge is-monthly"><i class="ti ti-wallet"></i> MENSALISTA</span>'
     : '<span class="conf-player-badge is-avulso"><i class="ti ti-user"></i> AVULSO</span>';
   const badgesAdm = (j,tipo) => {
@@ -559,7 +559,7 @@ async function admAdd(){
 }
 async function togglePago(i){
   const j=G.pelada.confirmados[i];
-  if(j.modalidade==='mensalista'){showToast('Mensalista não entra na cobrança avulsa.');return;}
+  if(modalidadeConfirmacaoEhMensalista(j)){showToast('Mensalista não entra na cobrança avulsa.');return;}
   j.pago=!j.pago; renderAdmConf(); renderAdmFin(); renderAdmHome();
   try{await dbAtualizar(j.id,{pago:j.pago});}
   catch(e){j.pago=!j.pago;renderAdmConf();renderAdmFin();renderAdmHome();showToast('Erro ao salvar.');}
@@ -567,8 +567,9 @@ async function togglePago(i){
 async function toggleModalidade(i){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar modalidade.')) return;
   const j=G.pelada.confirmados[i];
-  const anterior={modalidade:j.modalidade,pago:j.pago,isento:!!j.isento};
-  j.modalidade=j.modalidade==='mensalista'?'avulso':'mensalista';
+  const modalidadeAtual=resolveModalidadeConfirmacao(j);
+  const anterior={modalidade:modalidadeAtual,pago:j.pago,isento:!!j.isento};
+  j.modalidade=modalidadeAtual==='mensalista'?'avulso':'mensalista';
   j.pago=false;
   j.isento=false;
   const jj=G.pelada.jogadores.find(x=>x.id===j.id); if(jj){jj.modalidade=j.modalidade; jj.pago=j.pago; jj.isento=j.isento;}
@@ -587,7 +588,7 @@ async function toggleModalidade(i){
 async function toggleIsento(i){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar isenção.')) return;
   const j=G.pelada.confirmados[i];
-  if(j.modalidade!=='avulso'){showToast('Só avulsos podem ser isentos.');return;}
+  if(modalidadeConfirmacaoEhMensalista(j)){showToast('Só avulsos podem ser isentos.');return;}
   const anterior={isento:!!j.isento,pago:j.pago};
   j.isento=!j.isento;
   if(j.isento) j.pago=false;
@@ -1071,7 +1072,7 @@ async function moverOrdem(id,time,dir){
 async function mvTo(id,t){ await moverJogadorTime(id,t); }
 async function rmJog(id){ if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return; const p=G.pelada; try{await dbDeletar(id); p.jogadores=p.jogadores.filter(j=>j.id!==id); p.confirmados=p.confirmados.filter(j=>j.id!==id); renderAdmTimes(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
 async function atAdd(){ if(bloquearSeEncerrada('Partida encerrada. Não é possível adicionar jogadores.')) return; const p=G.pelada; const nome=document.getElementById('at-add-nome').value.trim(); if(!nome)return; const pos=document.getElementById('at-add-pos').value; const time=document.getElementById('at-add-time').value;
-  try{ const row=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify({pelada_id:p.id,nome,posicao:pos,time,pago:false,modalidade:'avulso'})}); const novo={id:row[0].id,nome,pos,time,pago:false,modalidade:'avulso'}; p.jogadores.push({...novo}); p.confirmados.push(novo); document.getElementById('at-add-nome').value=''; renderAdmTimes(); showToast('Adicionado!');
+  try{ const row=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify({pelada_id:p.id,nome,posicao:pos,time,pago:false,modalidade:resolveModalidadeConfirmacao({nome})})}); const novo={id:row[0].id,nome,pos,time,pago:false,modalidade:resolveModalidadeConfirmacao({nome,modalidade:row[0].modalidade})}; p.jogadores.push({...novo}); p.confirmados.push(novo); document.getElementById('at-add-nome').value=''; renderAdmTimes(); showToast('Adicionado!');
   }catch(e){ showToast('Erro ao adicionar.'); }
 }
 
@@ -1115,10 +1116,12 @@ function renderAdmFin(){
 
   // Valor do churras para avulsos (lido da config global; fallback 0)
   const valorChurras = Number(G.valorChurras||0);
+  const modEfetiva = (j) => resolveModalidadeConfirmacao(j);
+  const ehMensalista = (j) => modEfetiva(j)==='mensalista';
 
   // Função que retorna o valor total que um jogador deve pagar
   function valorJogador(j){
-    if(j.modalidade==='mensalista'||j.isento) return 0;
+    if(ehMensalista(j)||j.isento) return 0;
     let v = p.valor;
     if(p.temChurras && j.churras==='jogo_churras') v += valorChurras;
     if(p.temChurras && j.churras==='churras')      v  = valorChurras;
@@ -1126,12 +1129,12 @@ function renderAdmFin(){
   }
 
   // Separar grupos
-  const mensalistas = p.confirmados.filter(j=>j.modalidade==='mensalista');
-  const isentos     = p.confirmados.filter(j=>j.modalidade==='avulso'&&j.isento);
+  const mensalistas = p.confirmados.filter(j=>ehMensalista(j));
+  const isentos     = p.confirmados.filter(j=>!ehMensalista(j)&&j.isento);
   // Avulsos do jogo (jogo | jogo_churras | null quando não tem churras)
-  const avulsosJogo = p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento&&(j.churras!=='churras'));
+  const avulsosJogo = p.confirmados.filter(j=>!ehMensalista(j)&&!j.isento&&(j.churras!=='churras'));
   // Só churras
-  const soChurras   = p.temChurras ?p.confirmados.filter(j=>j.churras==='churras'&&j.modalidade!=='mensalista'&&!j.isento) : [];
+  const soChurras   = p.temChurras ?p.confirmados.filter(j=>j.churras==='churras'&&!ehMensalista(j)&&!j.isento) : [];
 
   const cobraveis   = [...avulsosJogo, ...soChurras];
   const pagos       = cobraveis.filter(j=>j.pago);
@@ -1158,7 +1161,7 @@ function renderAdmFin(){
   if(!p.confirmados.length){el.innerHTML='<div class="empty"><i class="ti ti-cash"></i>Nenhum jogador confirmado</div>';return;}
 
   const modLabel=(j)=>{
-    if(j.modalidade==='mensalista') return 'Mensalista · não entra no rateio avulso';
+    if(ehMensalista(j)) return 'Mensalista · não entra no rateio avulso';
     if(j.isento)                    return 'Isento desta rodada';
     const v = valorJogador(j);
     const temC = p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras');
@@ -1168,7 +1171,7 @@ function renderAdmFin(){
     if(p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras')) return 'Avulso + churras';
     return 'Avulso';
   };
-  const pagoDisabled=(j)=>j.modalidade!=='avulso'||j.isento;
+  const pagoDisabled=(j)=>ehMensalista(j)||j.isento;
 
   const row=(j,i)=>`<div class="fin-row">
     <div class="avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div>
@@ -1177,9 +1180,9 @@ function renderAdmFin(){
       <div class="fin-meta">${modLabel(j)}</div>
     </div>
     <div class="fin-row-actions">
-      <button class="btn-mini fin-badge ${j.modalidade==='mensalista'?'fin-badge-monthly':'fin-badge-avulso'}" onclick="toggleModalidade(${i})">${j.modalidade==='mensalista'?'Mensalista':btnAvulsoLabel(j)}</button>
+      <button class="btn-mini fin-badge ${ehMensalista(j)?'fin-badge-monthly':'fin-badge-avulso'}" onclick="toggleModalidade(${i})">${ehMensalista(j)?'Mensalista':btnAvulsoLabel(j)}</button>
       <button class="btn-mini fin-badge ${j.pago?'fin-badge-paid':'fin-badge-pending'}" onclick="togglePago(${i})" ${pagoDisabled(j)?'disabled style="opacity:.45;cursor:not-allowed;"':''}>${pagoDisabled(j)?'--':(j.pago?'Pago':'Pagar')}</button>
-      ${j.modalidade==='avulso'?`<button class="btn-mini fin-badge ${j.isento?'fin-badge-isento fin-badge-isento-active':'fin-badge-isento'}" onclick="toggleIsento(${i})">Isento</button>`:''}
+      ${!ehMensalista(j)?`<button class="btn-mini fin-badge ${j.isento?'fin-badge-isento fin-badge-isento-active':'fin-badge-isento'}" onclick="toggleIsento(${i})">Isento</button>`:''}
     </div>
   </div>`;
   const pendHtml    = avulsosJogoPendentes.length?avulsosJogoPendentes.map(j=>row(j,p.confirmados.indexOf(j))).join(''):'<div class="empty" style="padding:12px 0;">Nenhum avulso pendente</div>';
@@ -1201,7 +1204,7 @@ function renderAdmFin(){
 
 async function marcarTodosPagos(){
   const p=G.pelada; if(!p)return;
-  const pendentes=p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento&&!j.pago);
+  const pendentes=p.confirmados.filter(j=>!modalidadeConfirmacaoEhMensalista(j)&&!j.isento&&!j.pago);
   if(!pendentes.length){showToast('Nenhum pendente.');return;}
   abrirConfirmSheet(
     'Marcar todos como pagos',
@@ -1214,7 +1217,7 @@ async function marcarTodosPagos(){
         await Promise.all(pendentes.map(j=>dbAtualizar(j.id,{pago:true})));
         const valorChurrasM = Number(G.valorChurras||0);
         function valorJogadorM(j){
-          if(j.modalidade==='mensalista'||j.isento) return 0;
+          if(modalidadeConfirmacaoEhMensalista(j)||j.isento) return 0;
           let v = p.valor;
           if(p.temChurras && j.churras==='jogo_churras') v += valorChurrasM;
           if(p.temChurras && j.churras==='churras')      v  = valorChurrasM;
@@ -1242,7 +1245,7 @@ async function marcarTodosPagos(){
 
 function cobrarPendentes(){
   const p=G.pelada; if(!p)return;
-  const pendentes=p.confirmados.filter(j=>j.modalidade!=='mensalista'&&!j.isento&&!j.pago);
+  const pendentes=p.confirmados.filter(j=>!modalidadeConfirmacaoEhMensalista(j)&&!j.isento&&!j.pago);
   if(!pendentes.length){showToast('Sem pendências para cobrar.');return;}
   const nomes=pendentes.map(j=>`- ${j.nome}`).join('\n');
   const msg=`⚽ ${p.nome}\n${fmtData(p.data)} · ${p.hora} · ${p.local}\n\nPendências de pagamento:\n${nomes}\n\nValor avulso: ${money(p.valor)}\nPor favor, regularizem o pagamento da rodada.`;
