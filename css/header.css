@@ -1,0 +1,257 @@
+/* Centralized header layer for future visual adjustments. */
+
+:root{
+  --app-header-height: 90px;
+  --app-header-padding-x: 12px;
+  --app-header-padding-top: calc(env(safe-area-inset-top,0px) + 8px);
+  --app-header-padding-bottom: 8px;
+  --app-header-brand-col-left: 82px;
+  --app-header-brand-col-right: 40px;
+  --app-header-brand-gap: 12px;
+  --app-header-bull-size: 74px;
+  --app-header-logo-width: min(68vw,380px);
+  --app-header-logo-max-height: 78px;
+}
+
+.screen > .header.app-brand-header{
+  position:relative !important;
+  margin:0 0 14px !important;
+  padding:var(--app-header-padding-top) var(--app-header-padding-x) var(--app-header-padding-bottom) !important;
+  min-height:var(--app-header-height) !important;
+  height:var(--app-header-height) !important;
+  border-radius:0 !important;
+  border:0 !important;
+  border-bottom:1px solid #343434 !important;
+  background:#050505 !important;
+  box-shadow:none !important;
+  display:grid !important;
+  grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) var(--app-header-brand-col-right) !important;
+  align-items:center !important;
+  column-gap:var(--app-header-brand-gap) !important;
+  overflow:hidden !important;
+}
+
+.screen > .header.app-brand-header--home{
+  min-height:var(--app-header-height) !important;
+  height:var(--app-header-height) !important;
+  padding-top:var(--app-header-padding-top) !important;
+  padding-bottom:var(--app-header-padding-bottom) !important;
+}
+
+.screen > .header.app-brand-header--login{
+  grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) var(--app-header-brand-col-right) !important;
+}
+
+.screen > .header.app-form-header{
+  margin:0 0 14px !important;
+  padding:var(--app-header-padding-top) var(--app-header-padding-x) var(--app-header-padding-bottom) !important;
+  min-height:var(--app-header-height) !important;
+  height:var(--app-header-height) !important;
+  border-radius:0 !important;
+  border:0 !important;
+  border-bottom:1px solid #343434 !important;
+  background:#050505 !important;
+  box-shadow:none !important;
+  display:grid !important;
+  grid-template-columns:var(--app-header-brand-col-right) minmax(0,1fr) var(--app-header-brand-col-right) !important;
+  align-items:center !important;
+  gap:var(--app-header-brand-gap) !important;
+}
+
+.app-form-title{
+  min-width:0;
+  text-align:center;
+}
+
+.app-form-title h1{
+  margin:0 !important;
+  font-family:'Barlow Condensed',sans-serif !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  letter-spacing:.05em !important;
+  color:#F5E400 !important;
+  text-transform:uppercase !important;
+  text-shadow:none !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+.app-form-title p{
+  margin:3px 0 0 !important;
+  color:#a8a8a8 !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+}
+
+.app-header-brand-btn{
+  grid-column:1 / 3 !important;
+  min-width:0 !important;
+  width:100% !important;
+  height:100% !important;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  margin:0 !important;
+  display:grid !important;
+  grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) !important;
+  align-items:center !important;
+  column-gap:var(--app-header-brand-gap) !important;
+  cursor:pointer;
+}
+
+.app-header-brand-btn::before{
+  content:"";
+  display:block;
+  width:var(--app-header-bull-size);
+  height:var(--app-header-bull-size);
+  justify-self:start;
+  align-self:center;
+  background:url('../boi-mono.png') center/contain no-repeat;
+  filter:none !important;
+  box-shadow:none !important;
+}
+
+.app-header-logo{
+  justify-self:center !important;
+  align-self:center !important;
+  width:var(--app-header-logo-width) !important;
+  max-width:100% !important;
+  height:auto !important;
+  max-height:var(--app-header-logo-max-height) !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  filter:none !important;
+  box-shadow:none !important;
+  display:block !important;
+}
+
+.app-header-back{
+  width:38px !important;
+  height:38px !important;
+  border-radius:999px !important;
+  border:1px solid #343434 !important;
+  background:#111111 !important;
+  color:#F5E400 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+}
+
+.app-header-back i{
+  font-size:22px !important;
+  color:#F5E400 !important;
+}
+
+.app-header-action-spacer{
+  grid-column:3 !important;
+  width:38px !important;
+  height:38px !important;
+  display:block !important;
+}
+
+.header-dynamic-hidden{
+  display:none !important;
+}
+
+.header .app-header-menu,
+.header .player-menu-btn.app-header-menu,
+.header button[aria-label="Abrir menu do administrador"],
+.header button[aria-label="Abrir menu do jogador"]{
+  width:38px !important;
+  height:38px !important;
+  min-width:38px !important;
+  border-radius:999px !important;
+  border:0 !important;
+  background:transparent !important;
+  color:#F5E400 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  box-shadow:none !important;
+}
+
+.header .app-header-menu i,
+.header .player-menu-btn.app-header-menu i,
+.header button[aria-label="Abrir menu do administrador"] i,
+.header button[aria-label="Abrir menu do jogador"] i{
+  font-size:26px !important;
+  color:#F5E400 !important;
+}
+
+
+
+@media(max-width:390px){
+  :root{
+    --app-header-height: 78px;
+    --app-header-padding-x: 10px;
+    --app-header-brand-col-left: 68px;
+    --app-header-brand-col-right: 34px;
+    --app-header-brand-gap: 8px;
+    --app-header-bull-size: 60px;
+    --app-header-logo-width: min(60vw,240px);
+    --app-header-logo-max-height: 58px;
+  }
+
+  .screen > .header.app-brand-header,
+  .screen > .header.app-brand-header--home{
+    grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) var(--app-header-brand-col-right) !important;
+    column-gap:var(--app-header-brand-gap) !important;
+    height:var(--app-header-height) !important;
+    min-height:var(--app-header-height) !important;
+    padding-left:var(--app-header-padding-x) !important;
+    padding-right:var(--app-header-padding-x) !important;
+  }
+
+  .app-header-brand-btn{
+    grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) !important;
+    column-gap:var(--app-header-brand-gap) !important;
+  }
+
+  .header .app-header-menu,
+  .header .player-menu-btn.app-header-menu,
+  .header button[aria-label="Abrir menu do administrador"],
+  .header button[aria-label="Abrir menu do jogador"],
+  .app-header-action-spacer{
+    width:34px !important;
+    height:34px !important;
+    min-width:34px !important;
+  }
+
+  .header .app-header-menu i,
+  .header .player-menu-btn.app-header-menu i,
+  .header button[aria-label="Abrir menu do administrador"] i,
+  .header button[aria-label="Abrir menu do jogador"] i{
+    font-size:24px !important;
+  }
+}
+
+@media(max-width:350px){
+  :root{
+    --app-header-brand-col-left: 60px;
+    --app-header-brand-col-right: 32px;
+    --app-header-bull-size: 54px;
+    --app-header-logo-width: min(58vw,210px);
+    --app-header-logo-max-height: 52px;
+  }
+
+  .screen > .header.app-brand-header,
+  .screen > .header.app-brand-header--home{
+    grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) var(--app-header-brand-col-right) !important;
+  }
+
+  .app-header-brand-btn{
+    grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) !important;
+  }
+
+  .header .app-header-menu,
+  .header .player-menu-btn.app-header-menu,
+  .header button[aria-label="Abrir menu do administrador"],
+  .header button[aria-label="Abrir menu do jogador"]{
+    width:32px !important;
+    height:32px !important;
+    min-width:32px !important;
+  }
+}

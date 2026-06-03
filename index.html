@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0" name="viewport"/>
+<title>Exilados da Bola</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+<link href="style.css?v=20260601-header-adm-fix-2" rel="stylesheet"/>
+<link href="css/header.css?v=20260601-header-adm-fix-2" rel="stylesheet"/>
+<link href="css/bottom-nav.css?v=20260601-header-adm-fix-2" rel="stylesheet"/>
+<!-- PWA -->
+<link href="/manifest.json" rel="manifest"/>
+<meta content="#000000" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Exilados" name="apple-mobile-web-app-title"/>
+<link href="/apple-touch-icon.png" rel="apple-touch-icon"/>
+</head>
+<body>
+<div id="app">
+<!-- ======================================
+     FLUXO JOGADOR
+====================================== -->
+<!-- J1: LISTA DE PELADAS -->
+<div class="screen active" id="s-j-lista">
+<div class="header app-brand-header app-brand-header--home"><button aria-label="Exilados da Bola" class="app-header-brand-btn"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<div id="j-lista"></div>
+<div class="home-footer-block">
+<a class="home-instagram-label" href="https://instagram.com/exiladosdabola" target="_blank"><i class="ti ti-brand-instagram"></i> @exiladosdabola</a>
+<p style="font-size:12px;font-weight:400;color:#888;text-align:center;margin-top:4px;">© Desenvolvido por <a href="https://wa.me/5551992028660" style="color:inherit;text-decoration:none;" target="_blank">@Reevo88</a></p>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn active"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirJogador(G.peladas[0]?.id)"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirJogador(G.peladas[0]?.id)"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- J1B: PERFIL DO JOGADOR -->
+<div class="screen" id="s-j-perfil">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioPerfil()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<!-- LOGIN (não autenticado) -->
+<div class="card" id="perfil-login-card">
+<button class="btn btn-outline" onclick="loginJogadorGoogle()" style="margin-bottom:10px;display:none;"><i class="ti ti-brand-google"></i> Entrar com Google</button>
+<div class="field"><label>E-mail</label><input autocomplete="email" id="perfil-email-login" placeholder="voce@email.com" type="email"/></div>
+<div class="field"><label>Senha</label><input autocomplete="current-password" id="perfil-senha-login" placeholder="mínimo 6 caracteres" type="password"/></div>
+<button class="btn btn-primary" onclick="entrarJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-lock-open"></i> Entrar</button>
+<button class="btn btn-outline" onclick="criarContaJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-user-plus"></i> Criar conta</button>
+<button id="perfil-btn-esqueci" onclick="recuperarSenhaJogador()" style="width:100%;background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);padding:4px 8px;font-family:'Inter',sans-serif;">Esqueci minha senha</button>
+</div>
+<!-- RESET SENHA -->
+<div class="card" id="perfil-reset-card" style="display:none;">
+<div class="card-title">Criar nova senha</div>
+<div class="field"><label>Nova senha</label><input autocomplete="new-password" id="perfil-nova-senha" placeholder="mínimo 6 caracteres" type="password"/></div>
+<button class="btn btn-primary" onclick="salvarNovaSenhaJogador()" style="margin-bottom:8px;"><i class="ti ti-key"></i> Salvar nova senha</button>
+<button class="btn btn-danger" onclick="voltarLoginPerfil()"><i class="ti ti-arrow-left"></i> Voltar para login</button>
+</div>
+<!-- PERFIL AUTENTICADO -->
+<div class="perfil-novo-wrap" id="perfil-form-card" style="display:none;">
+<input id="perfil-jogador-id" type="hidden"/>
+<input id="perfil-foto-url" type="hidden"/>
+<!-- Hero card -->
+<div class="perfil-hero-card perfil-hero-card--jogador">
+<div class="perfil-hero-row">
+<div class="perfil-hero-photo-wrap">
+<div class="perfil-hero-avatar" id="perfil-foto-preview" onclick="abrirZoomFotoPerfil('perfil')" title="Ampliar foto">?</div>
+<label class="perfil-hero-cam" for="perfil-foto-file" title="Trocar foto"><i class="ti ti-camera"></i></label>
+</div>
+<div class="perfil-hero-info">
+<div class="perfil-hero-label">CONTA DO PELADEIRO</div>
+<div class="perfil-hero-title" id="perfil-hero-apelido">—</div>
+<div class="perfil-hero-nome" id="perfil-hero-nome">—</div>
+<div class="perfil-hero-sub" id="perfil-hero-sub">—</div>
+</div>
+<input accept="image/*" id="perfil-foto-file" onchange="uploadFotoPerfil(this.files[0])" style="display:none;" type="file"/>
+</div>
+</div>
+<!-- Cadastro -->
+<div class="perfil-section">
+<div class="perfil-section-label">DADOS</div>
+<div class="perfil-section-title">Cadastro</div>
+<div class="perfil-fields-card">
+<div class="perfil-field-row">
+<span class="perfil-field-label"><i class="ti ti-user"></i> Nome completo</span>
+<input autocomplete="name" class="perfil-field-input" id="perfil-nome" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label"><i class="ti ti-shirt"></i> Apelido</span>
+<input autocomplete="off" class="perfil-field-input" id="perfil-apelido" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label"><i class="ti ti-phone"></i> Telefone</span>
+<input autocomplete="tel" class="perfil-field-input" id="perfil-telefone" maxlength="13" oninput="mascararTelefoneInput(this)" placeholder="51-999999999" type="tel"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label"><i class="ti ti-calendar"></i> Nascimento</span>
+<input class="perfil-field-input" id="perfil-nascimento" inputmode="numeric" maxlength="10" oninput="mascararDataInput(this)" placeholder="DD/MM/AAAA" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label"><i class="ti ti-brand-instagram"></i> Instagram</span>
+<input autocomplete="off" class="perfil-field-input" id="perfil-instagram" placeholder="@usuario" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label">Posição favorita</span>
+<div class="perfil-flags" id="perfil-flags-pos">
+<button class="perfil-flag" data-val="GOL" onclick="perfilFlagSelect('pos',this)">GOL</button>
+<button class="perfil-flag" data-val="ZAG" onclick="perfilFlagSelect('pos',this)">ZAG</button>
+<button class="perfil-flag" data-val="LAT" onclick="perfilFlagSelect('pos',this)">LAT</button>
+<button class="perfil-flag" data-val="MEI" onclick="perfilFlagSelect('pos',this)">MEI</button>
+<button class="perfil-flag" data-val="ATA" onclick="perfilFlagSelect('pos',this)">ATA</button>
+</div>
+</div>
+<div class="perfil-field-row perfil-field-row--last">
+<span class="perfil-field-label"><i class="ti ti-cash"></i> Modalidade</span>
+<div class="perfil-flags" id="perfil-flags-mod">
+<button class="perfil-flag" data-val="avulso" onclick="perfilFlagSelect('mod',this)">Avulso</button>
+<button class="perfil-flag" data-val="mensalista" onclick="perfilFlagSelect('mod',this)">Mensalista</button>
+</div>
+</div>
+</div>
+<!-- hidden selects mantidos para compatibilidade com salvarMeuPerfil() -->
+<select id="perfil-pos" style="display:none;"></select>
+<input id="perfil-email" type="hidden"/>
+</div>
+<!-- Última presença (todos veem) -->
+<div class="perfil-section">
+<div class="perfil-resumo-grid">
+<div class="perfil-resumo-item perfil-resumo-item--full" id="perfil-ultima-presenca"></div>
+</div>
+</div>
+<!-- Resumo da conta (só adm) -->
+<div class="perfil-section" id="perfil-resumo-adm" style="display:none;">
+<div class="perfil-section-label">ACESSO</div>
+<div class="perfil-section-title">Permissões</div>
+<div class="perfil-resumo-grid">
+<div class="perfil-resumo-item perfil-resumo-item--full">
+<div class="perfil-resumo-label">Somente leitura</div>
+<div class="perfil-flags perfil-flags--resumo" id="perfil-flags-perfil">
+<span class="perfil-flag perfil-flag--readonly" data-val="jogador">Jogador</span>
+<span class="perfil-flag perfil-flag--readonly" data-val="escalador">Escalador</span>
+<span class="perfil-flag perfil-flag--readonly" data-val="presidente">Presidente</span>
+<span class="perfil-flag perfil-flag--readonly" data-val="adm">Admin</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Ações -->
+<button class="btn btn-primary" onclick="salvarMeuPerfil()" style="margin-bottom:10px;"><i class="ti ti-device-floppy"></i> Salvar perfil</button>
+<button class="btn btn-outline" onclick="sairJogador()"><i class="ti ti-logout"></i> Sair</button>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn active" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- J1C: PELADEIROS (SOMENTE LEITURA) -->
+<div class="screen" id="s-j-peladeiros">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioApp()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<div class="card peladeiros-intro-card">
+<div>
+<div class="card-title">Quem joga com a gente</div>
+<div class="peladeiros-intro-text">Consulta rápida dos peladeiros inscritos.</div>
+</div>
+<div class="peladeiros-total"><span id="peladeiros-total">0</span><small>ativos</small></div>
+</div>
+<div class="card player-directory-card peladeiros-filter-card">
+<div class="peladeiros-search-row"><div class="field"><input autocomplete="off" id="peladeiros-busca" oninput="renderPeladeirosLista()" placeholder="Buscar jogador" type="text"/></div></div>
+<div aria-label="Filtro por posição" class="peladeiros-pos-filter">
+<button class="active" id="peladeiros-pos-todos" onclick="setPeladeirosFiltroPos('todos')">Todos</button>
+<button id="peladeiros-pos-gol" onclick="setPeladeirosFiltroPos('gol')">GOL</button>
+<button id="peladeiros-pos-zag" onclick="setPeladeirosFiltroPos('zag')">ZAG</button>
+<button id="peladeiros-pos-mei" onclick="setPeladeirosFiltroPos('mei')">MEI</button>
+<button id="peladeiros-pos-ata" onclick="setPeladeirosFiltroPos('ata')">ATA</button>
+</div>
+<div aria-label="Ordenacao da lista de peladeiros" class="jog-sort-control">
+<span>Ordenar por</span>
+<button class="active" id="peladeiros-sort-apelido" onclick="setPeladeirosSort('apelido')">Apelido</button>
+<button id="peladeiros-sort-nome" onclick="setPeladeirosSort('nome')">Nome</button>
+</div>
+</div>
+<div id="peladeiros-lista"></div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- J-HIST: HISTÓRICO DE RESULTADOS -->
+<div class="screen" id="s-j-historico">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarLista()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<div id="j-historico-lista"></div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- J2: CONFIRMAR (JOGADOR) -->
+<div class="screen" id="s-j-conf">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarLista()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<div class="aconf-hero">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+<div style="flex-shrink:0;">
+<div class="aconf-big"><span id="jc-conf">0</span>/<span id="jc-count">14</span></div>
+<div class="aconf-sub">confirmados</div>
+</div>
+<div style="flex:1;text-align:center;padding:0 8px;">
+<div id="jc-nome-hero" style="font-size:clamp(13px,4vw,17px);font-weight:700;color:var(--text1);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+</div>
+<div id="jc-meta-hero" style="flex-shrink:0;text-align:right;font-size:12px;color:var(--text2);line-height:1.6;">—</div>
+</div>
+</div>
+<div class="card">
+<div class="field" style="margin-bottom:12px;">
+<label>SEU APELIDO</label>
+<input autocomplete="off" id="jc-input" placeholder="Digite seu apelido" type="text"/>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:10px;">
+<button class="btn" onclick="jogadorVai()" style="flex:1;background:#111;color:#fff;margin:0;font-weight:700;"><i class="ti ti-check"></i> TÔ DENTRO</button>
+<button class="btn" onclick="jogadorNaoVai()" style="flex:1;background:#fde8e8;color:#c0392b;border:1px solid #f5c6c6;margin:0;font-weight:700;"><i class="ti ti-x"></i> TÔ FORA</button>
+</div>
+<button id="btn-cancelar" onclick="jogadorCancelar()" style="display:flex;width:100%;align-items:center;justify-content:center;gap:6px;background:#fffbe6;color:#7a6000;border:1px solid #f5e07a;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;box-sizing:border-box;"><i class="ti ti-user-x" style="font-size:13px;"></i> Mudei minha prioridade, tô fora!</button>
+</div>
+<div id="jc-lista"></div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn active" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- J3: TIMES (JOGADOR) -->
+<div class="screen" id="s-j-times">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarLista()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<div class="aconf-hero">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+<div style="flex-shrink:0;">
+<div class="aconf-big"><span id="jt-conf">0</span>/<span id="jt-count">14</span></div>
+<div class="aconf-sub">confirmados</div>
+</div>
+<div style="flex:1;text-align:center;padding:0 8px;">
+<div id="jt-nome-header" style="font-size:clamp(13px,4vw,17px);font-weight:700;color:var(--text1);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+</div>
+<div id="jt-meta-header" style="flex-shrink:0;text-align:right;font-size:12px;color:var(--text2);line-height:1.6;">—</div>
+</div>
+</div>
+<div class="teams-grid">
+<div class="team-col">
+<div class="th-blue"><div class="team-header-row"><img alt="Camisa do Time Azul" class="team-shirt-icon" src="camisa-azul.png?v=2"/><div class="team-header-text"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="jt-cnt-a">0 jog.</div></div><img alt="Boi do Time Azul" class="team-bull-icon" src="boi-blue.png"/></div></div>
+<div class="team-body" id="jt-team-a"></div>
+</div>
+<div class="team-col">
+<div class="th-red"><div class="team-header-row"><img alt="Camisa do Time Vermelho" class="team-shirt-icon" src="camisa-vermelha.png?v=2"/><div class="team-header-text"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="jt-cnt-b">0 jog.</div></div><img alt="Boi do Time Vermelho" class="team-bull-icon" src="boi-red.png"/></div></div>
+<div class="team-body" id="jt-team-b"></div>
+</div>
+</div>
+<div class="card">
+<div class="section-title">Sem time (<span id="jt-sem-cnt">0</span>)</div>
+<div id="jt-pool"></div>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn active" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- ======================================
+     ACESSO E FLUXO ADMIN
+====================================== -->
+<!-- S-LOGIN -->
+<div class="screen" id="s-login">
+<div class="header app-brand-header app-brand-header--login"><button aria-label="Exilados da Bola" class="app-header-brand-btn"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><div class="app-header-action-spacer"></div></div>
+<div class="page-body">
+<div class="card login-card">
+<div class="login-greeting" id="login-sauda">Bom dia, Exilado!</div>
+<div class="field no-label"><input autocomplete="off" id="login-input" onkeydown="if(event.key==='Enter')document.getElementById('senha-input').focus();" placeholder="Login ou e-mail" type="text"/></div>
+<div class="field no-label"><input id="senha-input" onkeydown="if(event.key==='Enter')login();" placeholder="Senha" type="password"/></div>
+<button class="btn btn-primary" onclick="login()"><i class="ti ti-lock-open"></i> Entrar</button>
+<div style="text-align:center;margin-top:12px;">
+<button id="btn-esqueci" onclick="esqueceuSenha()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);padding:4px 8px;font-family:'Inter',sans-serif;">Esqueci a senha</button>
+</div>
+<div style="text-align:center;margin-top:14px;">
+<a href="#" onclick="voltarLista()" style="font-size:13px;color:#c0392b;">← Ver como jogador</a>
+</div>
+</div>
+</div>
+</div>
+<!-- ======================================
+     FLUXO ADMIN
+====================================== -->
+<!-- A0: PAINEL ADMINISTRATIVO -->
+<div class="screen" id="s-adm-dashboard">
+<div class="header app-brand-header app-brand-header--home"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body adm-dashboard-body">
+<div class="adm-welcome-card">
+<div class="adm-welcome-icon"><i class="ti ti-hand-stop"></i></div>
+<div>
+<div class="adm-welcome-title">OLÁ, <span id="adm-dashboard-nome">EXILADO</span></div>
+<div class="adm-welcome-sub">Bem-vindo ao painel administrativo.</div>
+</div>
+</div>
+<div class="adm-dashboard-grid">
+<button class="adm-tile adm-bg-field" onclick="abrirGestaoPeladasAdm()">
+<span class="adm-tile-icon"><i class="ti ti-calendar-event"></i></span>
+<span class="adm-tile-text"><strong>GESTÃO DAS PELADAS</strong><small>Abrir, fechar e editar as peladas.</small></span>
+<i class="ti ti-chevron-right adm-tile-arrow"></i>
+</button>
+<button class="adm-tile adm-bg-players" onclick="abrirModuloAdm('conf')">
+<span class="adm-tile-icon"><i class="ti ti-users-group"></i></span>
+<span class="adm-tile-text"><strong>CONFIRMAÇÕES DAS PELADAS</strong><small>Adicionar ou remover peladeiros.</small></span>
+<i class="ti ti-chevron-right adm-tile-arrow"></i>
+</button>
+<button class="adm-tile adm-bg-tactics" onclick="abrirModuloAdm('times')">
+<span class="adm-tile-icon"><i class="ti ti-shirt"></i></span>
+<span class="adm-tile-text"><strong>ESCALAÇÕES DAS PELADAS</strong><small>Separar os times.</small></span>
+<i class="ti ti-chevron-right adm-tile-arrow"></i>
+</button>
+<button class="adm-tile adm-bg-finance" onclick="abrirModuloAdm('fin')">
+<span class="adm-tile-icon"><i class="ti ti-wallet"></i></span>
+<span class="adm-tile-text"><strong>GESTÃO DO CAIXA</strong><small>Lançamentos financeiros não automáticos.</small></span>
+<i class="ti ti-chevron-right adm-tile-arrow"></i>
+</button>
+<button class="adm-tile adm-tile-wide adm-bg-profiles" onclick="abrirOpcaoPerfilAdm()">
+<span class="adm-tile-icon"><i class="ti ti-user-edit"></i></span>
+<span class="adm-tile-text"><strong>GESTÃO DOS PELADEIROS</strong><small>Editar perfis, permissões e informações.</small></span>
+<i class="ti ti-chevron-right adm-tile-arrow"></i>
+</button>
+</div>
+<div class="adm-dashboard-foot"><i class="ti ti-lock"></i> Acesso restrito • Apenas administradores</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn active" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- A1: HOME ADM -->
+<div class="screen" id="s-adm-home">
+<div class="header app-brand-header app-brand-header--home"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body adm-peladas-body">
+<button class="btn btn-primary adm-new-match-btn" id="btn-nova-pelada" onclick="prepararNovaPelada();goTo('s-adm-criar')"><i class="ti ti-plus"></i> Nova pelada</button>
+<div id="adm-lista-abertas"></div>
+<div id="adm-lista-fechadas"></div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- A1B: JOGADORES ADM -->
+<div class="screen" id="s-adm-jogadores">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1>PELADEIROS</h1><p></p></div></div>
+<div class="page-body">
+<div class="card player-directory-card">
+<div class="field" style="margin-bottom:10px;"><input autocomplete="off" id="jog-busca" oninput="renderJogadoresLista()" placeholder="Buscar jogador" type="text"/></div>
+<div aria-label="Ordenação da lista de jogadores" class="jog-sort-control">
+<span>Ordenar por</span>
+<button class="active" id="jog-sort-apelido" onclick="setJogadoresSort('apelido')">Apelido</button>
+<button id="jog-sort-nome" onclick="setJogadoresSort('nome')">Nome</button>
+</div>
+<button class="btn btn-primary" onclick="novoJogadorAdm()" style="padding:9px;font-size:13px;"><i class="ti ti-user-plus"></i> Novo jogador</button>
+<button class="btn invite-whatsapp-btn" onclick="compartilharConviteCadastroApp()"><i class="ti ti-brand-whatsapp"></i> Convidar pelo WhatsApp</button>
+</div>
+<div id="jog-lista"></div>
+<div class="perfil-novo-wrap" id="jog-form-card" style="display:none;">
+<input id="jog-id" type="hidden"/>
+<input id="jog-foto" type="hidden"/>
+<!-- Hero -->
+<div class="perfil-hero-card" style="margin-bottom:16px;">
+<div class="perfil-hero-label">PELADEIRO</div>
+<div class="perfil-hero-title" id="jog-form-title">Novo jogador</div>
+<div class="perfil-hero-row">
+<div class="perfil-hero-avatar" id="jog-foto-preview" onclick="abrirZoomFotoPerfil('jog')" title="Ampliar foto">?</div>
+<div class="perfil-hero-info">
+<div class="perfil-hero-nome" id="jog-hero-nome">—</div>
+<div class="perfil-hero-sub" id="jog-hero-sub">—</div>
+</div>
+<label class="perfil-hero-cam" for="jog-foto-file" title="Trocar foto"><i class="ti ti-camera"></i></label>
+<input accept="image/*" id="jog-foto-file" onchange="uploadFotoJogadorAdm(this.files[0])" style="display:none;" type="file"/>
+</div>
+</div>
+<!-- Cadastro -->
+<div class="perfil-section">
+<div class="perfil-section-label">DADOS</div>
+<div class="perfil-section-title">Cadastro</div>
+<div class="perfil-fields-card">
+<div class="perfil-field-row">
+<span class="perfil-field-label">Nome completo</span>
+<input autocomplete="off" class="perfil-field-input" id="jog-nome" oninput="jogAdmAtualizarHero()" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label">Apelido</span>
+<input autocomplete="off" class="perfil-field-input" id="jog-apelido" oninput="jogAdmAtualizarHero()" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label">Telefone</span>
+<input autocomplete="off" class="perfil-field-input" id="jog-telefone" maxlength="13" oninput="mascararTelefoneInput(this)" placeholder="51-999999999" type="tel"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label">Nascimento</span>
+<input class="perfil-field-input" id="jog-nascimento" inputmode="numeric" maxlength="10" oninput="mascararDataInput(this)" placeholder="DD/MM/AAAA" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label"><i class="ti ti-mail"></i> Email</span>
+<input autocomplete="off" class="perfil-field-input" id="jog-email" type="email"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label">Instagram</span>
+<input autocomplete="off" class="perfil-field-input" id="jog-instagram" placeholder="@usuario" type="text"/>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label"><i class="ti ti-user-cog"></i> Posição</span>
+<div class="perfil-flags" id="jog-flags-pos">
+<button class="perfil-flag" data-val="GOL" onclick="jogFlagSelect('pos',this)">GOL</button>
+<button class="perfil-flag" data-val="ZAG" onclick="jogFlagSelect('pos',this)">ZAG</button>
+<button class="perfil-flag" data-val="LAT" onclick="jogFlagSelect('pos',this)">LAT</button>
+<button class="perfil-flag" data-val="MEI" onclick="jogFlagSelect('pos',this)">MEI</button>
+<button class="perfil-flag" data-val="ATA" onclick="jogFlagSelect('pos',this)">ATA</button>
+</div>
+</div>
+<div class="perfil-field-row">
+<span class="perfil-field-label">Modalidade</span>
+<div class="perfil-flags" id="jog-flags-mod">
+<button class="perfil-flag" data-val="avulso" onclick="jogFlagSelect('mod',this)">Avulso</button>
+<button class="perfil-flag" data-val="mensalista" onclick="jogFlagSelect('mod',this)">Mensalista</button>
+</div>
+</div>
+<div class="perfil-field-row perfil-field-row--last">
+<span class="perfil-field-label"><i class="ti ti-toggle-right"></i> Status</span>
+<div class="perfil-flags" id="jog-flags-ativo">
+<button class="perfil-flag" data-val="true" onclick="jogFlagSelect('ativo',this)">Ativo</button>
+<button class="perfil-flag" data-val="false" onclick="jogFlagSelect('ativo',this)">Inativo</button>
+</div>
+</div>
+</div>
+<!-- hidden selects mantidos para compatibilidade -->
+<select id="jog-pos" style="display:none;"></select>
+<select id="jog-modalidade" style="display:none;"></select>
+<select id="jog-ativo" style="display:none;"><option value="true">Ativo</option><option value="false">Inativo</option></select>
+</div>
+<!-- Resumo da conta (perfil do app) -->
+<div class="perfil-section" id="jog-perfil-wrap" style="display:none;">
+<div class="perfil-section-label">ACESSO</div>
+<div class="perfil-section-title">Permissões</div>
+<div class="perfil-resumo-grid">
+<div class="perfil-resumo-item perfil-resumo-item--full">
+<div class="perfil-resumo-label">Somente leitura</div>
+<div class="perfil-flags perfil-flags--resumo" id="jog-flags-perfil">
+<button class="perfil-flag" data-val="jogador" onclick="jogFlagSelect('perfil',this)">Jogador</button>
+<button class="perfil-flag" data-val="escalador" onclick="jogFlagSelect('perfil',this)">Escalador</button>
+<button class="perfil-flag" data-val="presidente" onclick="jogFlagSelect('perfil',this)">Presidente</button>
+<button class="perfil-flag" data-val="adm" onclick="jogFlagSelect('perfil',this)">Admin</button>
+</div>
+</div>
+</div>
+<select id="jog-perfil-app" style="display:none;"></select>
+</div>
+<!-- Ações -->
+<button class="btn btn-danger player-delete-btn" id="jog-excluir-btn" onclick="excluirJogadorAdm()" style="display:none;margin-bottom:10px;"><i class="ti ti-trash"></i> Excluir jogador</button>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+<button class="btn btn-outline" onclick="fecharFormJogador()">Cancelar</button>
+<button class="btn btn-primary" onclick="salvarJogadorAdm()"><i class="ti ti-device-floppy"></i> Salvar alterações</button>
+</div>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn active" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- A2: CRIAR PELADA -->
+<div class="screen" id="s-adm-criar">
+<div class="header app-form-header"><button aria-label="Voltar" class="app-header-back" onclick="voltarInicioAdm()"><i class="ti ti-arrow-left"></i></button><div class="app-form-title"><h1 id="cp-titulo">NOVA PELADA</h1><p>Configuração da partida</p></div><div class="app-header-action-spacer"></div></div>
+<div class="page-body cp-form-body">
+<div class="card cp-match-form">
+<div class="card-title cp-card-title">Dados da partida</div>
+<div id="cp-ajuda" style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.35;">Preencha os dados básicos. Quando existir uma pelada anterior, o app reaproveita local, horário, valor e limite para agilizar o cadastro.</div>
+<button class="btn btn-outline" id="cp-btn-duplicar" onclick="duplicarUltimaPelada()" style="margin-bottom:14px;padding:10px;font-size:13px;"><i class="ti ti-copy" style="font-size:14px;"></i> Duplicar última pelada</button>
+<div class="field"><label>Nome da pelada * <span style="font-size:11px;color:var(--text3);font-weight:400;">(máx. 20 caracteres)</span></label><input autocomplete="off" id="cp-nome" maxlength="20" placeholder="Ex: Pelada das Quintas" type="text" value="Pelada das Quintas"/></div>
+<div class="row2">
+<div class="field"><label>Data *</label><input autocomplete="off" id="cp-data" inputmode="numeric" maxlength="10" oninput="mascararDataInput(this)" placeholder="DD/MM/AAAA" type="text"/></div>
+<div class="field"><label>Horário *</label><input id="cp-hora" type="time" value="20:00"/></div>
+</div>
+<div class="row2">
+<div class="field"><label>Local *</label><input autocomplete="off" id="cp-local" placeholder="Ex: Arena Gaúcha" type="text" value="Arena Gaúcha"/></div>
+<div class="field"><label>Churras?</label>
+<div class="churras-toggle-wrap">
+<button class="churras-toggle active" id="cp-churras-nao" onclick="setCpChurras(false)" type="button">Não</button>
+<button class="churras-toggle" id="cp-churras-sim" onclick="setCpChurras(true)" type="button">Sim</button>
+</div>
+<input id="cp-churras" type="hidden" value="false"/>
+</div>
+</div>
+<div class="row2">
+<div class="field"><label>Valor/jogador (R$) *</label><input id="cp-valor" inputmode="numeric" min="1" step="1" type="number" value="35"/></div>
+<div class="field"><label>Máx. jogadores *</label><input id="cp-max" inputmode="numeric" max="50" min="2" step="1" type="number" value="14"/></div>
+</div>
+<button class="btn btn-primary" id="cp-btn-criar" onclick="salvarFormularioPelada()"><i class="ti ti-check"></i> Criar e abrir confirmações</button>
+<button class="btn btn-danger" id="cp-btn-excluir" onclick="excluirPeladaEditando()" style="display:none;margin-top:10px;"><i class="ti ti-trash"></i> Excluir pelada</button>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- A3: CONFIRMAÇÕES ADM -->
+<div class="screen" id="s-adm-conf">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="aconf-nome">PELADA</h1><p id="aconf-meta"></p></div></div>
+<div class="page-body">
+<div class="aconf-hero">
+<div class="aconf-hero-main">
+<div>
+<div class="aconf-big"><span id="aconf-total">0</span>/<span id="aconf-max">14</span></div>
+<div class="aconf-sub">confirmados</div>
+<div class="aconf-cash"><span id="aconf-caixa">R$0</span> caixa</div>
+</div>
+<div class="aconf-vagas" id="aconf-vagas">0 vagas restantes</div>
+</div>
+<span id="aconf-pendente" style="display:none;">R$0</span>
+<span id="aconf-previsto" style="display:none;">R$0</span>
+</div>
+<div class="invite-card">
+<span class="link-text" id="aconf-link" style="display:none;">https://exiladosdabola.com</span>
+<button class="invite-main-btn" onclick="compartilharWhatsApp()"><i class="ti ti-brand-whatsapp" style="font-size:16px;"></i> Enviar</button>
+</div>
+<div class="card add-player-card">
+<div class="card-title">Adicionar jogador</div>
+<div style="display:flex;gap:8px;align-items:stretch;">
+<div class="field" style="flex:1;margin:0;"><input autocomplete="off" id="adm-add-nome" onkeydown="if(event.key==='Enter')admAdd();" placeholder="Nome do jogador" type="text"/></div>
+<button class="btn" onclick="admAdd()" style="width:auto;background:var(--blue);color:var(--cream);padding:0 16px;margin:0;"><i class="ti ti-plus"></i></button>
+</div>
+<div id="adm-churras-sel" style="display:none;margin-top:8px;">
+<div class="churras-modal-pills">
+<button class="churras-pill active" data-val="jogo" onclick="setAdmChurras('jogo',this)" type="button">Jogo</button>
+<button class="churras-pill" data-val="jogo_churras" onclick="setAdmChurras('jogo_churras',this)" type="button">J + Churras</button>
+<button class="churras-pill" data-val="churras" onclick="setAdmChurras('churras',this)" type="button">Só Churras</button>
+</div>
+</div>
+<div style="font-size:11px;color:var(--text2);margin-top:8px;">O app bloqueia nomes duplicados, mesmo com diferença de maiúsculas, acentos ou espaços.</div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab('aconf-tab-conf','aconf-tab-nao',this,document.getElementById('aconf-btn-nao'))">Confirmados</button>
+<button class="tab" id="aconf-btn-nao" onclick="switchTab('aconf-tab-nao','aconf-tab-conf',this,document.getElementById('aconf-btn-nao').previousElementSibling)">Não vão</button>
+</div>
+<div id="aconf-tab-conf"><div id="aconf-lista"></div></div>
+<div id="aconf-tab-nao" style="display:none;"><div id="aconf-nao-lista"></div></div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn active" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- A4: TIMES ADM -->
+<div class="screen" id="s-adm-times">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="atimes-nome">TIMES</h1><p id="atimes-meta"></p></div></div>
+<div class="page-body">
+<div class="notice-soft" id="at-gol-alert"><i class="ti ti-alert-triangle" style="font-size:14px;"></i><span>Verifique os goleiros antes de publicar os times.</span></div>
+<div class="action-row">
+<button class="btn btn-outline" onclick="limparTimes()" style="padding:10px;font-size:13px;"><i class="ti ti-eraser" style="font-size:14px;"></i> Limpar times</button>
+<button class="btn fin-wa" onclick="compartilharTimes()" style="padding:10px;font-size:13px;"><i class="ti ti-brand-whatsapp" style="font-size:14px;"></i> Compartilhar</button>
+</div>
+<div id="at-escalar">
+<div class="teams-grid">
+<div class="team-col">
+<div class="th-blue"><div class="team-header-row">
+<img alt="Camisa do Time Azul" class="team-shirt-icon" src="camisa-azul.png?v=2"/>
+<div class="team-header-text"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="at-cnt-a">0 jog.</div></div>
+<img alt="Boi do Time Azul" class="team-bull-icon" src="boi-blue.png"/>
+</div></div>
+<div class="team-body" id="at-team-a" ondragover="allowDrop(event)" ondrop="dropTo(event,'azul')">
+<div class="drop-zone" id="at-dz-a">Arraste aqui</div>
+</div>
+</div>
+<div class="team-col">
+<div class="th-red"><div class="team-header-row">
+<img alt="Camisa do Time Vermelho" class="team-shirt-icon" src="camisa-vermelha.png?v=2"/>
+<div class="team-header-text"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="at-cnt-b">0 jog.</div></div>
+<img alt="Boi do Time Vermelho" class="team-bull-icon" src="boi-red.png"/>
+</div></div>
+<div class="team-body" id="at-team-b" ondragover="allowDrop(event)" ondrop="dropTo(event,'vermelho')">
+<div class="drop-zone" id="at-dz-b">Arraste aqui</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="section-title">Sem time (<span id="at-pool-cnt">0</span>)</div>
+<div id="at-pool"></div>
+</div>
+<div style="display:none;">
+<input id="at-add-nome"/>
+<select id="at-add-pos"><option value="?"></option></select>
+<select id="at-add-time"><option value="pool"></option></select>
+<div id="at-all"></div>
+</div>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn active" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- A5: FINANCEIRO (Caixa Geral) -->
+<div class="screen" id="s-adm-fin">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1>CAIXA</h1><p></p></div></div>
+<div class="page-body">
+<!-- Saldo principal -->
+<div class="caixa-hero caixa-hero-dark" id="caixa-hero">
+<div class="caixa-label">SALDO DO CAIXA</div>
+<div class="caixa-saldo" id="caixa-saldo-val"><span class="skeleton-text skeleton-saldo"></span></div>
+<div class="caixa-mini-grid">
+<div class="caixa-mini caixa-mini-entrada"><div class="caixa-mini-l">ENTRADAS</div><div class="caixa-mini-n" id="caixa-entradas-val">R$ 0,00</div></div>
+<div class="caixa-mini caixa-mini-saida"><div class="caixa-mini-l">SAÍDAS</div><div class="caixa-mini-n danger" id="caixa-saidas-val">R$ 0,00</div></div>
+<div class="caixa-mini caixa-mini-saldo"><div class="caixa-mini-l">SALDO</div><div class="caixa-mini-n" id="caixa-mini-saldo-val">R$ 0,00</div></div>
+</div>
+</div>
+<!-- Ações rápidas -->
+<div class="caixa-acoes">
+<button class="caixa-acao-btn danger" onclick="abrirModalDespesa()"><i class="ti ti-receipt"></i><span>Nova despesa</span></button>
+<button class="caixa-acao-btn blue" onclick="abrirModalEntrada()"><i class="ti ti-arrow-up"></i><span>Nova entrada</span></button>
+<button class="caixa-acao-btn" onclick="abrirModalSaldoInicial()"><i class="ti ti-settings"></i><span>Configurar</span></button>
+</div>
+<!-- Extrato -->
+<div class="card" style="padding:14px 16px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div class="section-title" style="margin:0;">Extrato</div>
+<div class="caixa-filtro-resumo" id="caixa-filtro-resumo">Sem filtros</div>
+<button class="header-icon-btn caixa-filter-btn" onclick="abrirFiltroExtrato('adm')" title="Filtrar"><i class="ti ti-adjustments-horizontal"></i></button>
+<div class="caixa-filtros" style="display:none;">
+<button class="cfiltro active" onclick="filtrarExtrato('todos',this)">Todos</button>
+<button class="cfiltro" onclick="filtrarExtrato('entrada',this)">Entradas</button>
+<button class="cfiltro" onclick="filtrarExtrato('saida',this)">Saídas</button>
+</div>
+</div>
+<div id="caixa-extrato"><div class="skeleton-list"><span class="skeleton-row"></span><span class="skeleton-row"></span><span class="skeleton-row"></span></div></div>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn active" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- A5b: FINANCEIRO POR PELADA (antigo) -->
+<div class="screen" id="s-adm-fin-pelada">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><p id="afin-meta"></p></div></div>
+<div class="page-body">
+<div class="fin-hero">
+<div class="fin-hero-top">
+<div>
+<div class="fin-title" id="fin-resumo-titulo">Controle da rodada</div>
+<div class="fin-sub" id="fin-resumo-sub">0 jogadores cobrados</div>
+</div>
+<div class="fin-pill" id="fin-status-pill">0% recebido</div>
+</div>
+<div class="fin-progress-wrap"><div class="fin-progress" id="fin-progress"></div></div>
+<div class="fin-progress-meta"><span id="fin-progress-left">Recebido R$0</span><span id="fin-progress-right">Falta R$0</span></div>
+</div>
+<div class="stat-grid">
+<div class="stat-card"><div class="stat-n" id="fin-arr">R$0</div><div class="stat-l">recebido</div></div>
+<div class="stat-card"><div class="stat-n" id="fin-pend">R$0</div><div class="stat-l">a receber</div></div>
+<div class="stat-card"><div class="stat-n" id="fin-tot">R$0</div><div class="stat-l">previsto</div></div>
+</div>
+<div class="fin-actions">
+<button class="btn btn-outline" onclick="marcarTodosPagos()"><i class="ti ti-checks" style="font-size:14px;"></i> Todos pagos</button>
+<button class="btn fin-wa" onclick="cobrarPendentes()"><i class="ti ti-brand-whatsapp" style="font-size:14px;"></i> Cobrar pendentes</button>
+</div>
+<div class="card">
+<div class="section-title">Pagamentos da rodada</div>
+<div id="fin-lista"></div>
+</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn active" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- J4: CAIXA DO JOGADOR (leitura) -->
+<div class="screen" id="s-j-caixa">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarLista()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<div class="caixa-hero caixa-hero-dark">
+<div class="caixa-label">SALDO DO CAIXA</div>
+<div class="caixa-saldo" id="jcaixa-saldo-val"><span class="skeleton-text skeleton-saldo"></span></div>
+<div class="caixa-mini-grid">
+<div class="caixa-mini caixa-mini-entrada"><div class="caixa-mini-l">ENTRADAS</div><div class="caixa-mini-n" id="jcaixa-entradas-val">R$ 0,00</div></div>
+<div class="caixa-mini caixa-mini-saida"><div class="caixa-mini-l">SAÍDAS</div><div class="caixa-mini-n danger" id="jcaixa-saidas-val">R$ 0,00</div></div>
+<div class="caixa-mini caixa-mini-saldo"><div class="caixa-mini-l">SALDO</div><div class="caixa-mini-n" id="jcaixa-mini-saldo-val">R$ 0,00</div></div>
+</div>
+</div>
+<div class="card" style="padding:14px 16px; margin-bottom:10px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div class="section-title" style="margin:0;">Extrato</div>
+<div class="caixa-filtro-resumo" id="jcaixa-filtro-resumo">Sem filtros</div>
+<button class="header-icon-btn caixa-filter-btn" onclick="abrirFiltroExtrato('jog')" title="Filtrar"><i class="ti ti-adjustments-horizontal"></i></button>
+</div>
+<div id="jcaixa-extrato"><div class="skeleton-list"><span class="skeleton-row"></span><span class="skeleton-row"></span><span class="skeleton-row"></span></div></div>
+</div>
+<div class="readonly-badge" style="margin:0 0 12px 0;"><i class="ti ti-eye" style="font-size:14px;"></i> Modo leitura — apenas visualização</div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn active" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- MODAL DESPESA -->
+<div class="caixa-modal" id="modal-despesa" onclick="fecharModalSe(event,'modal-despesa')">
+<div class="caixa-sheet">
+<div class="caixa-sheet-title"><i class="ti ti-minus-vertical" style="color:#c0392b;"></i> Nova Despesa</div>
+<div class="field"><label>Data *</label><input id="desp-data" type="date"/></div>
+<div class="field">
+<label>Categoria *</label>
+<select id="desp-cat">
+<option value="quadra">Quadra</option>
+<option value="churrasco">Churrasco</option>
+<option value="brindes">Brindes</option>
+<option value="goleiro_app">Goleiro App</option>
+<option value="outros">Outros</option>
+</select>
+</div>
+<div class="field"><label>Descrição</label><input id="desp-desc" placeholder="Ex: Aluguel quadra 05/07" type="text"/></div>
+<div class="field"><label>Valor (R$) *</label><input id="desp-valor" inputmode="decimal" min="0.01" placeholder="0,00" step="0.01" type="number"/></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+<button class="btn btn-outline" onclick="fecharModal('modal-despesa')">Cancelar</button>
+<button class="btn btn-primary" onclick="salvarDespesa()"><i class="ti ti-check"></i> Lançar</button>
+</div>
+</div>
+</div>
+<!-- MODAL NOVA ENTRADA -->
+<div class="caixa-modal" id="modal-entrada" onclick="fecharModalSe(event,'modal-entrada')">
+<div class="caixa-sheet">
+<div class="caixa-sheet-title"><i class="ti ti-arrow-up" style="color:var(--pos-gol-text);"></i> Nova Entrada</div>
+<div class="field"><label>Data *</label><input id="ent-data" type="date"/></div>
+<div class="field">
+<label>Origem *</label>
+<select id="ent-origem">
+<option value="mensalidade">Mensalidade</option>
+<option value="avulso">Avulso (manual)</option>
+<option value="outros">Outros</option>
+</select>
+</div>
+<div class="field"><label>Descrição *</label><input id="ent-desc" placeholder="Ex: Mensalidade João — maio/2025" type="text"/></div>
+<div class="field"><label>Valor (R$) *</label><input id="ent-valor" inputmode="decimal" min="0.01" placeholder="0,00" step="0.01" type="number"/></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+<button class="btn btn-outline" onclick="fecharModal('modal-entrada')">Cancelar</button>
+<button class="btn btn-primary" onclick="salvarEntrada()"><i class="ti ti-check"></i> Registrar</button>
+</div>
+</div>
+</div>
+<!-- MODAL SALDO INICIAL / CONFIGURAÇÕES -->
+<div class="caixa-modal" id="modal-config" onclick="fecharModalSe(event,'modal-config')">
+<div class="caixa-sheet">
+<div class="caixa-sheet-title"><i class="ti ti-settings" style="color:var(--text2);"></i> Configurações Financeiras</div>
+<div class="field"><label>Saldo inicial do caixa (R$)</label><input id="cfg-saldo-inicial" inputmode="decimal" min="0" placeholder="0,00" step="0.01" type="number"/></div>
+<div class="field"><label>Valor da mensalidade (R$)</label><input id="cfg-valor-mensalidade" inputmode="decimal" min="0" placeholder="0,00" step="0.01" type="number"/></div>
+<div class="row2">
+<div class="field"><label>Avulso • jogo (R$)</label><input id="cfg-valor-avulso" inputmode="decimal" min="0" placeholder="0,00" step="0.01" type="number"/></div>
+<div class="field"><label>Avulso • churras (R$)</label><input id="cfg-valor-churras" inputmode="decimal" min="0" placeholder="0,00" step="0.01" type="number"/></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+<button class="btn btn-outline" onclick="fecharModal('modal-config')">Cancelar</button>
+<button class="btn btn-primary" onclick="salvarConfig()"><i class="ti ti-check"></i> Salvar</button>
+</div>
+</div>
+</div>
+<!-- PLAYER MENU -->
+<div class="adm-menu" id="player-menu" onclick="fecharMenuJogador(event)">
+<div class="adm-sheet">
+<div class="adm-sheet-title" id="player-menu-title">Perfil</div>
+<div class="adm-option" id="player-menu-login" onclick="abrirPerfilJogador(true)" style="display:none;"><i class="ti ti-lock-open"></i><div><div class="adm-option-name">Login</div><div class="adm-option-desc">Entrar na sua conta</div></div></div>
+<div class="adm-option" id="player-menu-admin-back" onclick="voltarPainelAdmin()" style="display:none;"><i class="ti ti-settings"></i><div><div class="adm-option-name">Painel Admin</div><div class="adm-option-desc">Voltar ao painel administrativo</div></div></div>
+<div class="adm-option" id="player-menu-ver-jogador" onclick="entrarModoJogador()" style="display:none;"><i class="ti ti-eye"></i><div><div class="adm-option-name">Ver como jogador</div><div class="adm-option-desc">Visualizar app como peladeiro</div></div></div>
+<div class="adm-option" id="player-menu-sair" onclick="sairJogador()" style="display:none;"><i class="ti ti-logout"></i><div><div class="adm-option-name">Sair</div><div class="adm-option-desc">Encerrar sessão</div></div></div>
+</div>
+</div>
+<!-- ADM MENU -->
+<div class="adm-menu" id="adm-menu" onclick="fecharMenu(event)">
+<div class="adm-sheet">
+<div class="adm-sheet-title">Configurações</div>
+<div class="adm-option" id="adm-player-mode-option" onclick="entrarModoJogador()"><i class="ti ti-home"></i><div><div class="adm-option-name">Ver como jogador</div><div class="adm-option-desc">Acessar a experiência do peladeiro</div></div></div>
+<div class="adm-option adm-option-logout-yellow" onclick="sair()"><i class="ti ti-logout"></i><div><div class="adm-option-name">Sair</div><div class="adm-option-desc">Encerrar sessão</div></div></div>
+</div>
+</div>
+<!-- SHEET DE CONFIRMAÇÃO GENÉRICO -->
+<div class="adm-menu" id="confirm-sheet" onclick="fecharConfirmSheet(event)">
+<div class="adm-sheet">
+<div class="adm-sheet-title" id="confirm-sheet-title">Confirmar</div>
+<div class="adm-option-desc" id="confirm-sheet-desc" style="margin-bottom:20px;font-size:14px;color:var(--text2);line-height:1.5;"></div>
+<div class="adm-option" id="confirm-sheet-ok" style="border-top:.5px solid var(--border);"><i class="ti ti-trash" style="color:#a32d2d;"></i><div><div class="adm-option-name" id="confirm-sheet-ok-label" style="color:#a32d2d;">Confirmar</div></div></div>
+<div class="adm-option" onclick="fecharConfirmSheet()"><i class="ti ti-x"></i><div><div class="adm-option-name">Cancelar</div></div></div>
+</div>
+</div>
+<!-- SHEET DE IDENTIDADE DO JOGADOR (admAdd) -->
+<div class="adm-menu" id="id-sheet" onclick="fecharIdSheet(event)">
+<div class="adm-sheet">
+<div class="adm-sheet-title"><i class="ti ti-user-search" style="font-size:18px;margin-right:6px;"></i> Quem é esse jogador?</div>
+<div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Encontramos peladeiros cadastrados com nome parecido. Selecione o correto para usar a modalidade dele, ou adicione como novo.</div>
+<div id="id-sheet-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+<div class="adm-option" onclick="fecharIdSheet()"><i class="ti ti-x"></i><div><div class="adm-option-name">Cancelar</div></div></div>
+</div>
+</div>
+<!-- ==========================================
+     RESUMO DO JOGO (público, sem login)
+========================================== -->
+<div class="screen" id="s-resumo">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarLista()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="resumo-titulo">RESUMO</h1><p id="resumo-data-local">—</p></div></div>
+<div class="page-body">
+<!-- Placar -->
+<div class="resumo-placar" id="resumo-placar">
+<div class="resumo-time-azul">
+<div class="resumo-time-nome">Time Azul</div>
+<div class="resumo-score-wrap resumo-score-wrap-azul">
+<img alt="Camisa do Time Azul" class="resumo-camisa resumo-camisa-azul" src="camisa-azul.png?v=2"/>
+<div class="resumo-gols" id="resumo-gols-azul">0</div>
+</div>
+</div>
+<div class="resumo-x">×</div>
+<div class="resumo-time-verm">
+<div class="resumo-time-nome">Time Vermelho</div>
+<div class="resumo-score-wrap resumo-score-wrap-verm">
+<div class="resumo-gols" id="resumo-gols-verm">0</div>
+<img alt="Camisa do Time Vermelho" class="resumo-camisa resumo-camisa-verm" src="camisa-vermelha.png?v=2"/>
+</div>
+</div>
+</div>
+<!-- Abas -->
+<div class="resumo-tabs">
+<button class="resumo-tab active" onclick="resumoSwitchTab('resumo',this)">Resumo</button>
+<button class="resumo-tab" onclick="resumoSwitchTab('escalacoes',this)">Escalações</button>
+<button class="resumo-tab" onclick="resumoSwitchTab('videos',this)">Vídeos</button>
+<button class="resumo-tab" onclick="resumoSwitchTab('estatisticas',this)">Estatísticas</button>
+</div>
+<!-- Conteúdo Resumo -->
+<div id="resumo-tab-resumo">
+<!-- Botão de votação (aparece só durante janela aberta para jogadores escalados) -->
+<div id="resumo-vot-btn-wrap" style="display:none;margin-bottom:12px;">
+<button class="btn" onclick="abrirVotacao()" style="background:linear-gradient(135deg,var(--blue),#1a3ecf);color:#fff;font-size:14px;gap:10px;">
+<i class="ti ti-star-half-filled" style="font-size:18px;"></i>
+<span>Avaliar jogadores desta partida</span>
+<span id="resumo-vot-tempo" style="font-size:11px;opacity:.8;"></span><span id="resumo-vot-contador" style="font-size:11px;opacity:.8;"></span>
+</button>
+</div>
+<div id="resumo-destaque-video" style="display:none;margin-bottom:12px;">
+<div class="resumo-video-card">
+<iframe allow="autoplay; encrypted-media" allowfullscreen="false" frameborder="0" id="resumo-destaque-player" src="" style="width:100%;aspect-ratio:16/9;display:block;background:#000;border:none;border-radius:var(--radius-sm);"></iframe>
+<div class="resumo-video-info">
+<span class="resumo-video-titulo" id="resumo-destaque-titulo"></span>
+</div>
+</div>
+</div>
+<div class="teams-grid" style="margin-bottom:12px;">
+<div class="team-col">
+<div class="th-blue"><div class="team-header-row">
+<img alt="Camisa do Time Azul" class="team-shirt-icon" src="camisa-azul.png?v=2"/>
+<div class="team-header-text"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="resumo-cnt-a">0 jog.</div></div>
+<img alt="Boi do Time Azul" class="team-bull-icon" src="boi-blue.png"/>
+</div></div>
+<div class="team-body" id="resumo-team-a"></div>
+</div>
+<div class="team-col">
+<div class="th-red"><div class="team-header-row">
+<img alt="Camisa do Time Vermelho" class="team-shirt-icon" src="camisa-vermelha.png?v=2"/>
+<div class="team-header-text"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="resumo-cnt-b">0 jog.</div></div>
+<img alt="Boi do Time Vermelho" class="team-bull-icon" src="boi-red.png"/>
+</div></div>
+<div class="team-body" id="resumo-team-b"></div>
+</div>
+</div>
+<div class="card" id="resumo-pool-wrap" style="display:none;margin-bottom:12px;">
+<div class="section-title">Sem time</div>
+<div id="resumo-pool"></div>
+</div>
+<div class="card" id="resumo-gols-card" style="margin-bottom:12px;display:none;">
+<div class="card-title"><i class="ti ti-ball-football" style="font-size:14px;"></i> Artilharia</div>
+<div id="resumo-gols-lista"></div>
+</div>
+</div>
+<!-- Conteúdo Escalações -->
+<div id="resumo-tab-escalacoes" style="display:none;">
+<div class="teams-grid">
+<div class="team-col">
+<div class="th-blue"><div class="team-header-row">
+<img alt="Camisa do Time Azul" class="team-shirt-icon" src="camisa-azul.png?v=2"/>
+<div class="team-header-text"><div class="team-title y">Time Azul</div><div class="team-cnt y" id="resumo-esc-cnt-a">0 jog.</div></div>
+<img alt="Boi do Time Azul" class="team-bull-icon" src="boi-blue.png"/>
+</div></div>
+<div class="team-body" id="resumo-esc-a"></div>
+</div>
+<div class="team-col">
+<div class="th-red"><div class="team-header-row">
+<img alt="Camisa do Time Vermelho" class="team-shirt-icon" src="camisa-vermelha.png?v=2"/>
+<div class="team-header-text"><div class="team-title w">Time Vermelho</div><div class="team-cnt w" id="resumo-esc-cnt-b">0 jog.</div></div>
+<img alt="Boi do Time Vermelho" class="team-bull-icon" src="boi-red.png"/>
+</div></div>
+<div class="team-body" id="resumo-esc-b"></div>
+</div>
+</div>
+<div class="card" id="resumo-esc-pool-wrap" style="display:none;margin-top:4px;">
+<div class="section-title">Sem time (<span id="resumo-esc-cnt-pool">0</span>)</div>
+<div id="resumo-esc-pool"></div>
+</div>
+</div>
+<!-- Conteúdo Vídeos -->
+<div id="resumo-tab-videos" style="display:none;">
+<div id="resumo-videos-grid"></div>
+<div class="empty" id="resumo-videos-empty" style="display:none;"><i class="ti ti-video-off"></i>Nenhum vídeo disponível ainda</div>
+</div>
+<!-- Conteúdo Estatísticas -->
+<div id="resumo-tab-estatisticas" style="display:none;">
+<!-- Card votação em andamento -->
+<div id="resumo-stats-vot-andamento" style="display:none;margin-bottom:12px;">
+<div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--radius-sm);padding:12px 14px;">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+<i class="ti ti-clock" style="font-size:16px;color:#BA7517;flex-shrink:0;"></i>
+<span style="font-size:13px;font-weight:700;color:#BA7517;">Votação em andamento</span>
+</div>
+<div style="font-size:13px;color:var(--text);margin-bottom:4px;">
+<span id="resumo-stats-vot-x">0</span> de <span id="resumo-stats-vot-y">0</span> jogadores já votaram · faltam <span id="resumo-stats-vot-faltam">0</span>
+</div>
+<div style="font-size:11px;color:var(--text2);">Encerra em <span id="resumo-stats-vot-deadline"></span> · Resultados parciais abaixo</div>
+<div style="margin-top:8px;height:4px;background:var(--border2);border-radius:4px;overflow:hidden;">
+<div id="resumo-stats-vot-barra" style="height:100%;background:#BA7517;border-radius:4px;width:0%;transition:width .4s;"></div>
+</div>
+</div>
+</div>
+<!-- Ranking (prévia durante votação / oficial após) -->
+<div class="card" id="resumo-stats-ranking" style="display:none;margin-bottom:12px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+<div class="card-title" style="margin-bottom:0;"><i class="ti ti-award" style="font-size:14px;"></i> Avaliação dos jogadores</div>
+<span id="resumo-stats-ranking-label" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text3);background:var(--surface2);border:1px solid var(--border2);padding:2px 7px;border-radius:8px;display:none;">Prévia</span>
+</div>
+<div id="resumo-stats-ranking-lista"></div>
+</div>
+<!-- Craque da Rodada (após encerramento) -->
+<div class="card" id="resumo-stats-craque" style="display:none;margin-bottom:12px;">
+<div style="display:flex;align-items:center;gap:10px;">
+<div class="resumo-estat-icon resumo-estat-craque"><i class="ti ti-star"></i></div>
+<div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:2px;">Craque da Rodada</div>
+<div id="resumo-stats-craque-nome" style="font-size:16px;font-weight:700;color:var(--text);"></div>
+</div>
+</div>
+</div>
+<!-- Pereba da Partida (após encerramento) -->
+<div class="card" id="resumo-stats-pereba" style="display:none;margin-bottom:12px;">
+<div style="display:flex;align-items:center;gap:10px;">
+<div class="resumo-estat-icon resumo-estat-pereba"><i class="ti ti-mood-sad"></i></div>
+<div>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:2px;">Pereba da Partida</div>
+<div id="resumo-stats-pereba-nome" style="font-size:16px;font-weight:700;color:var(--text);"></div>
+</div>
+</div>
+</div>
+<!-- Artilharia (sempre) -->
+<div class="card" id="resumo-stats-gols" style="display:none;margin-bottom:12px;">
+<div class="card-title"><i class="ti ti-ball-football" style="font-size:14px;"></i> Artilharia</div>
+<div id="resumo-stats-gols-lista"></div>
+</div>
+<div class="empty" id="resumo-stats-empty" style="display:none;"><i class="ti ti-chart-bar"></i>Nenhuma estatística disponível ainda</div>
+</div>
+</div>
+<!-- Tab bar -->
+<div class="bottom-nav">
+<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" id="resumo-nav-conf" onclick="resumoNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" id="resumo-nav-times" onclick="resumoNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="resumoNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- ======================================
+     TELAS COMPARTILHADAS E COMPLEMENTARES
+====================================== -->
+<!-- ==========================================
+     PLAYER DE VÍDEO
+========================================== -->
+<div class="screen" id="s-video-player">
+<div class="vplayer-body">
+<iframe allow="autoplay; encrypted-media" allowfullscreen="false" frameborder="0" id="vplayer-iframe" src="" style="width:100%;aspect-ratio:16/9;display:block;background:#000;border:none;"></iframe>
+</div>
+<div class="vplayer-bottom">
+<button class="vplayer-back-btn" onclick="fecharVideoPlayer()"><i class="ti ti-arrow-left"></i> Voltar aos vídeos</button>
+<div class="vplayer-titulo-bottom" id="vplayer-titulo"></div>
+</div>
+</div>
+<!-- ==========================================
+     PÓS-JOGO ADM
+========================================== -->
+<div class="screen" id="s-adm-posjogo">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="pj-nome-header">PÓS-JOGO</h1><p id="pj-meta-header"></p></div></div>
+<div class="page-body">
+<!-- Placar -->
+<div class="card" style="margin-bottom:12px;">
+<div class="card-title"><i class="ti ti-ball-football" style="font-size:14px;"></i> Placar Final</div>
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+<div style="flex:1;">
+<label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px;">TIME AZUL</label>
+<input id="pj-gols-azul" inputmode="numeric" min="0" step="1" style="width:100%;text-align:center;font-size:24px;font-weight:700;" type="number" value="0"/>
+</div>
+<div style="font-size:20px;font-weight:700;color:var(--text3);flex-shrink:0;">×</div>
+<div style="flex:1;">
+<label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px;">TIME VERMELHO</label>
+<input id="pj-gols-verm" inputmode="numeric" min="0" step="1" style="width:100%;text-align:center;font-size:24px;font-weight:700;" type="number" value="0"/>
+</div>
+</div>
+<button class="btn btn-primary" onclick="pjSalvarPlacar()"><i class="ti ti-check"></i> Salvar Placar</button>
+</div>
+<!-- Estatísticas -->
+<div class="card" style="margin-bottom:12px;">
+<div class="card-title"><i class="ti ti-chart-bar" style="font-size:14px;"></i> Estatísticas</div>
+<!-- Artilharia -->
+<div class="section-title" style="margin-bottom:8px;">Artilharia</div>
+<div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
+<select id="pj-gol-jogador" style="flex:1;height:44px;font-size:14px;padding:0 10px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);">
+<option value="">Selecione o jogador…</option>
+</select>
+<input id="pj-gol-qtd" inputmode="numeric" max="20" min="1" step="1" style="width:62px;min-height:48px;text-align:center;font-size:18px;font-weight:700;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text1);padding:0;" type="number" value="1"/>
+</div>
+<button class="btn btn-primary" onclick="pjAdicionarGol()" style="margin-bottom:10px;"><i class="ti ti-plus"></i> Adicionar Gol</button>
+<div id="pj-gols-lista"><div class="empty" style="font-size:12px;">Nenhum gol cadastrado</div></div>
+</div>
+<!-- Vídeos via YouTube -->
+<div class="card" style="margin-bottom:12px;">
+<div class="card-title"><i class="ti ti-brand-youtube" style="font-size:14px;color:#ff0000;"></i> Vídeos / Melhores Momentos</div>
+<div class="field" style="margin-bottom:8px;">
+<label>Link do YouTube *</label>
+<input autocomplete="off" id="pj-video-link" inputmode="url" placeholder="https://youtu.be/..." type="url"/>
+<div style="font-size:11px;color:var(--text3);margin-top:4px;">Cole qualquer link do YouTube (youtu.be, watch?v=, shorts/)</div>
+</div>
+<div class="field" style="margin-bottom:10px;">
+<label>Título do Vídeo *</label>
+<input autocomplete="off" id="pj-video-titulo" placeholder="Título do vídeo" type="text"/>
+</div>
+<button class="btn btn-primary" id="pj-btn-upload" onclick="pjAdicionarVideoYoutube()"><i class="ti ti-plus"></i> Adicionar Vídeo</button>
+<div id="pj-videos-lista" style="margin-top:12px;"></div>
+</div>
+<!-- Abrir Olho no lance -->
+<button class="btn fin-wa" onclick="pjVerResumo()" style="margin-bottom:20px;"><i class="ti ti-eye"></i> Abrir Olho no lance</button>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+</div>
+</div>
+<!-- ==========================================
+     VOTAÇÃO DA PARTIDA
+========================================== -->
+<div class="screen" id="s-votacao">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="fecharVotacao()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><p id="vot-meta">—</p></div></div>
+<div class="page-body">
+<!-- Contador de votos -->
+<div id="vot-contador" style="display:none;margin-bottom:12px;">
+<div class="card" style="padding:10px 14px;display:flex;align-items:center;gap:10px;">
+<i class="ti ti-chart-bar" style="font-size:18px;color:var(--blue);flex-shrink:0;"></i>
+<div style="flex:1;min-width:0;">
+<div style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;">Votos registrados</div>
+<div style="font-size:15px;font-weight:700;color:var(--text);"><span id="vot-cnt-x">0</span> de <span id="vot-cnt-y">0</span> jogadores</div>
+</div>
+<div style="width:50px;height:6px;background:var(--border2);border-radius:4px;overflow:hidden;flex-shrink:0;">
+<div id="vot-cnt-barra" style="height:100%;background:var(--blue);border-radius:4px;width:0%;transition:width .4s;"></div>
+</div>
+</div>
+</div>
+<!-- Aviso de período encerrado -->
+<div class="card" id="vot-encerrado" style="display:none;">
+<div style="text-align:center;padding:16px 0;">
+<i class="ti ti-lock" style="font-size:32px;color:var(--text3);display:block;margin-bottom:8px;"></i>
+<div style="font-size:15px;font-weight:700;margin-bottom:4px;">Votação encerrada</div>
+<div style="font-size:13px;color:var(--text2);">Os resultados já foram compilados.</div>
+</div>
+</div>
+<!-- Aviso de janela aberta -->
+<div id="vot-aviso-janela" style="display:none;margin-bottom:12px;">
+<div class="notice-soft" style="display:flex;align-items:flex-start;gap:8px;">
+<i class="ti ti-clock" style="font-size:14px;flex-shrink:0;margin-top:1px;"></i>
+<span id="vot-aviso-texto" style="font-size:12px;"></span>
+</div>
+</div>
+<!-- Já votou -->
+<div class="card" id="vot-ja-votou" style="display:none;">
+<div style="text-align:center;padding:16px 0;">
+<i class="ti ti-circle-check" style="font-size:32px;color:var(--green);display:block;margin-bottom:8px;"></i>
+<div style="font-size:15px;font-weight:700;margin-bottom:4px;">Voto registrado!</div>
+<div style="font-size:13px;color:var(--text2);">Obrigado por participar. Os resultados saem em até 12h após o jogo.</div>
+</div>
+</div>
+<!-- Sem permissão -->
+<div class="card" id="vot-sem-permissao" style="display:none;">
+<div style="text-align:center;padding:16px 0;">
+<i class="ti ti-user-x" style="font-size:32px;color:var(--text3);display:block;margin-bottom:8px;"></i>
+<div style="font-size:15px;font-weight:700;margin-bottom:4px;">Participação restrita</div>
+<div style="font-size:13px;color:var(--text2);">Apenas jogadores escalados nesta partida podem votar.</div>
+</div>
+</div>
+<!-- Formulário de votação -->
+<div id="vot-form" style="display:none;">
+<div class="card" style="margin-bottom:10px;padding:12px 14px;">
+<div style="font-size:12px;color:var(--text2);line-height:1.6;">
+          Dê uma nota de <strong>1 a 5</strong> para cada jogador da partida.<br/>
+<span style="color:var(--text3);font-size:11px;">Você não pode se avaliar. Votos são anônimos.</span>
+</div>
+</div>
+<div id="vot-lista-jogadores"></div>
+<button class="btn btn-primary" onclick="enviarVotos()" style="margin-bottom:20px;">
+<i class="ti ti-send"></i> Enviar votos
+      </button>
+</div>
+</div>
+<!-- Tab bar -->
+<div class="bottom-nav">
+<button class="nav-btn" onclick="fecharVotacao()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn nav-disabled"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn nav-disabled"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+</div>
+</div>
+<!-- ======================================
+     UI GLOBAL E CARREGAMENTO
+====================================== -->
+</div><!-- /#app -->
+<!-- Feedback global -->
+<div aria-live="polite" class="pwa-update" id="pwa-update" role="status">
+<span>Nova versão disponível.</span>
+<button id="pwa-update-btn" type="button">Atualizar</button>
+</div>
+<!-- Utilitários visuais globais -->
+<div class="photo-zoom" id="photo-zoom" onclick="fecharZoomFoto(event)">
+<button aria-label="Fechar foto" class="photo-zoom-close" onclick="fecharZoomFoto()"><i class="ti ti-x"></i></button>
+<img alt="Foto ampliada" id="photo-zoom-img">
+</img></div>
+<div class="toast" id="toast"></div>
+<!-- Dependências e módulos -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/core.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/player.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/finance.js"></script>
+<script src="js/postgame.js"></script>
+<script src="js/voting.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/ui-nav.js?v=20260601-header-adm-fix-2"></script>
+<!-- Bootstrap PWA -->
+<script>
+  (() => {
+    if (!('serviceWorker' in navigator)) return;
+
+    let refreshing = false;
+
+    function showPwaUpdate(reg) {
+      if (!reg || !reg.waiting) return;
+      const box = document.getElementById('pwa-update');
+      const btn = document.getElementById('pwa-update-btn');
+      if (!box || !btn) return;
+
+      box.classList.add('show');
+      btn.onclick = () => {
+        btn.disabled = true;
+        btn.textContent = 'Atualizando...';
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      };
+    }
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => {
+          console.log('[PWA] Service Worker registrado:', reg.scope);
+
+          if (reg.waiting && navigator.serviceWorker.controller) showPwaUpdate(reg);
+
+          reg.addEventListener('updatefound', () => {
+            const worker = reg.installing;
+            if (!worker) return;
+
+            worker.addEventListener('statechange', () => {
+              if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                showPwaUpdate(reg);
+              }
+            });
+          });
+
+          reg.update().catch(() => {});
+        })
+        .catch(err => console.warn('[PWA] Falha no registro:', err));
+    });
+  })();
+</script>
+<!-- ======================================
+     MODAIS GLOBAIS
+====================================== -->
+<!-- Modal de filtro do extrato -->
+<div class="filtro-extrato-modal" id="modal-filtro-extrato" onclick="fecharFiltroExtrato(event)" style="display:none;">
+<div class="filtro-extrato-sheet" onclick="event.stopPropagation()">
+<div class="filtro-extrato-head">
+<span>FILTROS</span>
+<button class="filtro-close-btn" onclick="fecharFiltroExtrato()"><i class="ti ti-x"></i></button>
+</div>
+<div class="filtro-bloco">
+<div class="filtro-label">Período</div>
+<div class="filtro-mes-box">
+<button onclick="filtroMesNavegar(-1)"><i class="ti ti-chevron-left"></i></button>
+<span id="filtro-mes-label">Todos os períodos</span>
+<button onclick="filtroMesNavegar(+1)"><i class="ti ti-chevron-right"></i></button>
+</div>
+</div>
+<div class="filtro-bloco">
+<div class="filtro-label">Tipo de lançamento</div>
+<label class="filtro-check-row">
+<div><div class="filtro-check-title">Entradas</div><div class="filtro-check-sub">Recebimentos e depósitos</div></div>
+<input checked="" id="filtro-entradas" type="checkbox"/>
+</label>
+<label class="filtro-check-row">
+<div><div class="filtro-check-title">Saídas</div><div class="filtro-check-sub">Despesas e pagamentos</div></div>
+<input checked="" id="filtro-saidas" type="checkbox"/>
+</label>
+</div>
+<div class="filtro-bloco filtro-bloco-last">
+<div class="filtro-label">Ordem de exibi??o</div>
+<label class="filtro-check-row">
+<div><div class="filtro-check-title">Mais recentes primeiro</div><div class="filtro-check-sub">Padrão</div></div>
+<input checked="" id="filtro-ordem-rec" name="filtro-ordem" type="radio" value="desc"/>
+</label>
+<label class="filtro-check-row">
+<div><div class="filtro-check-title">Mais antigos primeiro</div></div>
+<input id="filtro-ordem-ant" name="filtro-ordem" type="radio" value="asc"/>
+</label>
+</div>
+<div class="filtro-actions">
+<button class="filtro-btn-reset" onclick="redefinirFiltroExtrato()">REDEFINIR</button>
+<button class="filtro-btn-apply" onclick="aplicarFiltroExtrato()">APLICAR FILTROS</button>
+</div>
+</div>
+</div>
+</body>
+</html>
+

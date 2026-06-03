@@ -1,0 +1,238 @@
+/* Centralized bottom nav layer for future interaction and visual adjustments. */
+
+.bottom-nav {
+  --nav-indicator-x: 0px;
+  --nav-indicator-w: 64px;
+  --nav-indicator-opacity: 1;
+  --nav-float-y: 0px;
+  --nav-tilt: 0deg;
+  position: fixed;
+  left: 50%;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(var(--nav-float-y)) rotate(var(--nav-tilt));
+  width: calc(100% - 20px);
+  max-width: 414px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 7px 8px 7px;
+  border-radius: 20px;
+  background: rgba(5,5,5,.98);
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-top-color: rgba(255,255,255,.12) !important;
+  box-shadow:
+    0 18px 46px rgba(0,0,0,.54),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+  z-index: 140;
+  overflow: visible;
+  isolation: isolate;
+  backdrop-filter: blur(16px) saturate(1.05);
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  transition: transform .22s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.bottom-nav::after {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+.bottom-nav::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: var(--nav-indicator-w);
+  height: 48px;
+  border-radius: 16px;
+  transform: translate3d(var(--nav-indicator-x),0,0);
+  opacity: var(--nav-indicator-opacity);
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), width .28s cubic-bezier(.2,.8,.2,1), opacity .14s ease;
+}
+
+.bottom-nav.nav-touching {
+  --nav-float-y: -2px;
+  border-color: rgba(255,255,255,.12) !important;
+  border-top-color: rgba(255,255,255,.12) !important;
+}
+
+.bottom-nav.nav-touching::before {
+  top: 7px;
+  height: 50px;
+}
+
+#nav-host {
+  display: none;
+}
+
+.nav-btn {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 48px;
+  padding: 4px 2px 2px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: rgba(255,255,255,.64);
+  font-size: 8px;
+  font-family: 'Inter',sans-serif;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.05;
+  overflow: hidden;
+  text-transform: uppercase;
+  transition: color .18s ease, transform .18s ease, opacity .18s ease;
+  z-index: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-btn::after {
+  display: none;
+}
+
+.nav-btn i {
+  font-size: 20px;
+  color: currentColor;
+  display: block;
+  position: relative;
+  z-index: 2;
+  transform: translateY(0) scale(1);
+  filter: none;
+  transition: color .18s ease, transform .20s ease;
+}
+
+.nav-btn span {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  color: currentColor;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+  padding: 0 1px 1px;
+  text-align: center;
+  transition: color .18s ease, transform .18s ease, opacity .18s ease;
+}
+
+.nav-btn.active,
+.nav-btn.nav-hover {
+  color: #F5E400;
+}
+
+.nav-btn.active::after,
+.nav-btn.nav-hover::after {
+  display: none;
+}
+
+.nav-btn.active i,
+.nav-btn.nav-hover i {
+  transform: translateY(-2px) scale(1.08);
+  filter: none;
+}
+
+.nav-btn.active span,
+.nav-btn.nav-hover span {
+  transform: translateY(0);
+  color: #F5E400;
+}
+
+.nav-btn:not(.active):active {
+  transform: scale(.96);
+}
+
+.nav-btn.active:active {
+  opacity: .9;
+  transform: scale(.98);
+}
+
+.nav-btn.nav-disabled {
+  opacity: .42;
+  pointer-events: none;
+}
+
+#s-adm-fin .bottom-nav .nav-btn.active {
+  background: #F5E400 !important;
+  color: #050505 !important;
+  box-shadow: none !important;
+}
+
+#s-adm-fin .bottom-nav .nav-btn.active i,
+#s-adm-fin .bottom-nav .nav-btn.active span {
+  color: #050505 !important;
+}
+
+#s-adm-jogadores .bottom-nav .nav-btn:last-child {
+  color: #F5E400;
+}
+
+#s-resumo .bottom-nav {
+  background: #050505 !important;
+  border-top: 1px solid #343434 !important;
+  box-shadow: none !important;
+}
+
+#s-resumo .bottom-nav .nav-btn.active,
+#s-resumo .bottom-nav .nav-btn:hover {
+  color: #F5E400 !important;
+}
+
+@media (max-width: 360px) {
+  .bottom-nav {
+    width: calc(100% - 14px);
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .nav-btn {
+    font-size: 7.2px;
+  }
+
+  .nav-btn i {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 390px) {
+  .page-body {
+    padding-bottom: 116px;
+  }
+
+  .bottom-nav {
+    width: calc(100% - 16px);
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    padding: 6px 4px 6px;
+  }
+
+  .nav-btn {
+    min-height: 44px;
+    padding: 4px 2px 0;
+    font-size: 9.5px;
+  }
+
+  .nav-btn i {
+    font-size: 20px;
+  }
+}
+
+@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+  .bottom-nav {
+    background: #050505;
+  }
+}
