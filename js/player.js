@@ -701,6 +701,14 @@ function peladeiroCampoIcone(icon, label, valor, extraClass=''){
   </div>`;
 }
 
+function peladeiroCampoIconeNormalizado(icon, label, valor, extraClass=''){
+  const display=String(valor||'').trim() || '—';
+  return `<div class="peladeiro-detail-field${extraClass ? ` ${extraClass}` : ''}">
+    <span class="peladeiro-detail-label"><i class="ti ${escHtml(icon)}"></i> ${escHtml(label)}</span>
+    <span class="peladeiro-detail-value">${escHtml(display)}</span>
+  </div>`;
+}
+
 function peladeiroUltimaPresencaInfo(j){
   const mapa=peladeirosStats && peladeirosStats.ultimaPresenca ? peladeirosStats.ultimaPresenca : {};
   for(const k of peladeiroChaves(j)){
@@ -806,6 +814,7 @@ function peladeiroUltimaPresencaInfo(j){
 
 function peladeiroFichaExpandidaCard(j){
   if(!j) return '';
+  const emVisaoAdm=!!(G && G.podeGerirJogadores);
   const insta=peladeiroInstagram(j.instagram);
   const instaHandle=insta ? `@${insta}` : '';
   const telefone=formatarTelefone(j.telefone||'');
@@ -824,6 +833,7 @@ function peladeiroFichaExpandidaCard(j){
     : 'Sem jogo';
   const posAbrev=peladeiroPosAbrev(j.posicao_favorita||'POS');
   const modalidade=peladeiroModalidadeLabel(j.modalidade);
+  const instagramDisplay=instaHandle || 'Sem Instagram';
   const posFlags=['GOL','ZAG','LAT','MEI','ATA'].map(pos=>`<span class="peladeiro-inline-flag${pos===posAbrev ? ' active' : ''}">${pos}</span>`).join('');
   const modFlags=['Avulso','Mensalista'].map(item=>`<span class="peladeiro-inline-flag${item===modalidade ? ' active' : ''}">${item}</span>`).join('');
   return `<div class="peladeiro-inline-detail perfil-inline-theme" data-peladeiro-detail="${escHtml(String(j.id||''))}">
@@ -831,10 +841,10 @@ function peladeiroFichaExpandidaCard(j){
       <div class="perfil-hero-row">
         <div class="perfil-hero-photo-wrap">
           <div class="perfil-hero-avatar">${foto}</div>
-          <div class="perfil-hero-cam" aria-hidden="true"><i class="ti ti-camera"></i></div>
+          ${emVisaoAdm ? `<button class="perfil-hero-cam perfil-hero-cam--action" type="button" onclick="event.stopPropagation();editarJogadorAdm('${escHtml(String(j.id||''))}')"><i class="ti ti-camera"></i><span>Selecionar foto</span></button>` : ''}
         </div>
         <div class="perfil-hero-info">
-          <div class="perfil-hero-label">CONTA DO PELADEIRO</div>
+          ${emVisaoAdm ? '' : '<div class="perfil-hero-label">CONTA DO PELADEIRO</div>'}
           <div class="perfil-hero-title">${escHtml(apelido)}</div>
           <div class="perfil-hero-nome">${escHtml(j.nome||'â€”')}</div>
           <div class="perfil-hero-sub">${escHtml(sub || '-')} <span class="peladeiro-inline-profile-sep">|</span> ${escHtml(perfil)}</div>
@@ -844,12 +854,12 @@ function peladeiroFichaExpandidaCard(j){
     <div class="peladeiro-inline-sections">
       <div class="perfil-section peladeiro-inline-section">
         <div class="perfil-fields-card peladeiro-inline-fields">
-          ${peladeiroCampoIcone('ti-user','Nome completo', j.nome)}
-          ${peladeiroCampoIcone('ti-shirt','Apelido', j.apelido||j.nome)}
-          ${peladeiroCampoIcone('ti-phone','Telefone', telefone)}
-          ${peladeiroCampoIcone('ti-calendar','Nascimento', nascimento)}
-          ${peladeiroCampoIcone('ti-brand-instagram','Instagram', instaHandle)}
-          <div class="peladeiro-detail-field">
+          ${peladeiroCampoIconeNormalizado('ti-user','Nome completo', j.nome)}
+          ${peladeiroCampoIconeNormalizado('ti-shirt','Apelido', j.apelido||j.nome)}
+          ${peladeiroCampoIconeNormalizado('ti-phone','Telefone', telefone)}
+          ${peladeiroCampoIconeNormalizado('ti-calendar','Nascimento', nascimento)}
+          ${peladeiroCampoIconeNormalizado('ti-brand-instagram','Instagram', instagramDisplay)}
+          <div class="peladeiro-detail-field peladeiro-detail-field--flags">
             <span class="peladeiro-detail-label">Posicao favorita</span>
             <span class="peladeiro-inline-flags">${posFlags}</span>
           </div>
