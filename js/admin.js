@@ -63,7 +63,7 @@ function renderAdmHome(){
     const confirmadosJogo=totalJogadoresConfirmados(p);
     const vagas=Math.max(p.max-confirmadosJogo,0);
     const encerrada=peladaEncerrada(p)||deveEncerrarAutomaticamente(p);
-    const btnPosJogo=encerrada?`<button class="ahc-sec blue" onclick="abrirPosJogo('${p.id}')"><i class="ti ti-trophy"></i> Pós-jogo</button>`:'';
+    const btnPosJogo=encerrada?`<button class="ahc-sec blue" onclick="abrirPosJogo('${p.id}')"><i class="ti ti-trophy"></i> Lances</button>`:'';
     const btnEncerrar=encerrada
       ?`<button class="ahc-sec warn" onclick="reabrirPelada('${p.id}')"><i class="ti ti-lock-open"></i> Reabrir</button>`
       :`<button class="ahc-sec warn" onclick="encerrarPelada('${p.id}')"><i class="ti ti-lock"></i> Encerrar</button>`;
@@ -90,7 +90,7 @@ function renderAdmHome(){
       <div class="ahc-divider"></div>
       <div class="ahc-actions-row">
         <button class="ahc-sec wa" onclick="compartilharWhatsAppPelada('${p.id}')"><i class="ti ti-brand-whatsapp"></i> Enviar</button>
-        <button class="ahc-sec blue" onclick="verFinanceiroPelada('${p.id}')"><i class="ti ti-cash"></i> Financeiro</button>
+        <button class="ahc-sec blue" onclick="verFinanceiroPelada('${p.id}')"><i class="ti ti-cash"></i> Caixa</button>
         ${!encerrada?`<button class="ahc-sec" onclick="prepararEditarPelada('${p.id}')"><i class="ti ti-pencil"></i> Editar</button>`:''}
         ${btnPosJogo}
         ${btnEncerrar}
@@ -728,6 +728,8 @@ function jogadorPosPill(j){
   return `<span class="jog-admin-pill pos-${p.toLowerCase()}">${escHtml(p)}</span>`;
 }
 let jogadoresSort='apelido';
+let jogadorAdmExpandidoId='';
+let jogadorAdmOutsideCloseReady=false;
 function setJogadoresSort(tipo){
   jogadoresSort = tipo === 'nome' ?'nome' : 'apelido';
   renderJogadoresLista();
@@ -750,15 +752,36 @@ async function abrirJogadoresAdm(){
   goTo('s-adm-jogadores');
   await carregarJogadoresAdm();
 }
+function garantirFechamentoExternoJogadoresAdm(){
+  if(jogadorAdmOutsideCloseReady) return;
+  document.addEventListener('click', (event)=>{
+    if(!jogadorAdmExpandidoId) return;
+    const screen=document.getElementById('s-adm-jogadores');
+    if(!screen || !screen.classList.contains('active')) return;
+    const target=event.target;
+    if(!(target instanceof Element)) return;
+    if(target.closest('.jog-row-wrap') || target.closest('.peladeiro-inline-detail') || target.closest('#jog-form-card')) return;
+    jogadorAdmExpandidoId='';
+    renderJogadoresLista();
+  });
+  jogadorAdmOutsideCloseReady=true;
+}
 async function carregarJogadoresAdm(){
+  garantirFechamentoExternoJogadoresAdm();
   const el=document.getElementById('jog-lista');
   if(el) el.innerHTML='<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i>Carregando jogadores</div>';
   try{
     G.jogadores=await dbListarJogadores();
+    if(typeof carregarStatsPeladeirosPublico==='function') await carregarStatsPeladeirosPublico().catch(()=>{});
     renderJogadoresLista();
   }catch(e){
     if(el) el.innerHTML='<div class="empty"><i class="ti ti-user-x"></i>Erro ao carregar jogadores</div>';
   }
+}
+function toggleJogadorAdmExpandido(id){
+  const next=String(id||'');
+  jogadorAdmExpandidoId = jogadorAdmExpandidoId===next ? '' : next;
+  renderJogadoresLista();
 }
 function renderJogadoresLista(){
   const el=document.getElementById('jog-lista'); if(!el)return;
@@ -779,7 +802,18 @@ function renderJogadoresLista(){
     const foto=j.foto_url ?`<img src="${escHtml(j.foto_url)}" alt="" />` : jogadorIniciais(j);
     const nomePrincipal=j.apelido||j.nome||'Jogador';
     const nomeCompleto=j.apelido&&j.nome&&normNome(j.nome)!==normNome(j.apelido)?` <span>${escHtml(j.nome)}</span>`:'';
-    return `<div class="jog-row" onclick="editarJogadorAdm('${j.id}')">
+    const expandido=String(j.id)===jogadorAdmExpandidoId;
+    if(expandido){
+      const detalhe=typeof peladeiroFichaExpandidaCard==='function' ? peladeiroFichaExpandidaCard(j) : '';
+      return `<div class="jog-row-wrap is-expanded" data-jogador-id="${escHtml(String(j.id||''))}">
+        ${detalhe}
+        <div class="jog-inline-actions">
+          <button class="btn btn-primary" onclick="event.stopPropagation();editarJogadorAdm('${j.id}')"><i class="ti ti-pencil"></i> Editar cadastro</button>
+        </div>
+      </div>`;
+    }
+    return `<div class="jog-row-wrap" data-jogador-id="${escHtml(String(j.id||''))}">
+      <div class="jog-row" onclick="toggleJogadorAdmExpandido('${j.id}')">
       <div class="jog-avatar">${foto}</div>
       <div class="jog-info">
         <div class="jog-name">${escHtml(nomePrincipal)}${nomeCompleto}</div>
@@ -787,6 +821,7 @@ function renderJogadoresLista(){
       </div>
       <div class="jog-badges">${jogadorPosPill(j)}${jogadorBadge(j)}</div>
       <i class="ti ti-chevron-right jog-row-arrow"></i>
+      </div>
     </div>`;
   }).join('');
 }
@@ -890,6 +925,8 @@ async function uploadFotoJogadorAdm(file){
   }
 }
 function novoJogadorAdm(){
+  jogadorAdmExpandidoId='';
+  renderJogadoresLista();
   preencherFormJogador(null);
   document.getElementById('jog-form-card').style.display='block';
   document.getElementById('jog-nome').focus();
@@ -897,6 +934,8 @@ function novoJogadorAdm(){
 function editarJogadorAdm(id){
   const j=(G.jogadores||[]).find(x=>String(x.id)===String(id));
   if(!j)return;
+  jogadorAdmExpandidoId=String(id);
+  renderJogadoresLista();
   preencherFormJogador(j);
   document.getElementById('jog-form-card').style.display='block';
   document.getElementById('jog-form-card').scrollIntoView({behavior:'smooth',block:'start'});

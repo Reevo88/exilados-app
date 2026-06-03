@@ -603,22 +603,39 @@ function perfilFlagSet(tipo, val){
   }
 }
 
+function perfilFlagValue(tipo, fallback=''){
+  const map={pos:'perfil-flags-pos', perfil:'perfil-flags-perfil', mod:'perfil-flags-mod'};
+  const wrap=document.getElementById(map[tipo]);
+  const activeVal=wrap?.querySelector('.perfil-flag.active')?.dataset.val;
+  if(activeVal) return activeVal;
+  if(tipo==='pos'){
+    const hidden=document.getElementById('perfil-pos');
+    if(hidden?.value) return hidden.value;
+  }
+  return fallback;
+}
+
+function sincronizarJogadorNaListaGlobal(jogador){
+  if(!jogador || !Array.isArray(G.jogadores)) return;
+  const idx=G.jogadores.findIndex(j=>String(j?.id||'')===String(jogador.id||''));
+  if(idx>=0) G.jogadores[idx]={...G.jogadores[idx], ...jogador};
+}
+
 async function _perfilCarregarUltimaPresenca(jogadorId){
   const el=document.getElementById('perfil-ultima-presenca');
   if(!el||!jogadorId) return;
   try{
     const j=G.jogadorLogado;
-    // Busca por jogador_id E por nome/apelido (cobre confirmações antigas sem vínculo)
-    const [rowsId, rowsNome] = await Promise.all([
-      sbFetch(`/confirmacoes?jogador_id=eq.${jogadorId}&select=pelada_id&limit=200`).catch(()=>[]),
-      (j&&(j.apelido||j.nome))
-        ? sbFetch(`/confirmacoes?nome=eq.${encodeURIComponent(j.apelido||j.nome)}&select=pelada_id&limit=200`).catch(()=>[])
-        : Promise.resolve([]),
-    ]);
-    const allRows=[...(rowsId||[]),...(rowsNome||[])];
-    if(!allRows.length){ el.classList.add('perfil-presenca-card'); el.innerHTML='<div class="perfil-presenca-empty">Nenhuma presença registrada</div>'; return; }
-    const ids=[...new Set(allRows.map(r=>r.pelada_id))];
-    const peladas=(G.peladas||[]).filter(p=>ids.includes(p.id)&&peladaEncerrada(p)&&!encerradaAntesDoJogo(p));
+    const aliases=[normNome(j?.nome||''), normNome(j?.apelido||'')].filter(Boolean);
+    const peladas=(G.peladas||[]).filter(p=>{
+      if(!peladaEncerrada(p) || encerradaAntesDoJogo(p)) return false;
+      const escalados=Array.isArray(p.jogadores) ? p.jogadores : [];
+      return escalados.some(item=>{
+        if(String(item?.jogador_id||'')===String(jogadorId)) return true;
+        const nomeItem=normNome(item?.nome||'');
+        return nomeItem && aliases.includes(nomeItem);
+      });
+    });
     peladas.sort((a,b)=>new Date(b.data)-new Date(a.data));
     const anoAtual=new Date().getFullYear();
     const noAno=peladas.filter(p=>p.data&&new Date(p.data+'T12:00:00').getFullYear()===anoAtual).length;
@@ -690,6 +707,12 @@ async function salvarMeuPerfil(){
   if(!dataNascimento){ document.getElementById('perfil-nascimento').focus(); showToast('Informe a data no formato DD/MM/AAAA.'); return; }
   const telefoneRaw=formatarTelefone(document.getElementById('perfil-telefone').value);
   if(!telefoneRaw){ document.getElementById('perfil-telefone').focus(); showToast('Informe seu telefone (WhatsApp).'); return; }
+  const posicaoFavorita=perfilFlagValue('pos');
+  if(!posicaoFavorita){
+    document.querySelector('#perfil-flags-pos .perfil-flag')?.focus?.();
+    showToast('Selecione sua posição favorita.');
+    return;
+  }
   const fields={
     nome,
     apelido,
@@ -698,13 +721,16 @@ async function salvarMeuPerfil(){
     email:document.getElementById('perfil-email').value.trim()||G.usuario?.email||null,
     foto_url:document.getElementById('perfil-foto-url').value.trim()||null,
     data_nascimento:dataNascimento,
-    posicao_favorita:document.getElementById('perfil-pos').value||null,
-    modalidade:document.querySelector('#perfil-flags-mod .perfil-flag.active')?.dataset.val||'avulso',
+    posicao_favorita:posicaoFavorita,
+    modalidade:perfilFlagValue('mod','avulso')||'avulso',
     updated_at:new Date().toISOString(),
   };
   try{
     await dbAtualizarJogador(id,fields);
-    G.jogadorLogado={...(G.jogadorLogado||{}),...fields,id};
+    const jogadorSalvo=await dbJogadorPorId(id).catch(()=>null);
+    G.jogadorLogado=jogadorSalvo || ({...(G.jogadorLogado||{}),...fields,id});
+    sincronizarJogadorNaListaGlobal(G.jogadorLogado);
+    preencherMeuPerfil(G.jogadorLogado);
     showToast('Perfil salvo!');
   }catch(e){ showToast('Erro ao salvar perfil.'); }
 }

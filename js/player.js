@@ -114,7 +114,7 @@ function renderJLista(){
         const ini = (apelido.slice(0,2));
         avatarHtml = `<div class="home-chip-avatar home-chip-initials" style="position:relative;">${escHtml(ini)}${aniv}</div>`;
       }
-      return `<div class="home-player-chip" onclick="abrirPeladeirosPublico()">
+      return `<div class="home-player-chip" onclick="abrirPeladeirosPublico('${escHtml(String(j.id||''))}')">
         ${avatarHtml}
         <span class="home-chip-apelido">${escHtml(apelido)}</span>
         ${posHtml}
@@ -441,7 +441,10 @@ function confirmacaoAtualNaPelada(pelada){
 // ==========================================
 let peladeirosSort = 'apelido';
 let peladeirosFiltroPos = 'todos';
-let peladeirosStats = { jogos:{}, gols:{} };
+let peladeirosStats = { jogos:{}, gols:{}, ultimaPresenca:{}, jogosAnoAtual:{} };
+let peladeiroExpandidoId = '';
+let peladeiroAutoOpenId = '';
+let peladeirosOutsideCloseReady = false;
 
 function peladeiroIniciais(j){
   const base=(j.apelido||j.nome||'?').trim();
@@ -489,6 +492,11 @@ function peladeiroChaves(j){
   return [j.id, j.nome, j.apelido, peladeiroPrimeiroNome(j)].filter(Boolean).map(x=>normNome(String(x)));
 }
 
+function peladeiroInstagramUrl(v){
+  const insta=peladeiroInstagram(v);
+  return insta ? `https://instagram.com/${encodeURIComponent(insta)}` : '';
+}
+
 function peladeiroStat(j,tipo){
   const mapa=peladeirosStats && peladeirosStats[tipo] ? peladeirosStats[tipo] : {};
   for(const k of peladeiroChaves(j)){
@@ -510,27 +518,32 @@ function atualizarPeladeirosFiltroUI(){
 }
 
 async function carregarStatsPeladeirosPublico(){
-  const stats={jogos:{},gols:{}};
+  const stats={jogos:{},gols:{},ultimaPresenca:{},jogosAnoAtual:{}};
   try{
-    const [confRows,golRows]=await Promise.all([
-      sbFetch('/confirmacoes?select=jogador_id,nome,pelada_id&limit=3000').catch(()=>[]),
-      sbFetch('/gols_pelada?select=nome_jogador,quantidade&limit=3000').catch(()=>[]),
-    ]);
-    const peladasValidas=new Set((G.peladas||[]).filter(p=>peladaEncerrada(p)&&!encerradaAntesDoJogo(p)).map(p=>String(p.id)));
-    const porJogador={};
-    (confRows||[]).forEach(r=>{
-      if(!r) return;
-      if(peladasValidas.size && !peladasValidas.has(String(r.pelada_id))) return;
-      const keys=[];
-      if(r.jogador_id) keys.push(normNome(String(r.jogador_id)));
-      if(r.nome) keys.push(normNome(String(r.nome)));
-      keys.forEach(k=>{
-        if(!k) return;
-        if(!porJogador[k]) porJogador[k]=new Set();
-        porJogador[k].add(String(r.pelada_id||''));
+    const golRows=await sbFetch('/gols_pelada?select=nome_jogador,quantidade&limit=3000').catch(()=>[]);
+    const anoAtual=new Date().getFullYear();
+    (G.peladas||[]).forEach(p=>{
+      if(!p || !peladaEncerrada(p) || encerradaAntesDoJogo(p)) return;
+      const dataPelada=p.data || '';
+      const anoPelada=dataPelada ? new Date(`${dataPelada}T12:00:00`).getFullYear() : null;
+      const escalados=Array.isArray(p.jogadores) ? p.jogadores : [];
+      escalados.forEach(item=>{
+        const keys=[];
+        if(item?.jogador_id) keys.push(normNome(String(item.jogador_id)));
+        if(item?.nome) keys.push(normNome(String(item.nome)));
+        [...new Set(keys)].forEach(k=>{
+          if(!k) return;
+          stats.jogos[k]=(stats.jogos[k]||0)+1;
+          if(anoPelada===anoAtual) stats.jogosAnoAtual[k]=(stats.jogosAnoAtual[k]||0)+1;
+          if(dataPelada){
+            const prev=stats.ultimaPresenca[k];
+            if(!prev || String(prev.iso||'')<String(dataPelada)){
+              stats.ultimaPresenca[k]={ iso:dataPelada };
+            }
+          }
+        });
       });
     });
-    Object.keys(porJogador).forEach(k=>stats.jogos[k]=porJogador[k].size);
     (golRows||[]).forEach(g=>{
       const k=normNome(g.nome_jogador||'');
       if(!k) return;
@@ -546,6 +559,237 @@ function peladeiroSeloPerfil(j){
   if(perfil==='presidente') return '<span class="peladeiro-chip peladeiro-chip-role peladeiro-chip-presidente"><i class="ti ti-star"></i> Presidente</span>';
   if(perfil==='escalador') return '<span class="peladeiro-chip peladeiro-chip-role peladeiro-chip-escalador"><i class="ti ti-clipboard-list"></i> Escalador</span>';
   return '';
+}
+
+function peladeiroStatusLabel(j){
+  return j.ativo===false ? 'Inativo' : 'Ativo';
+}
+
+function peladeiroPosLabel(pos){
+  const ab=peladeiroPosAbrev(pos||'POS');
+  return { GOL:'Goleiro', ZAG:'Zagueiro', LAT:'Lateral', MEI:'Meia', ATA:'Atacante' }[ab] || String(pos||'—');
+}
+
+function peladeiroModalidadeLabel(mod){
+  return mod==='mensalista' ? 'Mensalista' : 'Avulso';
+}
+
+function peladeiroPerfilLabel(perfil){
+  const val=String(perfil||'jogador').toLowerCase();
+  return { jogador:'Jogador', escalador:'Escalador', presidente:'Presidente', adm:'Admin' }[val] || 'Jogador';
+}
+
+function peladeiroCampoDetalhe(label, valor, extraClass=''){
+  const display=String(valor||'').trim() || '—';
+  return `<div class="peladeiro-detail-field${extraClass ? ` ${extraClass}` : ''}">
+    <span class="peladeiro-detail-label">${escHtml(label)}</span>
+    <span class="peladeiro-detail-value">${escHtml(display)}</span>
+  </div>`;
+}
+
+function peladeiroCampoIcone(icon, label, valor, extraClass=''){
+  const display=String(valor||'').trim() || 'â€”';
+  return `<div class="peladeiro-detail-field${extraClass ? ` ${extraClass}` : ''}">
+    <span class="peladeiro-detail-label"><i class="ti ${escHtml(icon)}"></i> ${escHtml(label)}</span>
+    <span class="peladeiro-detail-value">${escHtml(display)}</span>
+  </div>`;
+}
+
+function peladeiroUltimaPresencaInfo(j){
+  const mapa=peladeirosStats && peladeirosStats.ultimaPresenca ? peladeirosStats.ultimaPresenca : {};
+  for(const k of peladeiroChaves(j)){
+    if(mapa[k]) return mapa[k];
+  }
+  return null;
+}
+
+function peladeiroFichaExpandida(j){
+  if(!j) return '';
+  const insta=peladeiroInstagram(j.instagram);
+  const instaHandle=insta ? `@${insta}` : '';
+  const telefone=formatarTelefone(j.telefone||'');
+  const nascimento=dataIsoParaBr(j.data_nascimento||'');
+  const foto=j.foto_url
+    ? `<img src="${escHtml(j.foto_url)}" alt="" />`
+    : escHtml((j.apelido||j.nome||'?').trim().slice(0,1).toUpperCase());
+  const apelido=(j.apelido||j.nome||'Peladeiro').toUpperCase();
+  const posLabel=peladeiroPosLabel(j.posicao_favorita||'');
+  const sub=[instaHandle || `@${(j.apelido||j.nome||'').trim().replace(/\s+/g,'').toLowerCase()}`, posLabel].filter(Boolean).join(' · ');
+  const jogos=peladeiroStat(j,'jogos');
+  const gols=peladeiroStat(j,'gols');
+  const perfil=peladeiroPerfilLabel(j.perfil_app);
+  const status=peladeiroStatusLabel(j);
+  const instaHtml=insta
+    ? `<a class="peladeiro-detail-link" href="${peladeiroInstagramUrl(insta)}" target="_blank" rel="noopener noreferrer"><i class="ti ti-brand-instagram"></i> ${escHtml(instaHandle)}</a>`
+    : '<span class="peladeiro-detail-muted">Sem Instagram</span>';
+  return `<div class="peladeiro-inline-detail perfil-inline-theme" data-peladeiro-detail="${escHtml(String(j.id||''))}">
+    <div class="peladeiro-inline-hero">
+      <div class="perfil-hero-card perfil-hero-card--jogador peladeiro-inline-hero-card">
+        <div class="perfil-hero-row">
+          <div class="perfil-hero-photo-wrap">
+            <div class="perfil-hero-avatar">${foto}</div>
+          </div>
+          <div class="perfil-hero-info">
+            <div class="perfil-hero-label">ELENCO DE ESTRELAS</div>
+            <div class="perfil-hero-title">${escHtml(apelido)}</div>
+            <div class="perfil-hero-nome">${escHtml(j.nome||'—')}</div>
+            <div class="perfil-hero-sub">${escHtml(sub || '—')}</div>
+            <div class="peladeiro-inline-chips">
+              <span class="peladeiro-chip peladeiro-chip-pos">${escHtml(peladeiroPosAbrev(j.posicao_favorita||'POS'))}</span>
+              <span class="peladeiro-chip"><i class="ti ti-crown"></i> ${escHtml(peladeiroModalidadeLabel(j.modalidade))}</span>
+              <span class="peladeiro-chip"><i class="ti ti-user-check"></i> ${escHtml(status)}</span>
+              <span class="peladeiro-chip"><i class="ti ti-shield"></i> ${escHtml(perfil)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="peladeiro-inline-sections">
+      <div class="perfil-section">
+        <div class="perfil-section-label">CADASTRO</div>
+        <div class="perfil-section-title">Dados do jogador</div>
+        <div class="perfil-fields-card peladeiro-inline-fields">
+          ${peladeiroCampoDetalhe('Nome', j.nome)}
+          ${peladeiroCampoDetalhe('Apelido', j.apelido||j.nome)}
+          ${peladeiroCampoDetalhe('Email', j.email)}
+          ${peladeiroCampoDetalhe('Telefone', telefone)}
+          ${peladeiroCampoDetalhe('Nascimento', nascimento)}
+          ${peladeiroCampoDetalhe('Posição', posLabel)}
+          ${peladeiroCampoDetalhe('Modalidade', peladeiroModalidadeLabel(j.modalidade))}
+          ${peladeiroCampoDetalhe('Status', status)}
+          ${peladeiroCampoDetalhe('Perfil', perfil, 'peladeiro-detail-field--last')}
+        </div>
+      </div>
+      <div class="perfil-section">
+        <div class="perfil-section-label">RESUMO</div>
+        <div class="perfil-section-title">Ficha completa</div>
+        <div class="peladeiro-inline-summary">
+          <div class="perfil-resumo-item">
+            <div class="perfil-resumo-label">Instagram</div>
+            <div class="peladeiro-inline-summary-main">${instaHtml}</div>
+          </div>
+          <div class="perfil-resumo-item">
+            <div class="perfil-resumo-label">Presenças</div>
+            <div class="perfil-resumo-val"><span>${escHtml(String(jogos))}</span> partida${jogos===1?'':'s'}</div>
+          </div>
+          <div class="perfil-resumo-item">
+            <div class="perfil-resumo-label">Gols</div>
+            <div class="perfil-resumo-val"><span>${escHtml(String(gols))}</span> no histórico</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function peladeiroCampoIcone(icon, label, valor, extraClass=''){
+  const display=String(valor||'').trim() || 'â€”';
+  return `<div class="peladeiro-detail-field${extraClass ? ` ${extraClass}` : ''}">
+    <span class="peladeiro-detail-label"><i class="ti ${escHtml(icon)}"></i> ${escHtml(label)}</span>
+    <span class="peladeiro-detail-value">${escHtml(display)}</span>
+  </div>`;
+}
+
+function peladeiroUltimaPresencaInfo(j){
+  const mapa=peladeirosStats && peladeirosStats.ultimaPresenca ? peladeirosStats.ultimaPresenca : {};
+  for(const k of peladeiroChaves(j)){
+    if(mapa[k]) return mapa[k];
+  }
+  return null;
+}
+
+function peladeiroFichaExpandidaCard(j){
+  if(!j) return '';
+  const insta=peladeiroInstagram(j.instagram);
+  const instaHandle=insta ? `@${insta}` : '';
+  const telefone=formatarTelefone(j.telefone||'');
+  const nascimento=dataIsoParaBr(j.data_nascimento||'');
+  const foto=j.foto_url
+    ? `<img src="${escHtml(j.foto_url)}" alt="" />`
+    : escHtml((j.apelido||j.nome||'?').trim().slice(0,1).toUpperCase());
+  const apelido=(j.apelido||j.nome||'Peladeiro').toUpperCase();
+  const sub=instaHandle || `@${(j.apelido||j.nome||'').trim().replace(/\s+/g,'').toLowerCase()}`;
+  const perfil=peladeiroPerfilLabel(j.perfil_app);
+  const jogosAnoAtual=peladeiroStat(j,'jogosAnoAtual');
+  const ultimaPresenca=peladeiroUltimaPresencaInfo(j);
+  const ultimaData=ultimaPresenca?.iso ? new Date(`${ultimaPresenca.iso}T12:00:00`) : null;
+  const ultimaFmt=ultimaData && !Number.isNaN(ultimaData.getTime())
+    ? ultimaData.toLocaleDateString('pt-BR',{day:'numeric',month:'short'}).replace('.','')
+    : 'Sem jogo';
+  const posAbrev=peladeiroPosAbrev(j.posicao_favorita||'POS');
+  const modalidade=peladeiroModalidadeLabel(j.modalidade);
+  const posFlags=['GOL','ZAG','LAT','MEI','ATA'].map(pos=>`<span class="peladeiro-inline-flag${pos===posAbrev ? ' active' : ''}">${pos}</span>`).join('');
+  const modFlags=['Avulso','Mensalista'].map(item=>`<span class="peladeiro-inline-flag${item===modalidade ? ' active' : ''}">${item}</span>`).join('');
+  return `<div class="peladeiro-inline-detail perfil-inline-theme" data-peladeiro-detail="${escHtml(String(j.id||''))}">
+    <div class="peladeiro-inline-hero perfil-hero-card perfil-hero-card--jogador peladeiro-inline-hero-card">
+      <div class="perfil-hero-row">
+        <div class="perfil-hero-photo-wrap">
+          <div class="perfil-hero-avatar">${foto}</div>
+          <div class="perfil-hero-cam" aria-hidden="true"><i class="ti ti-camera"></i></div>
+        </div>
+        <div class="perfil-hero-info">
+          <div class="perfil-hero-label">CONTA DO PELADEIRO</div>
+          <div class="perfil-hero-title">${escHtml(apelido)}</div>
+          <div class="perfil-hero-nome">${escHtml(j.nome||'â€”')}</div>
+          <div class="perfil-hero-sub">${escHtml(sub || '-')} <span class="peladeiro-inline-profile-sep">|</span> ${escHtml(perfil)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="peladeiro-inline-sections">
+      <div class="perfil-section peladeiro-inline-section">
+        <div class="perfil-section-label">DADOS</div>
+        <div class="perfil-section-title">Cadastro</div>
+        <div class="perfil-fields-card peladeiro-inline-fields">
+          ${peladeiroCampoIcone('ti-user','Nome completo', j.nome)}
+          ${peladeiroCampoIcone('ti-shirt','Apelido', j.apelido||j.nome)}
+          ${peladeiroCampoIcone('ti-phone','Telefone', telefone)}
+          ${peladeiroCampoIcone('ti-calendar','Nascimento', nascimento)}
+          ${peladeiroCampoIcone('ti-brand-instagram','Instagram', instaHandle)}
+          <div class="peladeiro-detail-field">
+            <span class="peladeiro-detail-label">Posicao favorita</span>
+            <span class="peladeiro-inline-flags">${posFlags}</span>
+          </div>
+          <div class="peladeiro-detail-field peladeiro-detail-field--last">
+            <span class="peladeiro-detail-label">Modalidade</span>
+            <span class="peladeiro-inline-flags">${modFlags}</span>
+          </div>
+        </div>
+      </div>
+      <div class="peladeiro-inline-presenca">
+        <div class="peladeiro-inline-presenca-left">
+          <div class="peladeiro-inline-presenca-date">${escHtml(ultimaFmt)}</div>
+          <div class="peladeiro-inline-presenca-label">ULTIMA PRESENCA</div>
+        </div>
+        <div class="peladeiro-inline-presenca-right">${escHtml(String(jogosAnoAtual))} partida${jogosAnoAtual===1?'':'s'} em ${new Date().getFullYear()}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function togglePeladeiroExpandido(id){
+  const next=String(id||'');
+  peladeiroExpandidoId = peladeiroExpandidoId===next ? '' : next;
+  renderPeladeirosLista();
+}
+
+function fecharPeladeiroExpandido(){
+  if(!peladeiroExpandidoId) return;
+  peladeiroExpandidoId='';
+  renderPeladeirosLista();
+}
+
+function garantirFechamentoExternoPeladeiros(){
+  if(peladeirosOutsideCloseReady) return;
+  document.addEventListener('click', (event)=>{
+    if(!peladeiroExpandidoId) return;
+    const screen=document.getElementById('s-j-peladeiros');
+    if(!screen || !screen.classList.contains('active')) return;
+    const target=event.target;
+    if(!(target instanceof Element)) return;
+    if(target.closest('.peladeiro-card-wrap') || target.closest('.peladeiro-inline-detail')) return;
+    fecharPeladeiroExpandido();
+  });
+  peladeirosOutsideCloseReady = true;
 }
 
 function setPeladeirosSort(tipo){
@@ -566,18 +810,22 @@ function chaveOrdenacaoPeladeiro(j){
   return [normNome(prim||''), normNome(sec||'')];
 }
 
-async function abrirPeladeirosPublico(){
+async function abrirPeladeirosPublico(jogadorId=''){
   fecharMenuJogador();
   G.pelada = null;
+  peladeiroAutoOpenId = String(jogadorId||'');
+  peladeiroExpandidoId = '';
   goTo('s-j-peladeiros');
   await carregarPeladeirosPublico();
 }
 
 async function carregarPeladeirosPublico(){
+  garantirFechamentoExternoPeladeiros();
   const el=document.getElementById('peladeiros-lista');
   if(el) el.innerHTML='<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i>Carregando peladeiros</div>';
   try{
-    G.jogadores=await sbFetch('/jogadores?select=id,nome,apelido,instagram,foto_url,posicao_favorita,modalidade,perfil_app,data_nascimento,ativo&order=apelido.asc');
+    G.jogadores=await sbFetch('/jogadores?select=id,nome,apelido,instagram,foto_url,posicao_favorita,modalidade,perfil_app,data_nascimento,ativo,telefone,email&order=apelido.asc');
+    await carregarStatsPeladeirosPublico();
     renderPeladeirosLista();
   }catch(e){
     if(el) el.innerHTML='<div class="empty"><i class="ti ti-user-x"></i>Nao foi possivel carregar os peladeiros</div>';
@@ -602,6 +850,12 @@ function renderPeladeirosLista(){
     return ka[0].localeCompare(kb[0],'pt-BR') || ka[1].localeCompare(kb[1],'pt-BR');
   });
   if(!arr.length){ el.innerHTML='<div class="empty"><i class="ti ti-users"></i>Nenhum peladeiro encontrado</div>'; return; }
+  if(peladeiroAutoOpenId && arr.some(j=>String(j.id)===peladeiroAutoOpenId)){
+    peladeiroExpandidoId = peladeiroAutoOpenId;
+    peladeiroAutoOpenId = '';
+  } else if(peladeiroAutoOpenId){
+    peladeiroAutoOpenId = '';
+  }
   el.innerHTML=arr.map((j,i)=>{
     const insta=peladeiroInstagram(j.instagram);
     const foto=j.foto_url ? `<img src="${escHtml(j.foto_url)}" alt="" />` : peladeiroIniciais(j);
@@ -613,16 +867,24 @@ function renderPeladeirosLista(){
     const posClasse=peladeiroPosClasse(j.posicao_favorita||'POS');
     const modalidade=j.modalidade==='mensalista'?'Mensalista':'Avulso';
     const zoom=j.foto_url?'abrirZoomFotoUrl(this.dataset.url)':'return false';
-    const tema=posClasse==='ata'?'red':'blue';
+    const tema=i % 2 === 0 ? 'blue' : 'red';
     const seloPerfil=peladeiroSeloPerfil(j);
     const apelidoLen=apelido.length;
     const apelidoSize=apelidoLen>13?'xlong':apelidoLen>10?'long':apelidoLen>7?'medium':'short';
     const social=insta ? `<div class="peladeiro-social">
         <a class="peladeiro-social-link peladeiro-social-instagram" href="https://instagram.com/${encodeURIComponent(insta)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de ${escHtml(apelido)}"><i class="ti ti-brand-instagram"></i><span>@${escHtml(insta)}</span></a>
       </div>` : '';
-    return `<div class="peladeiro-card peladeiro-card-${tema} peladeiro-pos-${posClasse} peladeiro-name-${apelidoSize}">
+    const expandido=String(j.id)===peladeiroExpandidoId;
+    const detalhe=expandido ? peladeiroFichaExpandidaCard(j) : '';
+    if(expandido){
+      return `<div class="peladeiro-card-wrap is-expanded" data-peladeiro-id="${escHtml(String(j.id||''))}">
+        ${detalhe}
+      </div>`;
+    }
+    return `<div class="peladeiro-card-wrap" data-peladeiro-id="${escHtml(String(j.id||''))}">
+      <button class="peladeiro-card peladeiro-card-${tema} peladeiro-pos-${posClasse} peladeiro-name-${apelidoSize}" type="button" onclick="togglePeladeiroExpandido('${escHtml(String(j.id||''))}')">
       <div class="peladeiro-sash"></div>
-      <button class="peladeiro-avatar" type="button" data-url="${escHtml(j.foto_url||'')}" onclick="${zoom}" title="${j.foto_url?'Ampliar foto':'Sem foto cadastrada'}">${foto}</button>
+      <span class="peladeiro-avatar" data-url="${escHtml(j.foto_url||'')}" onclick="event.stopPropagation();${zoom}" title="${j.foto_url?'Ampliar foto':'Sem foto cadastrada'}">${foto}</span>
       <div class="peladeiro-info">
         <div class="peladeiro-topline">${isAniversarianteMes(j) ? `<span class="peladeiro-birthday-label"><i class="ti ti-crown"></i> ANIVERSARIANTE</span>` : ''}</div>
         <div class="peladeiro-name" title="${escHtml(apelido)}">${escHtml(apelido)}</div>
@@ -634,8 +896,15 @@ function renderPeladeirosLista(){
         </div>
         ${social}
       </div>
+      </button>
     </div>`;
   }).join('');
+  if(peladeiroExpandidoId){
+    const expandedEl=[...el.querySelectorAll('[data-peladeiro-id]')].find(node => node.getAttribute('data-peladeiro-id')===String(peladeiroExpandidoId));
+    if(expandedEl){
+      requestAnimationFrame(()=>expandedEl.scrollIntoView({block:'nearest', behavior:'smooth'}));
+    }
+  }
 }
 
 async function abrirJogador(id){

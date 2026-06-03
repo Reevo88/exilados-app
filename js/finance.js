@@ -238,11 +238,11 @@ function redefinirFiltroExtratoInterno() {
 
 function resumoFiltroExtratoTexto() {
   const partes = [];
-  const now = new Date();
-  const mesAtual = { ano: now.getFullYear(), mes: now.getMonth() };
-  const mesBase = _filtroState.mes || mesAtual;
+  const semFiltroPadrao = !_filtroState.mes && _filtroState.entradas && _filtroState.saidas && _filtroState.ordem === 'desc';
+  if(semFiltroPadrao) return 'Sem filtros';
 
-  partes.push(`${_MESES_PT[mesBase.mes]} ${mesBase.ano}`);
+  if(_filtroState.mes) partes.push(`${_MESES_PT[_filtroState.mes.mes]} ${_filtroState.mes.ano}`);
+  else partes.push('Todos os periodos');
 
   if(!(_filtroState.entradas && _filtroState.saidas)) {
     if(_filtroState.entradas && !_filtroState.saidas) partes.push('Entradas');
@@ -267,7 +267,7 @@ function atualizarResumoFiltroExtrato() {
 }
 
 // -- RENDER: Extrato -----------------------
-function renderExtrato(movimentos, containerId, filtro, isAdm) {
+function renderExtrato(movimentos, containerId, filtro, isAdm, movimentosBase=null) {
   const el = document.getElementById(containerId);
   if (!el) return;
 
@@ -283,7 +283,8 @@ function renderExtrato(movimentos, containerId, filtro, isAdm) {
   // Calcular saldo acumulado (já vem ordenado do mais antigo ao mais novo)
   let saldoAcum = 0;
   const saldoMap = {};
-  movimentos.forEach(m => {
+  const baseSaldo = Array.isArray(movimentosBase) ? movimentosBase : movimentos;
+  baseSaldo.forEach(m => {
     const v = Number(m.valor) || 0;
     if (m.tipo === 'entrada') saldoAcum += v;
     else saldoAcum -= v;
@@ -648,5 +649,5 @@ function _renderExtratoFiltrado(movimentos, containerId, isAdm) {
     lista = lista.reverse();
   }
 
-  renderExtrato(lista, containerId, 'todos', isAdm);
+  renderExtrato(lista, containerId, 'todos', isAdm, movimentos);
 }

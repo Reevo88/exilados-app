@@ -160,6 +160,10 @@ async function dbJogadorPorEmail(email) {
   const rows=await sbFetch('/jogadores?email=eq.'+encodeURIComponent(email)+'&limit=1');
   return rows && rows[0] ? rows[0] : null;
 }
+async function dbJogadorPorId(id) {
+  const rows=await sbFetch('/jogadores?id=eq.'+encodeURIComponent(id)+'&limit=1');
+  return rows && rows[0] ? rows[0] : null;
+}
 
 const POSICOES = ['GOL','ZAG','LAT','MEI','ATA'];
 
