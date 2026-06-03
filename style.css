@@ -4514,6 +4514,26 @@ section[id*="home"] .btn:not(.btn-primary){
   line-height:1;
   text-transform:uppercase;
 }
+@media (max-width:430px){
+  #s-j-peladeiros .peladeiro-detail-field--flags{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+  }
+  #s-j-peladeiros .peladeiro-detail-field--flags .peladeiro-detail-label{
+    min-width:0;
+  }
+  #s-j-peladeiros .peladeiro-detail-field--flags .peladeiro-inline-flags{
+    width:100%;
+    justify-content:space-between;
+    gap:6px;
+  }
+  #s-j-peladeiros .peladeiro-detail-field--flags .peladeiro-inline-flag{
+    flex:1 1 0;
+    min-width:0;
+    text-align:center;
+  }
+}
 @media (max-width:380px){
   .peladeiro-card{min-height:148px;border-radius:17px;}
   .peladeiro-avatar{width:24.5%;left:3.8%;border-width:2px;}
