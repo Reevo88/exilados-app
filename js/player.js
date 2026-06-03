@@ -842,7 +842,7 @@ function peladeiroFichaExpandidaCard(j){
       <div class="perfil-hero-row">
         <div class="perfil-hero-photo-wrap">
           <div class="perfil-hero-avatar">${foto}</div>
-          ${emVisaoAdm ? `<button class="perfil-hero-cam perfil-hero-cam--action" type="button" onclick="event.stopPropagation();editarJogadorAdm('${escHtml(String(j.id||''))}')"><i class="ti ti-camera"></i><span>Selecionar foto</span></button>` : ''}
+          ${emVisaoAdm ? `<button class="perfil-hero-cam perfil-hero-cam--action" type="button" onclick="event.stopPropagation();editarJogadorAdm('${escHtml(String(j.id||''))}')"><i class="ti ti-camera"></i><span>Foto</span></button>` : ''}
         </div>
         <div class="perfil-hero-info">
           ${emVisaoAdm ? '' : '<div class="perfil-hero-label">CONTA DO PELADEIRO</div>'}
