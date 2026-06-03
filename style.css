@@ -4146,7 +4146,19 @@ section[id*="home"] .btn:not(.btn-primary){
   box-shadow:none;
   overflow:hidden;
   margin-bottom:12px;
+  width:100%;
+  padding:0;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
 }
+.peladeiro-card-wrap{ margin-bottom:12px; }
+.peladeiro-card-wrap .peladeiro-card{ margin-bottom:0; }
+.peladeiro-card-wrap.is-expanded .peladeiro-card{
+  border-bottom-left-radius:12px;
+  border-bottom-right-radius:12px;
+}
+.peladeiro-card.is-expanded{ border-color:#4a4a4a; }
 .peladeiro-card::before{
   background:
     radial-gradient(circle at 110% 110%, rgba(255,255,255,.06) 0 90px, transparent 91px),
@@ -4234,6 +4246,142 @@ section[id*="home"] .btn:not(.btn-primary){
 .peladeiro-chip-pos{color:#fff;}
 .peladeiro-chip-mod i{color:#f5e400;}
 .peladeiro-social-link{color:#dcdcdc;font-size:clamp(9px,2.4vw,12px);}
+.peladeiro-inline-detail{
+  margin:0 0 2px;
+  padding:0;
+}
+.peladeiro-card-wrap.is-expanded{ margin-bottom:14px; }
+.peladeiro-inline-hero{ margin-bottom:14px; }
+.peladeiro-inline-hero-card{
+  background:linear-gradient(180deg,#111111 0%,#0a0a0a 100%);
+  border:1px solid #343434;
+  border-radius:18px;
+  box-shadow:none;
+  margin-bottom:0;
+  padding:14px;
+}
+.peladeiro-inline-hero-card .perfil-hero-avatar{
+  background:#050505;
+  border:1px solid #343434;
+  color:#F5E400;
+  box-shadow:none;
+}
+.peladeiro-inline-hero-card .perfil-hero-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.peladeiro-inline-hero-card .perfil-hero-label{ color:#F5E400; }
+.peladeiro-inline-hero-card .perfil-hero-title,
+.peladeiro-inline-hero-card .perfil-hero-nome{ color:#fff; }
+.peladeiro-inline-hero-card .perfil-hero-sub{ color:#cfcfcf; }
+.peladeiro-inline-hero-card .perfil-hero-title{ font-size:56px; line-height:.82; margin-bottom:4px; }
+.peladeiro-inline-hero-card .perfil-hero-nome{ font-size:14px; font-weight:800; }
+.peladeiro-inline-hero-card .perfil-hero-sub{ font-size:13px; margin-top:4px; }
+.peladeiro-inline-hero-card .perfil-hero-cam{
+  right:-6px;
+  bottom:-6px;
+  width:34px;
+  height:34px;
+  background:#171717;
+  border:1px solid #4a4a4a;
+  color:#fff;
+  box-shadow:none;
+}
+.peladeiro-inline-profile-sep{ color:#666; padding:0 4px; }
+.peladeiro-inline-sections{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.peladeiro-inline-fields{
+  background:rgba(17,17,17,.92);
+  border:1px solid #343434;
+  border-radius:14px;
+  box-shadow:none;
+  overflow:hidden;
+}
+.peladeiro-detail-field{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:48px;
+  padding:0 14px;
+  border-bottom:1px solid rgba(52,52,52,.75);
+}
+.peladeiro-detail-field--last{ border-bottom:none; }
+.peladeiro-detail-label{
+  color:#cfcfcf;
+  font-size:13px;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.peladeiro-detail-label i{ color:#8b8b8b; font-size:15px; }
+.peladeiro-detail-value{
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+  text-align:right;
+}
+.peladeiro-inline-flags{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:6px;
+}
+.peladeiro-inline-flag{
+  min-width:42px;
+  padding:6px 9px;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:transparent;
+  color:#9a9a9a;
+  font-size:12px;
+  font-weight:700;
+  text-align:center;
+}
+.peladeiro-inline-flag.active{
+  background:#F5E400;
+  color:#050505;
+  border-color:#F5E400;
+}
+.peladeiro-inline-presenca{
+  background:linear-gradient(180deg,#151515 0%,#111111 100%);
+  border:1px solid #343434;
+  border-radius:16px;
+  padding:16px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.peladeiro-inline-presenca-date{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:24px;
+  font-weight:900;
+  color:#fff;
+  line-height:.95;
+  text-transform:lowercase;
+}
+.peladeiro-inline-presenca-label{
+  margin-top:6px;
+  color:#8f8f8f;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+.peladeiro-inline-presenca-right{
+  color:#d4d4d4;
+  font-size:14px;
+  font-weight:700;
+  text-align:right;
+}
+.perfil-inline-theme .perfil-section-label{ color:#c7c7c7; }
+.perfil-inline-theme .perfil-section-title{ color:#F5E400; font-size:40px; line-height:.88; }
 .peladeiro-stats{
   position:absolute;
   z-index:5;
@@ -4283,6 +4431,19 @@ section[id*="home"] .btn:not(.btn-primary){
   .peladeiro-real-name{font-size:clamp(11px,3.1vw,14px);}
   .peladeiro-meta{margin-top:8px;gap:4px;}
   .peladeiro-birthday-label{font-size:10px;}
+  .peladeiro-detail-field{
+    padding:10px 12px;
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .peladeiro-detail-value{ text-align:left; }
+  .peladeiro-inline-hero-card .perfil-hero-title{ font-size:42px; }
+  .peladeiro-inline-flags{ justify-content:flex-start; }
+  .peladeiro-inline-presenca{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .peladeiro-inline-presenca-right{ text-align:left; }
 }
 
 
@@ -5759,6 +5920,8 @@ section[id*="home"] .btn:not(.btn-primary){
   position:relative; overflow:hidden; min-height:76px; padding:12px; margin-bottom:10px;
   background:linear-gradient(135deg,#171717,#101010); border:1px solid #343434; border-radius:16px; box-shadow:none;
 }
+#s-adm-jogadores .jog-row-wrap{ margin-bottom:10px; }
+#s-adm-jogadores .jog-row-wrap.is-expanded{ margin-bottom:14px; }
 #s-adm-jogadores .jog-row:after{
   content:""; position:absolute; inset:0; opacity:.08; pointer-events:none;
   background:radial-gradient(circle at 85% 50%, rgba(245,228,0,.22), transparent 26%);
@@ -5780,6 +5943,52 @@ section[id*="home"] .btn:not(.btn-primary){
 .jog-admin-pill.mod-avulso{ text-transform:none; color:#d0d0d0; }
 .jog-admin-pill.role-presidente,.jog-admin-pill.role-adm{ color:#ffb4b4; border-color:#d34848; background:rgba(211,72,72,.10); text-transform:none; font-size:11px; }
 .jog-admin-pill.role-escalador{ color:#F5E400; border-color:#807800; background:rgba(245,228,0,.08); text-transform:none; font-size:11px; }
+#s-adm-jogadores .peladeiro-inline-detail{ margin:0; }
+#s-adm-jogadores .peladeiro-inline-hero-card{
+  padding:14px;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-photo-wrap{
+  position:relative;
+  width:96px;
+  height:96px;
+  flex:0 0 96px;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-avatar{
+  width:96px;
+  height:96px;
+  border-radius:14px;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-info{
+  display:flex;
+  flex:1;
+  min-width:0;
+  min-height:auto;
+  flex-direction:column;
+  justify-content:center;
+  padding:2px 0;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-title{
+  font-size:48px;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-nome,
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-sub{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#s-adm-jogadores .jog-inline-actions{
+  margin-top:10px;
+  display:flex;
+  justify-content:flex-end;
+}
+#s-adm-jogadores .jog-inline-actions .btn{
+  min-width:180px;
+}
 
 #s-adm-jogadores #jog-form-card{
   position:relative; overflow:hidden; margin-top:14px; padding:16px 14px;
@@ -5814,6 +6023,18 @@ section[id*="home"] .btn:not(.btn-primary){
   #s-adm-jogadores .perfil-hero-info{ min-height:118px; }
   #s-adm-jogadores .perfil-hero-title{ font-size:34px; }
   #s-adm-jogadores .jog-name{ font-size:16px; }
+  #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-photo-wrap{
+    width:84px;
+    height:84px;
+    flex-basis:84px;
+  }
+  #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-avatar{
+    width:84px;
+    height:84px;
+  }
+  #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-title{
+    font-size:38px;
+  }
 }
 
 /* ADM home menu simplificado: somente Ver como jogador e Sair no amarelo Exilados */

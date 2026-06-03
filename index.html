@@ -126,7 +126,7 @@
 </div>
 </div>
 <!-- hidden selects mantidos para compatibilidade com salvarMeuPerfil() -->
-<select id="perfil-pos" style="display:none;"></select>
+<input id="perfil-pos" type="hidden"/>
 <input id="perfil-email" type="hidden"/>
 </div>
 <!-- Última presença (todos veem) -->
@@ -316,7 +316,7 @@
 ====================================== -->
 <!-- A0: PAINEL ADMINISTRATIVO -->
 <div class="screen" id="s-adm-dashboard">
-<div class="header app-brand-header app-brand-header--home"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="header app-brand-header app-brand-header--home"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
 <div class="page-body adm-dashboard-body">
 <div class="adm-welcome-card">
 <div class="adm-welcome-icon"><i class="ti ti-hand-stop"></i></div>
@@ -364,7 +364,7 @@
 </div>
 <!-- A1: HOME ADM -->
 <div class="screen" id="s-adm-home">
-<div class="header app-brand-header app-brand-header--home"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="header app-brand-header app-brand-header--home"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
 <div class="page-body adm-peladas-body">
 <button class="btn btn-primary adm-new-match-btn" id="btn-nova-pelada" onclick="prepararNovaPelada();goTo('s-adm-criar')"><i class="ti ti-plus"></i> Nova pelada</button>
 <div id="adm-lista-abertas"></div>
@@ -380,7 +380,7 @@
 </div>
 <!-- A1B: JOGADORES ADM -->
 <div class="screen" id="s-adm-jogadores">
-<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1>PELADEIROS</h1><p></p></div></div>
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1>PELADEIROS</h1><p></p></div></div>
 <div class="page-body">
 <div class="card player-directory-card">
 <div class="field" style="margin-bottom:10px;"><input autocomplete="off" id="jog-busca" oninput="renderJogadoresLista()" placeholder="Buscar jogador" type="text"/></div>
@@ -543,7 +543,7 @@
 </div>
 <!-- A3: CONFIRMAÇÕES ADM -->
 <div class="screen" id="s-adm-conf">
-<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="aconf-nome">PELADA</h1><p id="aconf-meta"></p></div></div>
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="aconf-nome">PELADA</h1><p id="aconf-meta"></p></div></div>
 <div class="page-body">
 <div class="aconf-hero">
 <div class="aconf-hero-main">
@@ -593,7 +593,7 @@
 </div>
 <!-- A4: TIMES ADM -->
 <div class="screen" id="s-adm-times">
-<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="atimes-nome">TIMES</h1><p id="atimes-meta"></p></div></div>
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="atimes-nome">TIMES</h1><p id="atimes-meta"></p></div></div>
 <div class="page-body">
 <div class="notice-soft" id="at-gol-alert"><i class="ti ti-alert-triangle" style="font-size:14px;"></i><span>Verifique os goleiros antes de publicar os times.</span></div>
 <div class="action-row">
@@ -645,7 +645,7 @@
 </div>
 <!-- A5: FINANCEIRO (Caixa Geral) -->
 <div class="screen" id="s-adm-fin">
-<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1>CAIXA</h1><p></p></div></div>
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1>CAIXA</h1><p></p></div></div>
 <div class="page-body">
 <!-- Saldo principal -->
 <div class="caixa-hero caixa-hero-dark" id="caixa-hero">
@@ -688,7 +688,7 @@
 </div>
 <!-- A5b: FINANCEIRO POR PELADA (antigo) -->
 <div class="screen" id="s-adm-fin-pelada">
-<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><p id="afin-meta"></p></div></div>
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><p id="afin-meta"></p></div></div>
 <div class="page-body">
 <div class="fin-hero">
 <div class="fin-hero-top">
@@ -1038,7 +1038,7 @@
      PÓS-JOGO ADM
 ========================================== -->
 <div class="screen" id="s-adm-posjogo">
-<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioAdm()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="pj-nome-header">PÓS-JOGO</h1><p id="pj-meta-header"></p></div></div>
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="pj-nome-header">PÓS-JOGO</h1><p id="pj-meta-header"></p></div></div>
 <div class="page-body">
 <!-- Placar -->
 <div class="card" style="margin-bottom:12px;">
