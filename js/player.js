@@ -848,7 +848,6 @@ function peladeiroFichaExpandidaCard(j){
           ${emVisaoAdm ? '' : '<div class="perfil-hero-label">CONTA DO PELADEIRO</div>'}
           <div class="perfil-hero-title">${escHtml(apelido)}</div>
           <div class="perfil-hero-nome">${escHtml(j.nome||'â€”')}</div>
-          <div class="perfil-hero-sub">${escHtml(sub || '-')} <span class="peladeiro-inline-profile-sep">|</span> ${escHtml(perfil)}</div>
         </div>
       </div>
     </div>
