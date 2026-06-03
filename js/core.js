@@ -88,9 +88,9 @@ async function dbCarregarPeladas() {
         return;
       }
       const _posConf=(c.posicao&&['GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?';
-      const _jogCad=c.jogador_id?(G.jogadores||[]).find(jj=>String(jj.id)===String(c.jogador_id)):null;
+      const _jogCad=findJogadorCadastroPorConfirmacao(c);
       const _posFinal=(_posConf==='?'&&_jogCad&&_jogCad.posicao_favorita&&['GOL','ZAG','LAT','MEI','ATA'].includes(_jogCad.posicao_favorita))?_jogCad.posicao_favorita:_posConf;
-      const j={id:c.id,jogador_id:c.jogador_id||null,nome:c.nome,pos:_posFinal,time:c.time||'pool',pago:c.pago||false,modalidade:c.modalidade||'avulso',isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
+      const j={id:c.id,jogador_id:c.jogador_id||null,nome:c.nome,pos:_posFinal,time:c.time||'pool',pago:c.pago||false,modalidade:resolveModalidadeConfirmacao(c,_jogCad),isento:c.isento||false,ordem:c.ordem||0,churras:c.churras||null};
       if(c.status==='espera'){
         p.espera.push(j);
         return;
@@ -106,7 +106,7 @@ async function dbCriarPelada(p) {
 }
 async function dbConfirmar(peladaId,nome,churras,status='confirmado',jogadorId=null,posicao=null) {
   const posVal=(posicao&&['GOL','ZAG','LAT','MEI','ATA'].includes(posicao))?posicao:'?';
-  const body={pelada_id:peladaId,nome,posicao:posVal,time:'pool',pago:false,modalidade:'avulso',status};
+  const body={pelada_id:peladaId,nome,posicao:posVal,time:'pool',pago:false,modalidade:resolveModalidadeConfirmacao({jogador_id:jogadorId,nome}),status};
   if(churras) body.churras=churras;
   if(jogadorId) body.jogador_id=jogadorId;
   const rows=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify(body)});
@@ -283,6 +283,26 @@ function admNav(aba){
 function fmtData(d){ if(!d)return'—'; return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}); }
 function slug(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
 function normNome(s){ return (s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' '); }
+function findJogadorCadastroPorConfirmacao(conf){
+  return (G.jogadores||[]).find(jj=>
+    (conf?.jogador_id && String(jj.id)===String(conf.jogador_id)) ||
+    normNome(jj.nome)===normNome(conf?.nome) ||
+    normNome(jj.apelido||'')===normNome(conf?.nome)
+  ) || null;
+}
+function resolveModalidadeConfirmacao(conf,jogadorCad=null){
+  const modalidadeConf=String(conf?.modalidade||'').trim().toLowerCase();
+  if(modalidadeConf==='mensalista' || modalidadeConf==='avulso') return modalidadeConf;
+  const modalidadeCad=String((jogadorCad||findJogadorCadastroPorConfirmacao(conf))?.modalidade||'').trim().toLowerCase();
+  return modalidadeCad==='mensalista' ? 'mensalista' : 'avulso';
+}
+function modalidadeConfirmacaoEhMensalista(conf,jogadorCad=null){
+  return resolveModalidadeConfirmacao(conf,jogadorCad)==='mensalista';
+}
+function normalizarModalidadeConfirmacaoLocal(conf,jogadorCad=null){
+  if(conf && typeof conf==='object') conf.modalidade=resolveModalidadeConfirmacao(conf,jogadorCad);
+  return conf?.modalidade || 'avulso';
+}
 function escHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
 function money(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
 function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast show'; setTimeout(()=>t.classList.remove('show'),2200); }
@@ -510,7 +530,8 @@ function bloquearSeEncerrada(msg='Partida encerrada. Não é possível alterar c
   return false;
 }
 function linkPelada(p){ return `${APP_BASE_URL}?p=${encodeURIComponent(String(p.id))}`; }
-function setPeladaAdm(id,aba){
+async function setPeladaAdm(id,aba){
+  if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario(true);
   G.pelada=G.peladas.find(x=>String(x.id)===String(id));
   if(!G.pelada) return;
   if(G.perfil === 'escalador' && (peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada))){

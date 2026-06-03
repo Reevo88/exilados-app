@@ -638,7 +638,8 @@ function renderPeladeirosLista(){
   }).join('');
 }
 
-function abrirJogador(id){
+async function abrirJogador(id){
+  if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario(true);
   G.pelada=G.peladas.find(p=>String(p.id)===String(id));
   if(peladaEncerrada(G.pelada) || deveEncerrarAutomaticamente(G.pelada)){
     if(encerradaAntesDoJogo(G.pelada)){

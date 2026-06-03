@@ -498,8 +498,8 @@ async function carregarPerfilJogador(opts={}){
   if(mostrarFormulario) formCard.style.display='block';
 }
 
-async function carregarBaseAppSeNecessario(){
-  const precisaCarregar = !Array.isArray(G.peladas) || !G.peladas.length;
+async function carregarBaseAppSeNecessario(force=false){
+  const precisaCarregar = force || !Array.isArray(G.peladas) || !G.peladas.length;
   if(!precisaCarregar) return true;
   const jlista=document.getElementById('j-lista');
   if(jlista) jlista.innerHTML='<div class="empty" style="padding:40px 0;"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;font-size:28px;opacity:.5;"></i></div>';
