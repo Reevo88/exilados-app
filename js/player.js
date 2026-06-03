@@ -1159,10 +1159,13 @@ async function renderJConf(){
     if(j.churras === 'jogo_churras') html += '<span class="conf-player-badge is-bbq"><i class="ti ti-grill"></i> CHURRAS</span>';
     return html;
   };
-  const row = (j, tipo='jogo') => `<div class="conf-player-row">
+  const precisaQuebrarLinha = (j, tipo='jogo') => p.temChurras && (tipo === 'jogo' || tipo === 'churras') && (
+    tipo === 'churras' || j.churras === 'jogo_churras'
+  );
+  const row = (j, tipo='jogo') => `<div class="conf-player-row${precisaQuebrarLinha(j,tipo) ? ' conf-player-row--stacked' : ''}">
     <div class="conf-player-avatar">${avatarLetra(j)}</div>
     <div class="conf-player-info"><div class="conf-player-name-line"><span class="conf-player-name">${escHtml(j.nome)}</span>${anivBadge(j)}</div>${posicao(j) ? `<div class="conf-player-pos">${posicao(j)}</div>` : ''}</div>
-    <div class="conf-player-badges">${badges(j,tipo)}</div>
+    <div class="conf-player-badges${precisaQuebrarLinha(j,tipo) ? ' conf-player-badges--stacked' : ''}">${badges(j,tipo)}</div>
   </div>`;
   const section = (title, icon, count, cls, rows) => `<div class="conf-list-section ${cls}"><div class="conf-section-title"><i class="ti ${icon}"></i><span>${title} (${count})</span></div><div class="conf-list-card">${rows}</div></div>`;
   let html='';

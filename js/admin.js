@@ -408,12 +408,16 @@ async function renderAdmConf(){
   };
   const confJogoAdm = p.temChurras ?p.confirmados.filter(j=>j.churras==='jogo'||j.churras==='jogo_churras') : p.confirmados;
   const confSoChurrasAdm = p.temChurras ?p.confirmados.filter(j=>j.churras==='churras') : [];
+  const precisaQuebrarLinhaAdm = (j,tipo='jogo') => p.temChurras && (tipo === 'jogo' || tipo === 'churras') && (
+    tipo === 'churras' || j.churras === 'jogo_churras'
+  );
   const rowAdm = (j,i,tipo='jogo',extraActions='') => {
     const pos=posicaoAdm(j);
-    return `<div class="conf-player-row adm-conf-row">
+    const stacked=precisaQuebrarLinhaAdm(j,tipo);
+    return `<div class="conf-player-row adm-conf-row${stacked ? ' conf-player-row--stacked' : ''}">
       <div class="conf-player-avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div>
       <div class="conf-player-info"><div class="conf-player-name-line"><span class="conf-player-name">${escHtml(j.nome)}</span>${badgeAnivConf(j)}</div>${pos ? `<div class="conf-player-pos">${pos}</div>` : ''}</div>
-      <div class="conf-player-badges adm-conf-actions">${badgesAdm(j,tipo)}${extraActions || `<button class="adm-conf-delete" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash"></i></button>`}</div>
+      <div class="conf-player-badges adm-conf-actions${stacked ? ' conf-player-badges--stacked adm-conf-actions--stacked' : ''}">${badgesAdm(j,tipo)}${extraActions || `<button class="adm-conf-delete" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash"></i></button>`}</div>
     </div>`;
   };
   const sectionAdm = (title,icon,count,cls,rows) => `<div class="conf-list-section ${cls}"><div class="conf-section-title"><i class="ti ${icon}"></i><span>${title} (${count})</span></div><div class="conf-list-card adm-conf-card">${rows}</div></div>`;
