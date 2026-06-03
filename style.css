@@ -3931,7 +3931,13 @@ section[id*="home"] .btn:not(.btn-primary){
   box-shadow:none !important;
 }
 #s-j-perfil #perfil-form-card{
-  gap:8px;
+  gap:0 !important;
+}
+#s-j-perfil #perfil-form-card > .perfil-hero-card + .perfil-section{
+  margin-top:8px !important;
+}
+#s-j-perfil #perfil-form-card > .perfil-section + .perfil-section{
+  margin-top:14px !important;
 }
 #s-j-perfil .perfil-hero-card{
   border-radius:16px !important;
@@ -4254,7 +4260,7 @@ section[id*="home"] .btn:not(.btn-primary){
   padding:0;
 }
 .peladeiro-card-wrap.is-expanded{ margin-bottom:14px; }
-.peladeiro-inline-hero{ margin-bottom:14px; }
+.peladeiro-inline-hero{ margin-bottom:14px !important; }
 .peladeiro-inline-hero-card{
   background:linear-gradient(180deg,#111111 0%,#0a0a0a 100%);
   border:1px solid #343434;
