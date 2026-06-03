@@ -6063,8 +6063,12 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-photo-wrap{
   position:relative;
   width:96px;
-  height:96px;
+  height:auto;
   flex:0 0 96px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:10px;
 }
 #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-avatar{
   width:96px;
@@ -6083,11 +6087,43 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-title{
   font-size:48px;
 }
-#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-nome,
-#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-sub{
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-nome{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-label,
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-sub{
+  display:none;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-cam,
+#s-adm-jogadores .perfil-hero-cam{
+  position:static;
+  width:100%;
+  height:34px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 10px;
+  background:#111;
+  border:1px solid #343434;
+  color:#F5E400;
+  box-shadow:none;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-cam i,
+#s-adm-jogadores .perfil-hero-cam i{
+  font-size:14px;
+  color:inherit;
+}
+#s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-cam span,
+#s-adm-jogadores .perfil-hero-cam span{
+  display:inline-block;
+  line-height:1;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:900;
 }
 #s-adm-jogadores .jog-inline-actions{
   margin-top:10px;
@@ -6109,6 +6145,15 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-adm-jogadores .perfil-section-label{ color:#F5E400; font-size:11px; font-weight:900; letter-spacing:.7px; }
 #s-adm-jogadores .perfil-hero-title{ color:#fff; font-size:40px; }
 #s-adm-jogadores .perfil-hero-row{ align-items:center; gap:14px; }
+#s-adm-jogadores .perfil-hero-photo-wrap{
+  width:142px;
+  height:auto;
+  flex:0 0 142px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:10px;
+}
 #s-adm-jogadores .perfil-hero-avatar{ width:142px; height:142px; border-radius:12px; background:#050505; border:1px solid #343434; color:#F5E400; box-shadow:none; }
 #s-adm-jogadores .perfil-hero-info{ min-height:142px; justify-content:center; }
 #s-adm-jogadores .perfil-hero-nome{ font-size:14px; color:#d8d8d8; }
@@ -6126,15 +6171,44 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-adm-jogadores .perfil-resumo-label{ color:#cfcfcf; }
 #s-adm-jogadores .player-delete-btn{ background:transparent; color:#ff5c5c; border:1px solid #e54848; border-radius:11px; }
 #s-adm-jogadores .btn-outline{ background:#111; border:1px solid #343434; color:#fff; }
+@media (max-width:430px){
+  #s-adm-jogadores .peladeiro-detail-field--flags,
+  #s-adm-jogadores .perfil-field-row:has(#jog-flags-pos){
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+  }
+  #s-adm-jogadores .peladeiro-detail-field--flags .peladeiro-detail-label,
+  #s-adm-jogadores .perfil-field-row:has(#jog-flags-pos) .perfil-field-label{
+    min-width:0;
+  }
+  #s-adm-jogadores .peladeiro-detail-field--flags .peladeiro-inline-flags,
+  #s-adm-jogadores #jog-flags-pos{
+    width:100%;
+    justify-content:space-between;
+    gap:6px;
+  }
+  #s-adm-jogadores .peladeiro-detail-field--flags .peladeiro-inline-flag,
+  #s-adm-jogadores #jog-flags-pos .perfil-flag{
+    flex:1 1 0;
+    min-width:0;
+    text-align:center;
+  }
+}
 @media (max-width:390px){
   #s-adm-jogadores .perfil-hero-avatar{ width:118px; height:118px; }
+  #s-adm-jogadores .perfil-hero-photo-wrap{
+    width:118px;
+    flex-basis:118px;
+    gap:8px;
+  }
   #s-adm-jogadores .perfil-hero-info{ min-height:118px; }
   #s-adm-jogadores .perfil-hero-title{ font-size:34px; }
   #s-adm-jogadores .jog-name{ font-size:16px; }
   #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-photo-wrap{
     width:84px;
-    height:84px;
     flex-basis:84px;
+    gap:8px;
   }
   #s-adm-jogadores .peladeiro-inline-hero-card .perfil-hero-avatar{
     width:84px;
