@@ -630,22 +630,34 @@ async function carregarStatsPeladeirosPublico(){
   try{
     const golRows=await sbFetch('/gols_pelada?select=nome_jogador,quantidade&limit=3000').catch(()=>[]);
     const anoAtual=new Date().getFullYear();
-    (G.peladas||[]).forEach(p=>{
-      if(!p || !peladaEncerrada(p) || encerradaAntesDoJogo(p)) return;
-      const dataPelada=p.data || '';
-      const anoPelada=dataPelada ? new Date(`${dataPelada}T12:00:00`).getFullYear() : null;
-      const escalados=Array.isArray(p.jogadores)
-        ? p.jogadores.filter(item => item && (item.time==='azul' || item.time==='vermelho') && item.jogador_id)
-        : [];
-      escalados.forEach(item=>{
-        const k=normNome(String(item.jogador_id||''));
-        if(!k) return;
-        stats.jogos[k]=(stats.jogos[k]||0)+1;
-        if(anoPelada===anoAtual) stats.jogosAnoAtual[k]=(stats.jogosAnoAtual[k]||0)+1;
+    const peladasValidas=(G.peladas||[]).filter(p=>p && peladaEncerrada(p) && !encerradaAntesDoJogo(p));
+    const jogadoresBase=Array.isArray(G.jogadores) ? G.jogadores : [];
+    jogadoresBase.forEach(jogador=>{
+      const jogadorIdKey=normNome(String(jogador?.id||''));
+      if(!jogadorIdKey) return;
+      const aliases=new Set([
+        normNome(jogador?.nome||''),
+        normNome(jogador?.apelido||''),
+      ].filter(Boolean));
+      peladasValidas.forEach(p=>{
+        const dataPelada=p.data || '';
+        const anoPelada=dataPelada ? new Date(`${dataPelada}T12:00:00`).getFullYear() : null;
+        const escalados=Array.isArray(p.jogadores)
+          ? p.jogadores.filter(item => item && (item.time==='azul' || item.time==='vermelho'))
+          : [];
+        const jogou = escalados.some(item=>{
+          const itemIdKey=normNome(String(item?.jogador_id||''));
+          if(itemIdKey) return itemIdKey===jogadorIdKey;
+          const itemNome=normNome(item?.nome||'');
+          return itemNome ? aliases.has(itemNome) : false;
+        });
+        if(!jogou) return;
+        stats.jogos[jogadorIdKey]=(stats.jogos[jogadorIdKey]||0)+1;
+        if(anoPelada===anoAtual) stats.jogosAnoAtual[jogadorIdKey]=(stats.jogosAnoAtual[jogadorIdKey]||0)+1;
         if(dataPelada){
-          const prev=stats.ultimaPresenca[k];
+          const prev=stats.ultimaPresenca[jogadorIdKey];
           if(!prev || String(prev.iso||'')<String(dataPelada)){
-            stats.ultimaPresenca[k]={ iso:dataPelada };
+            stats.ultimaPresenca[jogadorIdKey]={ iso:dataPelada };
           }
         }
       });
