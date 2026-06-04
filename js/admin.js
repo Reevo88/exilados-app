@@ -452,11 +452,28 @@ async function _buscarJogadoresCadastrados(){
 // -- Encontra matches parciais pelo nome digitado --
 function _encontrarMatchesCadastro(nomeDigitado, jogadores){
   const n = normNome(nomeDigitado);
+  if(!n) return [];
+  const vistos = new Set();
   return jogadores.filter(j => {
     const nomeNorm    = normNome(j.nome   || '');
     const apelidoNorm = normNome(j.apelido|| '');
-    return nomeNorm.includes(n) || apelidoNorm.includes(n) || n.includes(nomeNorm) || n.includes(apelidoNorm);
+    if(!nomeNorm && !apelidoNorm) return false;
+    const chave = String(j.id || `${nomeNorm}|${apelidoNorm}`);
+    if(vistos.has(chave)) return false;
+    const matchNome = nomeNorm ? (nomeNorm.includes(n) || n.includes(nomeNorm)) : false;
+    const matchApelido = apelidoNorm ? (apelidoNorm.includes(n) || n.includes(apelidoNorm)) : false;
+    if(!matchNome && !matchApelido) return false;
+    vistos.add(chave);
+    return true;
   });
+}
+
+function _resolverNomeLivreAdm(...candidatos){
+  for(const candidato of candidatos){
+    const nome = String(candidato || '').trim();
+    if(nome) return nome;
+  }
+  return '';
 }
 
 // -- Sheet de confirmação de identidade do jogador --
@@ -469,15 +486,16 @@ function _abrirSheetIdentidade(matches, nomeDigitado, onConfirm){
 
   lista.innerHTML = matches.map((j,i) => {
     const modalLabel = j.modalidade === 'mensalista' ? '🟡 Mensalista' : '🔵 Avulso';
-    const apelido = j.apelido ? ` (${escHtml(j.apelido)})` : '';
+    const nomePrincipal = _resolverNomeLivreAdm(j.nome, j.apelido, nomeDigitado);
+    const apelido = j.apelido && normNome(j.apelido) !== normNome(nomePrincipal) ? ` (${escHtml(j.apelido)})` : '';
     return `<button class="id-sheet-opt" onclick="_confirmarIdentidade(${i})">
-      <span class="id-sheet-nome">${escHtml(j.nome)}${apelido}</span>
+      <span class="id-sheet-nome">${escHtml(nomePrincipal)}${apelido}</span>
       <span class="id-sheet-mod">${modalLabel}</span>
     </button>`;
   }).join('') +
   `<button class="id-sheet-opt id-sheet-opt-new" onclick="_confirmarIdentidade(-1)">
     <span class="id-sheet-nome">➕ Adicionar "${escHtml(nomeDigitado)}" como novo</span>
-    <span class="id-sheet-mod">=5 Avulso</span>
+    <span class="id-sheet-mod"><span aria-hidden="true" style="display:inline-block;width:10px;height:10px;border-radius:999px;background:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.16);"></span> Novo jogador</span>
   </button>`;
 
   sheet.classList.add('open');
@@ -492,10 +510,11 @@ function _confirmarIdentidade(idx){
   const matches = _encontrarMatchesCadastro(nomeDigitado, jogadores);
   if(idx >= 0 && matches[idx]){
     const j = matches[idx];
-    const nomeUsar = j.apelido || j.nome;
+    const nomeUsar = _resolverNomeLivreAdm(j.apelido, j.nome, nomeDigitado);
     onConfirm(nomeUsar, j.modalidade || 'avulso', j.id);
   } else {
-    onConfirm(nomeDigitado, 'avulso', null);
+    const nomeLivre = _resolverNomeLivreAdm(nomeDigitado);
+    onConfirm(nomeLivre, 'avulso', null);
   }
 }
 function fecharIdSheet(e){
@@ -507,7 +526,7 @@ function fecharIdSheet(e){
 
 async function admAdd(){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível adicionar jogadores.')) return;
-  const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=input.value.trim();
+  const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=_resolverNomeLivreAdm(input?.value);
   if(!nome){input.focus();return;}
   const n=normNome(nome);
   if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
@@ -521,13 +540,19 @@ async function admAdd(){
 
   const _executarAdd = async (nomeUsar, modalidade, jogadorId) => {
     try{
+      const nomeFinal = _resolverNomeLivreAdm(nomeUsar, nome, input?.value);
+      if(!nomeFinal){
+        showToast('Informe o nome do jogador.');
+        input.focus();
+        return;
+      }
       const pos = jogadorId ? (jogadores.find(j=>j.id===jogadorId)?.posicao_favorita || null) : null;
-      const row = await dbConfirmar(p.id, nomeUsar, churras, vaiParaEspera?'espera':'confirmado', jogadorId, pos);
+      const row = await dbConfirmar(p.id, nomeFinal, churras, vaiParaEspera?'espera':'confirmado', jogadorId, pos);
       // Persiste modalidade correta no banco
       if(modalidade === 'mensalista'){
         await dbAtualizar(row.id, { modalidade: 'mensalista' });
       }
-      const novo={id:row.id, jogador_id:jogadorId||null, nome:nomeUsar, pos:pos||'?', time:'pool', pago:false, modalidade, churras};
+      const novo={id:row.id, jogador_id:jogadorId||null, nome:_resolverNomeLivreAdm(row?.nome, nomeFinal), pos:pos||'?', time:'pool', pago:false, modalidade, churras};
       if(vaiParaEspera){
         p.espera.push(novo);
       } else {
@@ -542,7 +567,7 @@ async function admAdd(){
   // Fluxo 1: match exato e único -> adiciona direto com modalidade do cadastro
   if(matches.length === 1){
     const j = matches[0];
-    const nomeUsar = j.apelido || j.nome;
+    const nomeUsar = _resolverNomeLivreAdm(j.apelido, j.nome, nome);
     // Só pula a confirmação se o nome bater exatamente
     if(normNome(nomeUsar) === n){
       await _executarAdd(nomeUsar, j.modalidade || 'avulso', j.id);
