@@ -605,6 +605,8 @@ function peladeiroInstagramUrl(v){
 
 function peladeiroStat(j,tipo){
   const mapa=peladeirosStats && peladeirosStats[tipo] ? peladeirosStats[tipo] : {};
+  const idKey=normNome(String(j?.id||''));
+  if(idKey && mapa[idKey] !== undefined) return mapa[idKey];
   for(const k of peladeiroChaves(j)){
     if(mapa[k] !== undefined) return mapa[k];
   }
@@ -632,22 +634,20 @@ async function carregarStatsPeladeirosPublico(){
       if(!p || !peladaEncerrada(p) || encerradaAntesDoJogo(p)) return;
       const dataPelada=p.data || '';
       const anoPelada=dataPelada ? new Date(`${dataPelada}T12:00:00`).getFullYear() : null;
-      const escalados=Array.isArray(p.jogadores) ? p.jogadores : [];
+      const escalados=Array.isArray(p.jogadores)
+        ? p.jogadores.filter(item => item && (item.time==='azul' || item.time==='vermelho') && item.jogador_id)
+        : [];
       escalados.forEach(item=>{
-        const keys=[];
-        if(item?.jogador_id) keys.push(normNome(String(item.jogador_id)));
-        if(item?.nome) keys.push(normNome(String(item.nome)));
-        [...new Set(keys)].forEach(k=>{
-          if(!k) return;
-          stats.jogos[k]=(stats.jogos[k]||0)+1;
-          if(anoPelada===anoAtual) stats.jogosAnoAtual[k]=(stats.jogosAnoAtual[k]||0)+1;
-          if(dataPelada){
-            const prev=stats.ultimaPresenca[k];
-            if(!prev || String(prev.iso||'')<String(dataPelada)){
-              stats.ultimaPresenca[k]={ iso:dataPelada };
-            }
+        const k=normNome(String(item.jogador_id||''));
+        if(!k) return;
+        stats.jogos[k]=(stats.jogos[k]||0)+1;
+        if(anoPelada===anoAtual) stats.jogosAnoAtual[k]=(stats.jogosAnoAtual[k]||0)+1;
+        if(dataPelada){
+          const prev=stats.ultimaPresenca[k];
+          if(!prev || String(prev.iso||'')<String(dataPelada)){
+            stats.ultimaPresenca[k]={ iso:dataPelada };
           }
-        });
+        }
       });
     });
     (golRows||[]).forEach(g=>{
@@ -711,6 +711,8 @@ function peladeiroCampoIconeNormalizado(icon, label, valor, extraClass=''){
 
 function peladeiroUltimaPresencaInfo(j){
   const mapa=peladeirosStats && peladeirosStats.ultimaPresenca ? peladeirosStats.ultimaPresenca : {};
+  const idKey=normNome(String(j?.id||''));
+  if(idKey && mapa[idKey]) return mapa[idKey];
   for(const k of peladeiroChaves(j)){
     if(mapa[k]) return mapa[k];
   }
