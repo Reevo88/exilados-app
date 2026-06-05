@@ -505,6 +505,9 @@ async function renderResumo(peladaId, pjCache){
   const rankingLabel    = document.getElementById('resumo-stats-ranking-label');
   const rankingTitulo   = document.querySelector('#resumo-stats-ranking .card-title');
   const emVisaoAdmResumo = G.appContext === 'admin';
+  if(statsCraque && statsRanking && statsCraque.parentElement === statsRanking.parentElement){
+    statsCraque.parentElement.insertBefore(statsCraque, statsRanking);
+  }
 
   // Artilharia - sempre
   if(statsGols) {
@@ -515,6 +518,22 @@ async function renderResumo(peladaId, pjCache){
   const jogadores = (p.jogadores && p.jogadores.length) ? p.jogadores : p.confirmados;
   const nomesValidosJogadores = new Set((jogadores || []).map(j => normNome(j.nome)));
   const estatisticaValida = (item) => !!(item && item.nome_jogador && nomesValidosJogadores.has(normNome(item.nome_jogador)));
+  const jogadorResumoPorNome = (nome) => (jogadores || []).find(j => normNome(j?.nome || '') === normNome(nome || '')) || null;
+  const posicaoResumoLabel = (nome) => {
+    const jogador = jogadorResumoPorNome(nome);
+    const pos = jogador?.pos || jogador?.posicao || jogador?.posicao_favorita || '';
+    return typeof peladeiroPosLabel === 'function' ? peladeiroPosLabel(pos) : String(pos || '');
+  };
+  const renderCraqueResumoJogador = async (nomeCraque) => {
+    if(!statsCraque || !statsCraqueNome || !nomeCraque) return;
+    const votos = await dbGetVotos(peladaId).catch(()=>[]);
+    const ranking = compilarVotos(votos || [], jogadores || []);
+    const craqueRanking = ranking.find(r => normNome(r.nome) === normNome(nomeCraque));
+    const posLabel = posicaoResumoLabel(nomeCraque);
+    const notaLabel = craqueRanking ? craqueRanking.media.toFixed(1) : '';
+    const meta = [posLabel, notaLabel ? `Nota ${notaLabel}` : ''].filter(Boolean).join(' · ');
+    statsCraqueNome.innerHTML = `<div>${escHtml(nomeCraque)}</div>${meta ? `<div style="font-size:12px;font-weight:600;color:var(--text2);margin-top:3px;">${escHtml(meta)}</div>` : ''}`;
+  };
   if(!estatisticaValida(craque)) craque = null;
   if(!estatisticaValida(pereba)) pereba = null;
 
@@ -591,7 +610,11 @@ async function renderResumo(peladaId, pjCache){
           novasEstats = novasEstats || [];
           const nc = novasEstats.find(e => e.tipo === 'craque');
           const np = novasEstats.find(e => e.tipo === 'pereba');
-          if(statsCraque && estatisticaValida(nc)) { statsCraque.style.display = ''; if(statsCraqueNome) statsCraqueNome.textContent = nc.nome_jogador; }
+          if(statsCraque && estatisticaValida(nc)) {
+            statsCraque.style.display = '';
+            if(emVisaoAdmResumo) statsCraqueNome.textContent = nc.nome_jogador;
+            else renderCraqueResumoJogador(nc.nome_jogador);
+          }
           if(statsPereba) {
             const mostrarPereba = emVisaoAdmResumo && estatisticaValida(np);
             statsPereba.style.display = mostrarPereba ? '' : 'none';
@@ -600,7 +623,11 @@ async function renderResumo(peladaId, pjCache){
         });
       });
     } else {
-      if(statsCraque) { statsCraque.style.display = ''; if(statsCraqueNome) statsCraqueNome.textContent = craque.nome_jogador; }
+      if(statsCraque) {
+        statsCraque.style.display = '';
+        if(emVisaoAdmResumo) statsCraqueNome.textContent = craque.nome_jogador;
+        else await renderCraqueResumoJogador(craque.nome_jogador);
+      }
       if(statsPereba) {
         const mostrarPereba = emVisaoAdmResumo && !!pereba;
         statsPereba.style.display = mostrarPereba ? '' : 'none';
@@ -608,9 +635,13 @@ async function renderResumo(peladaId, pjCache){
       }
     }
 
-    // Ranking oficial segue só para ADM. Jogador vê apenas o craque.
+    // Ranking oficial completo segue só para ADM. Jogador vê top 3 com posição.
     if(emVisaoAdmResumo) _resumoRenderRanking(peladaId, jogadores);
-    else if(statsRanking) statsRanking.style.display = 'none';
+    else {
+      if(rankingTitulo) rankingTitulo.innerHTML = '<i class="ti ti-award" style="font-size:14px;"></i> Top 3 da rodada';
+      if(rankingLabel) rankingLabel.style.display = 'none';
+      await _resumoRenderRanking(peladaId, jogadores, { mode:'player_final', limit:3 });
+    }
 
     if(statsEmpty) statsEmpty.style.display = (craque || top5.length) ? 'none' : '';
 
