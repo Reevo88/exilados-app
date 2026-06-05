@@ -828,7 +828,9 @@ function renderJogadoresLista(){
   el.innerHTML=`<div class="jog-total">Total: <b>${arr.length}</b> peladeiros</div>`+arr.map(j=>{
     const insta=j.instagram?`<span><i class="ti ti-brand-instagram" style="font-size:12px;"></i> @${escHtml(j.instagram)}</span>`:'';
     const contato=j.telefone?`<span><i class="ti ti-brand-whatsapp" style="font-size:12px;"></i> ${escHtml(j.telefone)}</span>`:'';
-    const foto=j.foto_url ?`<img src="${escHtml(j.foto_url)}" alt="" />` : jogadorIniciais(j);
+    const foto=j.foto_url
+      ? fotoImgHtml(j.foto_url, j.apelido||j.nome||'Jogador', { loading:'lazy', decoding:'async', fetchpriority:'low', width:64, height:64, sizes:'64px' })
+      : jogadorIniciais(j);
     const nomePrincipal=j.apelido||j.nome||'Jogador';
     const nomeCompleto=j.apelido&&j.nome&&normNome(j.nome)!==normNome(j.apelido)?` <span>${escHtml(j.nome)}</span>`:'';
     const expandido=String(j.id)===jogadorAdmExpandidoId;
@@ -917,7 +919,7 @@ function atualizarPreviewJogador(){
   const box=document.getElementById('jog-foto-preview'); if(!box)return;
   const url=document.getElementById('jog-foto')?.value.trim();
   const nome=document.getElementById('jog-nome')?.value.trim()||'?';
-  box.innerHTML=url?`<img src="${escHtml(url)}" alt="" />`:escHtml((nome[0]||'?').toUpperCase());
+  box.innerHTML=url?fotoImgHtml(url, nome, { loading:'eager', decoding:'async', fetchpriority:'high', width:142, height:142 }):escHtml((nome[0]||'?').toUpperCase());
 }
 async function uploadFotoJogadorAdm(file){
   if(!file) return;

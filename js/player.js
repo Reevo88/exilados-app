@@ -738,7 +738,7 @@ function peladeiroFichaExpandida(j){
   const telefone=formatarTelefone(j.telefone||'');
   const nascimento=dataIsoParaBr(j.data_nascimento||'');
   const foto=j.foto_url
-    ? `<img src="${escHtml(j.foto_url)}" alt="" />`
+    ? fotoImgHtml(j.foto_url, j.apelido||j.nome||'Peladeiro', { loading:'lazy', decoding:'async', fetchpriority:'low', width:112, height:112 })
     : escHtml((j.apelido||j.nome||'?').trim().slice(0,1).toUpperCase());
   const apelido=(j.apelido||j.nome||'Peladeiro').toUpperCase();
   const posLabel=peladeiroPosLabel(j.posicao_favorita||'');
@@ -835,7 +835,7 @@ function peladeiroFichaExpandidaCard(j){
   const telefone=formatarTelefone(j.telefone||'');
   const nascimento=dataIsoParaBr(j.data_nascimento||'');
   const foto=j.foto_url
-    ? `<img src="${escHtml(j.foto_url)}" alt="" />`
+    ? fotoImgHtml(j.foto_url, j.apelido||j.nome||'Peladeiro', { loading:'lazy', decoding:'async', fetchpriority:'low', width:142, height:142 })
     : escHtml((j.apelido||j.nome||'?').trim().slice(0,1).toUpperCase());
   const apelido=(j.apelido||j.nome||'Peladeiro').toUpperCase();
   const sub=instaHandle || `@${(j.apelido||j.nome||'').trim().replace(/\s+/g,'').toLowerCase()}`;
@@ -990,7 +990,9 @@ function renderPeladeirosLista(){
 
   el.innerHTML=arr.map((j,i)=>{
     const insta=peladeiroInstagram(j.instagram);
-    const foto=j.foto_url ? `<img src="${escHtml(j.foto_url)}" alt="" />` : peladeiroIniciais(j);
+    const foto=j.foto_url
+      ? fotoImgHtml(j.foto_url, j.apelido||j.nome||'Peladeiro', { loading:'lazy', decoding:'async', fetchpriority:'low', width:96, height:96, sizes:'96px' })
+      : peladeiroIniciais(j);
     const apelido=(j.apelido||j.nome||'Peladeiro').toUpperCase();
     const primeiroNome=peladeiroPrimeiroNome(j);
     const idade=peladeiroIdade(j);

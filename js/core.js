@@ -308,6 +308,18 @@ function normalizarModalidadeConfirmacaoLocal(conf,jogadorCad=null){
   return conf?.modalidade || 'avulso';
 }
 function escHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function fotoImgHtml(url, alt='', opts={}){
+  const src=String(url||'').trim();
+  if(!src) return '';
+  const className=String(opts.className||'').trim();
+  const loading=String(opts.loading||'lazy');
+  const decoding=String(opts.decoding||'async');
+  const fetchpriority=String(opts.fetchpriority || (loading==='eager' ? 'high' : 'low'));
+  const width=Number(opts.width||0);
+  const height=Number(opts.height||0);
+  const sizes=String(opts.sizes||'').trim();
+  return `<img src="${escHtml(src)}" alt="${escHtml(alt)}" loading="${escHtml(loading)}" decoding="${escHtml(decoding)}" fetchpriority="${escHtml(fetchpriority)}" referrerpolicy="no-referrer"${className?` class="${escHtml(className)}"`:''}${width?` width="${width}"`:''}${height?` height="${height}"`:''}${sizes?` sizes="${escHtml(sizes)}"`:''}>`;
+}
 function money(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
 function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast show'; setTimeout(()=>t.classList.remove('show'),2200); }
 function showToastDanger(m){ showToast(m); }

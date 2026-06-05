@@ -667,7 +667,7 @@ function atualizarPreviewMeuPerfil(){
   const box=document.getElementById('perfil-foto-preview'); if(!box)return;
   const url=document.getElementById('perfil-foto-url')?.value.trim();
   const nome=document.getElementById('perfil-nome')?.value.trim()||'?';
-  box.innerHTML=url?`<img src="${escHtml(url)}" alt="" />`:escHtml((nome[0]||'?').toUpperCase());
+  box.innerHTML=url?fotoImgHtml(url, nome, { loading:'eager', decoding:'async', fetchpriority:'high', width:140, height:140 }):escHtml((nome[0]||'?').toUpperCase());
 }
 
 async function uploadFotoPerfil(file){
