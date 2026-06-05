@@ -4474,6 +4474,41 @@ section[id*="home"] .btn:not(.btn-primary){
   font-weight:700;
   text-align:right;
 }
+.peladeiro-inline-mini-table{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(24px,auto));
+  align-items:center;
+  justify-items:center;
+  gap:0;
+  border:1px solid #3a3a3a;
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(255,255,255,.02);
+}
+.peladeiro-inline-mini-head,
+.peladeiro-inline-mini-val{
+  width:100%;
+  padding:6px 8px;
+  text-align:center;
+}
+.peladeiro-inline-mini-head{
+  border-right:1px solid #3a3a3a;
+  border-bottom:1px solid #3a3a3a;
+  color:#9f9f9f;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+.peladeiro-inline-mini-val{
+  border-right:1px solid #3a3a3a;
+  color:#F5E400;
+  font-size:14px;
+  font-weight:800;
+}
+.peladeiro-inline-mini-head:nth-child(5),
+.peladeiro-inline-mini-val:nth-child(10){
+  border-right:none;
+}
 .perfil-inline-theme .perfil-section-label{ color:#c7c7c7; }
 .perfil-inline-theme .perfil-section-title{ color:#F5E400; font-size:40px; line-height:.88; }
 .peladeiro-stats{
