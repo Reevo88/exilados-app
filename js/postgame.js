@@ -505,7 +505,6 @@ async function renderResumo(peladaId, pjCache){
   const rankingLabel    = document.getElementById('resumo-stats-ranking-label');
   const rankingTitulo   = document.querySelector('#resumo-stats-ranking .card-title');
   const emVisaoAdmResumo = G.appContext === 'admin';
-
   // Artilharia - sempre
   if(statsGols) {
     statsGols.style.display = top5.length ? '' : 'none';
@@ -638,6 +637,9 @@ async function renderResumo(peladaId, pjCache){
       if(rankingTitulo) rankingTitulo.innerHTML = '<i class="ti ti-award" style="font-size:14px;"></i> Top 3 da rodada';
       if(rankingLabel) rankingLabel.style.display = 'none';
       await _resumoRenderRanking(peladaId, jogadores, { mode:'player_final', limit:3 });
+      if(statsCraque && statsRanking && statsCraque.parentElement === statsRanking.parentElement){
+        statsCraque.insertAdjacentElement('afterend', statsRanking);
+      }
     }
 
     if(statsEmpty) statsEmpty.style.display = (craque || top5.length) ? 'none' : '';
