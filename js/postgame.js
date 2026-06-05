@@ -313,6 +313,7 @@ async function pjRemoverEstat(tipo){
 }
 
 function pjVerResumo(){
+  resumoSincronizarContextoUI();
   renderResumo(G.pelada.id, PJ);
   goTo('s-resumo');
 }
@@ -323,6 +324,46 @@ function pjVerResumo(){
 // ==========================================
 // RESUMO PÚBLICO - ABAS E NAVEGAÇÃO
 // ==========================================
+
+function resumoEmVisaoAdm(){
+  return !!(G.isAdm && G.appContext === 'admin');
+}
+
+function resumoAbrirMenu(){
+  if(resumoEmVisaoAdm()) abrirMenu();
+  else abrirMenuJogador();
+}
+
+function resumoNavPerfil(){
+  if(resumoEmVisaoAdm()){
+    abrirOpcaoPerfilAdm();
+    return;
+  }
+  abrirPerfilJogador(true);
+}
+
+function resumoSincronizarContextoUI() {
+  const screen = document.getElementById('s-resumo');
+  if(!screen) return;
+  const emVisaoAdm = resumoEmVisaoAdm();
+  const menuBtn = screen.querySelector('.app-header-menu');
+  if(menuBtn){
+    menuBtn.setAttribute('aria-label', emVisaoAdm ? 'Abrir menu do administrador' : 'Abrir menu do jogador');
+    menuBtn.title = 'Menu';
+    menuBtn.onclick = resumoAbrirMenu;
+  }
+  const navBtns = screen.querySelectorAll('.bottom-nav .nav-btn');
+  const caixaBtn = navBtns[3];
+  const perfilBtn = navBtns[4];
+  if(caixaBtn) caixaBtn.onclick = resumoNavCaixa;
+  if(perfilBtn){
+    const icon = perfilBtn.querySelector('i');
+    const label = perfilBtn.querySelector('span');
+    perfilBtn.onclick = resumoNavPerfil;
+    if(icon) icon.className = emVisaoAdm ? 'ti ti-user-edit' : 'ti ti-user-circle';
+    if(label) label.textContent = emVisaoAdm ? 'Peladeiros' : 'Perfil';
+  }
+}
 
 function resumoSwitchTab(aba, btn) {
   ['resumo','escalacoes','videos','estatisticas'].forEach(t => {
@@ -375,6 +416,7 @@ function fecharVideoPlayer() {
 async function renderResumo(peladaId, pjCache){
   const p = G.peladas.find(x=>String(x.id)===String(peladaId));
   if(!p) return;
+  resumoSincronizarContextoUI();
 
   document.getElementById('resumo-titulo').textContent = p.nome.toUpperCase();
   document.getElementById('resumo-data-local').textContent = `${fmtData(p.data)} · ${p.hora} · ${p.local}`;
@@ -711,18 +753,58 @@ async function abrirResumoPublico(id){
   const p = G.peladas.find(x=>String(x.id)===String(id));
   if(!p) return;
   G.pelada = p;
+  resumoSincronizarContextoUI();
   goTo('s-resumo');
   await renderResumo(id, null);
 }
 
 // Voltar para lista
 async function voltarLista(){
-  G.pelada = null;
   const admBack = document.getElementById('resumo-adm-back');
   if(admBack) admBack.style.display = 'none';
+  if(resumoEmVisaoAdm()){
+    if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario();
+    abrirPainelAdministrativo();
+    return;
+  }
+  G.pelada = null;
   if(typeof carregarBaseAppSeNecessario==='function') await carregarBaseAppSeNecessario();
   renderJLista();
   goTo('s-j-lista');
+}
+
+function resumoNavConf() {
+  if(resumoEmVisaoAdm()) {
+    abrirModuloAdm('conf');
+    return;
+  }
+  if(!G.pelada || !pelAdaberta(G.pelada)) {
+    showToastDanger('NÃ£o hÃ¡ partida aberta no momento. Aguarde o presidente abrir a prÃ³xima pelada.');
+    return;
+  }
+  renderJConf();
+  goTo('s-j-conf');
+}
+
+function resumoNavTimes() {
+  if(resumoEmVisaoAdm()) {
+    abrirModuloAdm('times');
+    return;
+  }
+  if(!G.pelada || !pelAdaberta(G.pelada)) {
+    showToastDanger('NÃ£o hÃ¡ partida aberta no momento. Aguarde o presidente abrir a prÃ³xima pelada.');
+    return;
+  }
+  renderJTimes();
+  goTo('s-j-times');
+}
+
+function resumoNavCaixa() {
+  if(resumoEmVisaoAdm()) {
+    abrirModuloAdm('fin');
+    return;
+  }
+  abrirJCaixa();
 }
 
 
