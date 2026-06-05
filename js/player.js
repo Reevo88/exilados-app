@@ -4,15 +4,35 @@
 
 let _openPeladaSheetRows = [];
 let _openPeladaSheetDestino = 'conf';
+let _homeAssetsPreloaded = false;
 
 function homeResumoLabel(p){
   return (p?.homeResumoDisponivel || !!p?.resultado) ? 'Olho no lance' : 'Ver resumo da pelada';
+}
+
+function preloadHomeAssets(){
+  if(_homeAssetsPreloaded) return;
+  _homeAssetsPreloaded = true;
+  ['camisa-azul.png?v=2','camisa-vermelha.png?v=2'].forEach(src=>{
+    const img = new Image();
+    img.decoding = 'async';
+    img.fetchPriority = 'high';
+    img.src = src;
+  });
+}
+
+function camisaHomeHtml(cor){
+  const azul = cor === 'azul';
+  const src = azul ? 'camisa-azul.png?v=2' : 'camisa-vermelha.png?v=2';
+  const alt = azul ? 'Camisa do Time Azul' : 'Camisa do Time Vermelho';
+  return `<img class="home-shirt-svg" src="${src}" alt="${alt}" loading="eager" decoding="sync" fetchpriority="high" width="28" height="31" />`;
 }
 
 // ==========================================
 // JOGADOR - LISTA
 // ==========================================
 function renderJLista(){
+  preloadHomeAssets();
   initPlayerHomeBottomNavOverride();
   const el = document.getElementById('j-lista');
   if(!G.peladas.length){
@@ -62,10 +82,6 @@ function renderJLista(){
   }
 
   // --- 2. RESULTADOS (últimas 3 encerradas que jogaram) ---
-  function camisaSvg(cor){
-    const src = cor==='azul' ? 'camisa-azul.png?v=2' : 'camisa-vermelha.png?v=2';
-    return `<img class="home-shirt-svg" src="${src}" alt="${cor}" />`;
-  }
   const encerradas = ord.filter(p => peladaEncerrada(p) && !encerradaAntesDoJogo(p)).slice(0,3);
   const resultadosHtml = encerradas.length ? encerradas.map(p => {
     const golsA = p.resultado ? (Number(p.resultado.gols_azul)||0) : '?';
@@ -88,11 +104,11 @@ function renderJLista(){
         </button>
       </div>
       <div class="home-result-scoreboard">
-        <div class="home-result-team">${camisaSvg('azul')}<span>Azul</span></div>
+        <div class="home-result-team">${camisaHomeHtml('azul')}<span>Azul</span></div>
         <div class="home-result-score">
           <span id="home-gols-a-${p.id}">${golsA}</span><span class="home-score-sep">x</span><span id="home-gols-b-${p.id}">${golsB}</span>
         </div>
-        <div class="home-result-team">${camisaSvg('vermelho')}<span>Vermelho</span></div>
+        <div class="home-result-team">${camisaHomeHtml('vermelho')}<span>Vermelho</span></div>
       </div>
       <div id="home-summary-label-${p.id}" class="home-result-cta">${homeResumoLabel(p)}</div>
     </div>`;
@@ -323,6 +339,7 @@ function abrirHistorico(){
 }
 
 function renderJHistorico(){
+  preloadHomeAssets();
   const el = document.getElementById('j-historico-lista');
   if(!el) return;
   const encerradas = [...G.peladas]
@@ -332,11 +349,6 @@ function renderJHistorico(){
   if(!encerradas.length){
     el.innerHTML = '<div class="empty"><i class="ti ti-ball-football"></i>Nenhuma partida encerrada</div>';
     return;
-  }
-
-  function camisaSvg(cor){
-    const src = cor==='azul' ? 'camisa-azul.png?v=2' : 'camisa-vermelha.png?v=2';
-    return `<img class="home-shirt-svg" src="${src}" alt="${cor}" />`;
   }
 
   el.innerHTML = encerradas.map(p => {
@@ -355,11 +367,11 @@ function renderJHistorico(){
         </div>
       </div>
       <div class="home-result-scoreboard">
-        <div class="home-result-team">${camisaSvg('azul')}<span>Azul</span></div>
+        <div class="home-result-team">${camisaHomeHtml('azul')}<span>Azul</span></div>
         <div class="home-result-score">
           <span>${golsA}</span><span class="home-score-sep">x</span><span>${golsB}</span>
         </div>
-        <div class="home-result-team">${camisaSvg('vermelho')}<span>Vermelho</span></div>
+        <div class="home-result-team">${camisaHomeHtml('vermelho')}<span>Vermelho</span></div>
       </div>
       <div class="home-result-cta">${homeResumoLabel(p)}</div>
     </div>`;
