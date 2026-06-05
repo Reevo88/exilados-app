@@ -896,7 +896,7 @@ function peladeiroFichaExpandidaCard(j){
           ${emVisaoAdm ? `<button class="perfil-hero-cam perfil-hero-cam--action" type="button" onclick="event.stopPropagation();editarJogadorAdm('${escHtml(String(j.id||''))}')"><i class="ti ti-camera"></i><span>Foto</span></button>` : ''}
         </div>
         <div class="perfil-hero-info">
-          ${emVisaoAdm ? '' : '<div class="perfil-hero-label">CONTA DO PELADEIRO</div>'}
+          ${emVisaoAdm ? '' : '<div class="perfil-hero-label">CONTA DO EXILADO</div>'}
           <div class="perfil-hero-title">${escHtml(apelido)}</div>
           <div class="perfil-hero-nome">${escHtml(j.nome||'â€”')}</div>
         </div>
