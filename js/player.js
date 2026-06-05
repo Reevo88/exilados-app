@@ -547,7 +547,7 @@ function confirmacaoAtualNaPelada(pelada){
 // ==========================================
 let peladeirosSort = 'apelido';
 let peladeirosFiltroPos = 'todos';
-let peladeirosStats = { jogos:{}, gols:{}, ultimaPresenca:{}, jogosAnoAtual:{}, vitoriasAnoAtual:{} };
+let peladeirosStats = { jogos:{}, gols:{}, ultimaPresenca:{}, jogosAnoAtual:{}, vitoriasAnoAtual:{}, empatesAnoAtual:{}, derrotasAnoAtual:{} };
 let peladeiroExpandidoId = '';
 let peladeiroAutoOpenId = '';
 let peladeirosOutsideCloseReady = false;
@@ -626,7 +626,7 @@ function atualizarPeladeirosFiltroUI(){
 }
 
 async function carregarStatsPeladeirosPublico(){
-  const stats={jogos:{},gols:{},ultimaPresenca:{},jogosAnoAtual:{},vitoriasAnoAtual:{}};
+  const stats={jogos:{},gols:{},ultimaPresenca:{},jogosAnoAtual:{},vitoriasAnoAtual:{},empatesAnoAtual:{},derrotasAnoAtual:{}};
   try{
     const golRows=await sbFetch('/gols_pelada?select=nome_jogador,quantidade&limit=3000').catch(()=>[]);
     const anoAtual=new Date().getFullYear();
@@ -659,13 +659,15 @@ async function carregarStatsPeladeirosPublico(){
           const golsVermelho=Number(p?.resultado?.gols_vermelho);
           const timeJogador=String(escaladoJogador?.time||'').toLowerCase();
           const temResultado=Number.isFinite(golsAzul) && Number.isFinite(golsVermelho);
-          const venceu =
-            temResultado &&
-            (
+          if(temResultado){
+            const venceu=
               (timeJogador==='azul' && golsAzul>golsVermelho) ||
-              (timeJogador==='vermelho' && golsVermelho>golsAzul)
-            );
-          if(venceu) stats.vitoriasAnoAtual[jogadorIdKey]=(stats.vitoriasAnoAtual[jogadorIdKey]||0)+1;
+              (timeJogador==='vermelho' && golsVermelho>golsAzul);
+            const empatou=golsAzul===golsVermelho;
+            if(venceu) stats.vitoriasAnoAtual[jogadorIdKey]=(stats.vitoriasAnoAtual[jogadorIdKey]||0)+1;
+            else if(empatou) stats.empatesAnoAtual[jogadorIdKey]=(stats.empatesAnoAtual[jogadorIdKey]||0)+1;
+            else stats.derrotasAnoAtual[jogadorIdKey]=(stats.derrotasAnoAtual[jogadorIdKey]||0)+1;
+          }
         }
         if(dataPelada){
           const prev=stats.ultimaPresenca[jogadorIdKey];
@@ -855,6 +857,11 @@ function peladeiroFichaExpandidaCard(j){
   const perfil=peladeiroPerfilLabel(j.perfil_app);
   const jogosAnoAtual=peladeiroStat(j,'jogosAnoAtual');
   const vitoriasAnoAtual=peladeiroStat(j,'vitoriasAnoAtual');
+  const empatesAnoAtual=peladeiroStat(j,'empatesAnoAtual');
+  const derrotasAnoAtual=peladeiroStat(j,'derrotasAnoAtual');
+  const aproveitamentoAnoAtual=jogosAnoAtual>0
+    ? Math.round((((vitoriasAnoAtual*3)+empatesAnoAtual)/(jogosAnoAtual*3))*100)
+    : 0;
   const ultimaPresenca=peladeiroUltimaPresencaInfo(j);
   const ultimaData=ultimaPresenca?.iso ? new Date(`${ultimaPresenca.iso}T12:00:00`) : null;
   const ultimaFmt=ultimaData && !Number.isNaN(ultimaData.getTime())
@@ -903,8 +910,18 @@ function peladeiroFichaExpandidaCard(j){
           <div class="peladeiro-inline-presenca-label">ULTIMA PRESENCA</div>
         </div>
         <div class="peladeiro-inline-presenca-right">
-          <div>${escHtml(String(jogosAnoAtual))} partida${jogosAnoAtual===1?'':'s'} em ${new Date().getFullYear()}</div>
-          <div>${escHtml(String(vitoriasAnoAtual))} vit&#243;ria${vitoriasAnoAtual===1?'':'s'} em ${new Date().getFullYear()}</div>
+          <div class="peladeiro-inline-mini-table" aria-label="Resumo anual do jogador">
+            <div class="peladeiro-inline-mini-head">J</div>
+            <div class="peladeiro-inline-mini-head">V</div>
+            <div class="peladeiro-inline-mini-head">E</div>
+            <div class="peladeiro-inline-mini-head">D</div>
+            <div class="peladeiro-inline-mini-head">%</div>
+            <div class="peladeiro-inline-mini-val">${escHtml(String(jogosAnoAtual))}</div>
+            <div class="peladeiro-inline-mini-val">${escHtml(String(vitoriasAnoAtual))}</div>
+            <div class="peladeiro-inline-mini-val">${escHtml(String(empatesAnoAtual))}</div>
+            <div class="peladeiro-inline-mini-val">${escHtml(String(derrotasAnoAtual))}</div>
+            <div class="peladeiro-inline-mini-val">${escHtml(String(aproveitamentoAnoAtual))}%</div>
+          </div>
         </div>
       </div>
     </div>
