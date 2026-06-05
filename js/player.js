@@ -5,6 +5,10 @@
 let _openPeladaSheetRows = [];
 let _openPeladaSheetDestino = 'conf';
 
+function homeResumoLabel(p){
+  return (p?.homeResumoDisponivel || !!p?.resultado) ? 'Olho no lance' : 'Ver resumo da pelada';
+}
+
 // ==========================================
 // JOGADOR - LISTA
 // ==========================================
@@ -90,7 +94,7 @@ function renderJLista(){
         </div>
         <div class="home-result-team">${camisaSvg('vermelho')}<span>Vermelho</span></div>
       </div>
-      <div id="home-summary-label-${p.id}" class="home-result-cta">Ver resumo da pelada</div>
+      <div id="home-summary-label-${p.id}" class="home-result-cta">${homeResumoLabel(p)}</div>
     </div>`;
   }).join('') : '<div class="empty" style="padding:12px 0;font-size:13px;">Nenhum resultado ainda</div>';
 
@@ -357,7 +361,7 @@ function renderJHistorico(){
         </div>
         <div class="home-result-team">${camisaSvg('vermelho')}<span>Vermelho</span></div>
       </div>
-      <div class="home-result-cta">Ver resumo da pelada</div>
+      <div class="home-result-cta">${homeResumoLabel(p)}</div>
     </div>`;
   }).join('');
 }
@@ -410,7 +414,7 @@ async function carregarResultadoCardHome(peladaId){
       const [gols, videos] = await Promise.all([dbGetGols(peladaId), dbGetVideos(peladaId)]);
       const temConteudo = !!p?.resultado || (Array.isArray(gols) && gols.length) || (Array.isArray(videos) && videos.length);
       p.homeResumoDisponivel = temConteudo;
-      if(label) label.textContent = 'Olho no lance';
+      if(label) label.textContent = homeResumoLabel(p);
     }catch(e){}
   }catch(e){}
 }
