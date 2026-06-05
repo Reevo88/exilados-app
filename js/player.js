@@ -547,7 +547,7 @@ function confirmacaoAtualNaPelada(pelada){
 // ==========================================
 let peladeirosSort = 'apelido';
 let peladeirosFiltroPos = 'todos';
-let peladeirosStats = { jogos:{}, gols:{}, ultimaPresenca:{}, jogosAnoAtual:{} };
+let peladeirosStats = { jogos:{}, gols:{}, ultimaPresenca:{}, jogosAnoAtual:{}, vitoriasAnoAtual:{} };
 let peladeiroExpandidoId = '';
 let peladeiroAutoOpenId = '';
 let peladeirosOutsideCloseReady = false;
@@ -626,7 +626,7 @@ function atualizarPeladeirosFiltroUI(){
 }
 
 async function carregarStatsPeladeirosPublico(){
-  const stats={jogos:{},gols:{},ultimaPresenca:{},jogosAnoAtual:{}};
+  const stats={jogos:{},gols:{},ultimaPresenca:{},jogosAnoAtual:{},vitoriasAnoAtual:{}};
   try{
     const golRows=await sbFetch('/gols_pelada?select=nome_jogador,quantidade&limit=3000').catch(()=>[]);
     const anoAtual=new Date().getFullYear();
@@ -645,15 +645,28 @@ async function carregarStatsPeladeirosPublico(){
         const escalados=Array.isArray(p.jogadores)
           ? p.jogadores.filter(item => item && (item.time==='azul' || item.time==='vermelho'))
           : [];
-        const jogou = escalados.some(item=>{
+        const escaladoJogador = escalados.find(item=>{
           const itemIdKey=normNome(String(item?.jogador_id||''));
           if(itemIdKey) return itemIdKey===jogadorIdKey;
           const itemNome=normNome(item?.nome||'');
           return itemNome ? aliases.has(itemNome) : false;
         });
-        if(!jogou) return;
+        if(!escaladoJogador) return;
         stats.jogos[jogadorIdKey]=(stats.jogos[jogadorIdKey]||0)+1;
-        if(anoPelada===anoAtual) stats.jogosAnoAtual[jogadorIdKey]=(stats.jogosAnoAtual[jogadorIdKey]||0)+1;
+        if(anoPelada===anoAtual){
+          stats.jogosAnoAtual[jogadorIdKey]=(stats.jogosAnoAtual[jogadorIdKey]||0)+1;
+          const golsAzul=Number(p?.resultado?.gols_azul);
+          const golsVermelho=Number(p?.resultado?.gols_vermelho);
+          const timeJogador=String(escaladoJogador?.time||'').toLowerCase();
+          const temResultado=Number.isFinite(golsAzul) && Number.isFinite(golsVermelho);
+          const venceu =
+            temResultado &&
+            (
+              (timeJogador==='azul' && golsAzul>golsVermelho) ||
+              (timeJogador==='vermelho' && golsVermelho>golsAzul)
+            );
+          if(venceu) stats.vitoriasAnoAtual[jogadorIdKey]=(stats.vitoriasAnoAtual[jogadorIdKey]||0)+1;
+        }
         if(dataPelada){
           const prev=stats.ultimaPresenca[jogadorIdKey];
           if(!prev || String(prev.iso||'')<String(dataPelada)){
@@ -841,6 +854,7 @@ function peladeiroFichaExpandidaCard(j){
   const sub=instaHandle || `@${(j.apelido||j.nome||'').trim().replace(/\s+/g,'').toLowerCase()}`;
   const perfil=peladeiroPerfilLabel(j.perfil_app);
   const jogosAnoAtual=peladeiroStat(j,'jogosAnoAtual');
+  const vitoriasAnoAtual=peladeiroStat(j,'vitoriasAnoAtual');
   const ultimaPresenca=peladeiroUltimaPresencaInfo(j);
   const ultimaData=ultimaPresenca?.iso ? new Date(`${ultimaPresenca.iso}T12:00:00`) : null;
   const ultimaFmt=ultimaData && !Number.isNaN(ultimaData.getTime())
@@ -888,7 +902,10 @@ function peladeiroFichaExpandidaCard(j){
           <div class="peladeiro-inline-presenca-date">${escHtml(ultimaFmt)}</div>
           <div class="peladeiro-inline-presenca-label">ULTIMA PRESENCA</div>
         </div>
-        <div class="peladeiro-inline-presenca-right">${escHtml(String(jogosAnoAtual))} partida${jogosAnoAtual===1?'':'s'} em ${new Date().getFullYear()}</div>
+        <div class="peladeiro-inline-presenca-right">
+          <div>${escHtml(String(jogosAnoAtual))} partida${jogosAnoAtual===1?'':'s'} em ${new Date().getFullYear()}</div>
+          <div>${escHtml(String(vitoriasAnoAtual))} vit&#243;ria${vitoriasAnoAtual===1?'':'s'} em ${new Date().getFullYear()}</div>
+        </div>
       </div>
     </div>
   </div>`;
