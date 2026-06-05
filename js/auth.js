@@ -89,6 +89,7 @@ function fecharMenu(e){ if(!e||e.target===document.getElementById('adm-menu')) d
 async function abrirOpcaoPerfilAdm(){
   fecharMenu();
   if(G.podeGerirJogadores) return abrirJogadoresAdm();
+  if(G.isAdm && G.appContext==='admin') G.perfilOrigem='admin';
   await abrirPerfilJogador(false);
 }
 // ==========================================
@@ -142,7 +143,10 @@ function voltarPainelAdmin(){
 
 async function abrirPerfilJogador(redirecionarAdm=false){
   fecharMenuJogador();
+  const veioDoAdmin = G.isAdm && G.appContext==='admin';
+  G.appContext='player';
   if(redirecionarAdm) G.perfilOrigem='player';
+  else if(veioDoAdmin) G.perfilOrigem='admin';
   const abrirEdicaoPerfil = redirecionarAdm && !!G.usuario && !temRetornoPerfilAuth();
   const retornoCadastro=temRetornoPerfilAuth() && !temTokenRecoveryAuth() && !erroRetornoPerfilAuth();
   const retornoAuth=await tratarRetornoPerfilAuth();
@@ -173,6 +177,10 @@ async function voltarInicioApp(){
 }
 
 async function voltarInicioPerfil(){
+  if(G.isAdm && G.perfilOrigem==='admin'){
+    abrirPainelAdministrativo();
+    return;
+  }
   await voltarInicioApp();
 }
 
