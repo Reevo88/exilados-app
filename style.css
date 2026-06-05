@@ -1293,6 +1293,14 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   font-size: 20px;
   color: var(--text2);
 }
+.home-hero--vazio .home-hero-meta{
+  grid-template-columns:1fr;
+}
+.home-hero--vazio .home-hero-meta span{
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
 .home-hero-label {
   font-size: 10px;
   font-weight: 900;
