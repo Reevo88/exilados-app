@@ -105,6 +105,18 @@ function compilarVotos(votos, jogadores) {
     .sort((a, b) => b.media - a.media || b.votos - a.votos);
 }
 
+function _rankingJogadorPorNome(jogadores, nome){
+  const chave = normNome(nome);
+  return (jogadores || []).find(j => normNome(j?.nome || '') === chave) || null;
+}
+
+function _rankingPosicaoLabel(jogador){
+  const pos = jogador?.pos || jogador?.posicao || jogador?.posicao_favorita || '';
+  if(typeof peladeiroPosLabel === 'function') return peladeiroPosLabel(pos);
+  const raw = String(pos || '').toUpperCase().trim();
+  return { GOL:'Goleiro', GOLEIRO:'Goleiro', ZAG:'Zagueiro', ZAGUEIRO:'Zagueiro', LAT:'Lateral', LATERAL:'Lateral', MEI:'Meia', MEIA:'Meia', ATA:'Atacante', ATACANTE:'Atacante' }[raw] || '';
+}
+
 // -- Publicar resultado automatico --------
 function votosPersistidosConferem(votosPersistidos, votosEnviados) {
   if(!Array.isArray(votosPersistidos) || !Array.isArray(votosEnviados)) return false;
@@ -285,17 +297,29 @@ function fecharVotacao() {
 }
 
 // -- Ranking de votos na aba Estatisticas -
-async function _resumoRenderRanking(peladaId, jogadores) {
+async function _resumoRenderRanking(peladaId, jogadores, opts={}) {
   const el = document.getElementById('resumo-stats-ranking');
   if(!el) return;
   try {
     const votos = await dbGetVotos(peladaId);
     if(!votos.length) { el.style.display = 'none'; return; }
-    const ranking = compilarVotos(votos, jogadores);
+    const modo = opts.mode || 'default';
+    const limite = Number(opts.limit || 0);
+    const rankingBase = compilarVotos(votos, jogadores);
+    const ranking = limite > 0 ? rankingBase.slice(0, limite) : rankingBase;
     if(!ranking.length) { el.style.display = 'none'; return; }
     const lista = document.getElementById('resumo-stats-ranking-lista');
     if(lista) {
       lista.innerHTML = ranking.map((r, i) => {
+        if(modo === 'player_final'){
+          const jogador = _rankingJogadorPorNome(jogadores, r.nome);
+          const posLabel = _rankingPosicaoLabel(jogador);
+          return `<div class="vot-ranking-row">
+            <span class="vot-ranking-pos">${i + 1}º</span>
+            <span class="vot-ranking-nome">${escHtml(r.nome)}</span>
+            <span class="vot-ranking-stars">${escHtml(posLabel || 'Sem posição')}</span>
+          </div>`;
+        }
         const estrelas = '★'.repeat(Math.round(r.media)) + '☆'.repeat(5 - Math.round(r.media));
         return `<div class="vot-ranking-row">
           <span class="vot-ranking-pos">${i + 1}º</span>
@@ -360,6 +384,5 @@ async function enviarVotos() {
     }
   }
 }
-
 
 
