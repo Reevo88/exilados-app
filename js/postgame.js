@@ -503,6 +503,7 @@ async function renderResumo(peladaId, pjCache){
   const statsVotCard    = document.getElementById('resumo-stats-vot-andamento');
   const statsRanking    = document.getElementById('resumo-stats-ranking');
   const rankingLabel    = document.getElementById('resumo-stats-ranking-label');
+  const emVisaoAdmResumo = G.appContext === 'admin';
 
   // Artilharia - sempre
   if(statsGols) {
@@ -541,7 +542,8 @@ async function renderResumo(peladaId, pjCache){
       if(elF) elF.textContent = faltam;
       if(elBarra) elBarra.style.width = total > 0 ? `${Math.round(votantes/total*100)}%` : '0%';
       // Ranking parcial
-      const ranking = compilarVotos(votos, jogadores);
+      const rankingBase = compilarVotos(votos, jogadores);
+      const ranking = emVisaoAdmResumo ? rankingBase : rankingBase.slice(0, 5);
       if(ranking.length && statsRanking) {
         statsRanking.style.display = '';
         if(rankingLabel) rankingLabel.style.display = '';
@@ -563,7 +565,7 @@ async function renderResumo(peladaId, pjCache){
   } else if(votacaoEncerrada(p)) {
     // APÓS ENCERRAMENTO: craque + pereba + artilharia
     if(statsVotCard) statsVotCard.style.display = 'none';
-    if(rankingLabel) rankingLabel.style.display = 'none';
+    if(rankingLabel) rankingLabel.style.display = emVisaoAdmResumo ? 'none' : 'none';
     if(!craque || !pereba) {
       await publicarResultadoVotacao(p);
       const novasEstatsPublicadas = await dbGetEstatisticas(peladaId);
@@ -584,16 +586,25 @@ async function renderResumo(peladaId, pjCache){
           const nc = novasEstats.find(e => e.tipo === 'craque');
           const np = novasEstats.find(e => e.tipo === 'pereba');
           if(statsCraque && estatisticaValida(nc)) { statsCraque.style.display = ''; if(statsCraqueNome) statsCraqueNome.textContent = nc.nome_jogador; }
-          if(statsPereba && estatisticaValida(np)) { statsPereba.style.display = ''; if(statsPerebaNome) statsPerebaNome.textContent = np.nome_jogador; }
+          if(statsPereba) {
+            const mostrarPereba = emVisaoAdmResumo && estatisticaValida(np);
+            statsPereba.style.display = mostrarPereba ? '' : 'none';
+            if(mostrarPereba && statsPerebaNome) statsPerebaNome.textContent = np.nome_jogador;
+          }
         });
       });
     } else {
       if(statsCraque) { statsCraque.style.display = ''; if(statsCraqueNome) statsCraqueNome.textContent = craque.nome_jogador; }
-      if(statsPereba) { statsPereba.style.display = pereba ? '' : 'none'; if(pereba && statsPerebaNome) statsPerebaNome.textContent = pereba.nome_jogador; }
+      if(statsPereba) {
+        const mostrarPereba = emVisaoAdmResumo && !!pereba;
+        statsPereba.style.display = mostrarPereba ? '' : 'none';
+        if(mostrarPereba && statsPerebaNome) statsPerebaNome.textContent = pereba.nome_jogador;
+      }
     }
 
-    // Ranking oficial (sem label Prévia)
-    _resumoRenderRanking(peladaId, jogadores);
+    // Ranking oficial segue só para ADM. Jogador vê apenas o craque.
+    if(emVisaoAdmResumo) _resumoRenderRanking(peladaId, jogadores);
+    else if(statsRanking) statsRanking.style.display = 'none';
 
     if(statsEmpty) statsEmpty.style.display = (craque || top5.length) ? 'none' : '';
 
@@ -601,9 +612,13 @@ async function renderResumo(peladaId, pjCache){
     // SEM VOTAÇÃO (pelada encerrada antes do jogo ou sem votos)
     if(statsVotCard) statsVotCard.style.display = 'none';
     if(statsCraque) { statsCraque.style.display = craque ? '' : 'none'; if(craque && statsCraqueNome) statsCraqueNome.textContent = craque.nome_jogador; }
-    if(statsPereba) { statsPereba.style.display = pereba ? '' : 'none'; if(pereba && statsPerebaNome) statsPerebaNome.textContent = pereba.nome_jogador; }
+    if(statsPereba) {
+      const mostrarPereba = emVisaoAdmResumo && !!pereba;
+      statsPereba.style.display = mostrarPereba ? '' : 'none';
+      if(mostrarPereba && statsPerebaNome) statsPerebaNome.textContent = pereba.nome_jogador;
+    }
     if(statsRanking) statsRanking.style.display = 'none';
-    if(statsEmpty) statsEmpty.style.display = (craque || pereba || top5.length) ? 'none' : '';
+    if(statsEmpty) statsEmpty.style.display = (craque || (emVisaoAdmResumo && pereba) || top5.length) ? 'none' : '';
   }
 
   // -- Vídeos ------------------------------
