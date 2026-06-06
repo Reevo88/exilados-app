@@ -411,13 +411,17 @@ async function renderAdmConf(){
   const precisaQuebrarLinhaAdm = (j,tipo='jogo') => p.temChurras && (tipo === 'jogo' || tipo === 'churras') && (
     tipo === 'churras' || j.churras === 'jogo_churras'
   );
-  const rowAdm = (j,i,tipo='jogo',extraActions='') => {
+  const rowAdm = (j,i,tipo='jogo',extraActions='',opts={}) => {
+    const { hideStatusBadge = false } = opts;
     const pos=posicaoAdm(j);
     const stacked=precisaQuebrarLinhaAdm(j,tipo);
+    const badgesHtml = hideStatusBadge && tipo === 'fora'
+      ? badgeModalidadeAdm(j)
+      : badgesAdm(j,tipo);
     return `<div class="conf-player-row adm-conf-row${stacked ? ' conf-player-row--stacked' : ''}">
       <div class="conf-player-avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div>
       <div class="conf-player-info"><div class="conf-player-name-line"><span class="conf-player-name">${escHtml(j.nome)}</span>${badgeAnivConf(j)}</div>${pos ? `<div class="conf-player-pos">${pos}</div>` : ''}</div>
-      <div class="conf-player-badges adm-conf-actions${stacked ? ' conf-player-badges--stacked adm-conf-actions--stacked' : ''}">${badgesAdm(j,tipo)}${extraActions || `<button class="adm-conf-delete" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash"></i></button>`}</div>
+      <div class="conf-player-badges adm-conf-actions${stacked ? ' conf-player-badges--stacked adm-conf-actions--stacked' : ''}">${badgesHtml}${extraActions || `<button class="adm-conf-delete" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash"></i></button>`}</div>
     </div>`;
   };
   const sectionAdm = (title,icon,count,cls,rows) => `<div class="conf-list-section ${cls}"><div class="conf-section-title"><i class="ti ${icon}"></i><span>${title} (${count})</span></div><div class="conf-list-card adm-conf-card">${rows}</div></div>`;
@@ -436,7 +440,7 @@ async function renderAdmConf(){
   nao.innerHTML = p.naoVao.length
     ? sectionAdm('FORA','ti-circle-minus',p.naoVao.length,'is-out',p.naoVao.map((j,i)=>{
         const actions = `<button class="adm-conf-confirm" onclick="voltarNaoVai(${i})"><i class="ti ti-user-plus"></i> CONFIRMAR</button>${podeExcluirNaoVai?`<button class="adm-conf-delete" onclick="remNaoVai(${i})" title="Remover"><i class="ti ti-trash"></i></button>`:''}`;
-        return rowAdm(j,i,'fora',actions);
+        return rowAdm(j,i,'fora',actions,{ hideStatusBadge:true });
       }).join(''))
     : '<div class="empty conf-empty"><i class="ti ti-user-x"></i>Nenhuma recusa registrada</div>';
 }
