@@ -1119,7 +1119,7 @@ async function renderAdmTimes(){
   }
 }
 function renderAtTeam(cid,list,t,dz){
-  document.getElementById(cid).innerHTML=list.length?list.map((j,i)=>`<div class="team-slot editable"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span><div class="slot-controls"><div class="slot-order-btns"><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',-1)" title="Subir" ${i===0?'disabled':''}>↑</button><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',1)" title="Descer" ${i===list.length-1?'disabled':''}>↓</button></div><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
+  document.getElementById(cid).innerHTML=list.length?list.map(j=>`<div class="team-slot editable" ondragover="allowDrop(event)" ondrop="dropOnSlot(event,'${t}','${j.id}')"><div class="slot-av drag-handle ${t==='azul'?'b':'r'}" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para reordenar ou mover">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="slot-main"><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
 }
 function renderAtPool(list){
   const el=document.getElementById('at-pool');
@@ -1135,6 +1135,10 @@ async function moverJogadorTime(id,time){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')) return;
   const p=G.pelada;
   if(!p)return;
+  if(time !== 'pool'){
+    await reordenarJogadorTime(id,time,null);
+    return;
+  }
   const timeValido = ['azul','vermelho','pool'].includes(time) ?time : 'pool';
   let achou=false;
   [p.jogadores,p.confirmados].forEach(arr=>{
@@ -1156,25 +1160,34 @@ async function moverJogadorTime(id,time){
 
 async function rmTime(id){ await moverJogadorTime(id,'pool'); }
 async function removerDoTime(id){ await moverJogadorTime(id,'pool'); }
-async function moverOrdem(id,time,dir){
+async function reordenarJogadorTime(id,time,targetId=null){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')) return;
   const p=G.pelada; if(!p)return;
-  const doTime=p.jogadores.filter(j=>j.time===time);
-  const idx=doTime.findIndex(j=>j.id===id);
-  const novoIdx=idx+dir;
-  if(novoIdx<0||novoIdx>=doTime.length)return;
-  [doTime[idx],doTime[novoIdx]]=[doTime[novoIdx],doTime[idx]];
-  doTime.forEach((j,i)=>j.ordem=i);
-  const outros=p.jogadores.filter(j=>j.time!==time);
-  p.jogadores.length=0; p.jogadores.push(...outros,...doTime);
-  p.jogadores.forEach(jg=>{ const c=p.confirmados.find(x=>x.id===jg.id); if(c)c.ordem=jg.ordem; });
+  const jogador=p.jogadores.find(j=>String(j.id)===String(id));
+  if(!jogador){ showToast('Jogador não encontrado.'); return; }
+  const outros=p.jogadores.filter(j=>String(j.id)!==String(id));
+  const doTime=outros.filter(j=>j.time===time);
+  const insertIdx=targetId ? doTime.findIndex(j=>String(j.id)===String(targetId)) : doTime.length;
+  const jogadorAtualizado={...jogador,time};
+  if(insertIdx<0) doTime.push(jogadorAtualizado);
+  else doTime.splice(insertIdx,0,jogadorAtualizado);
+  doTime.forEach((j,i)=>{ j.ordem=i; });
+  const restantes=outros.filter(j=>j.time!==time);
+  p.jogadores.length=0;
+  p.jogadores.push(...restantes,...doTime);
+  [p.jogadores,p.confirmados].forEach(arr=>{
+    arr.forEach(item=>{
+      if(String(item.id)===String(id)) item.time=time;
+      if(item.time===time){
+        const idx=doTime.findIndex(j=>String(j.id)===String(item.id));
+        if(idx>=0) item.ordem=idx;
+      }
+    });
+  });
   renderAdmTimes();
   try{
-    await Promise.all([
-      dbAtualizar(doTime[idx].id,{ordem:doTime[idx].ordem}),
-      dbAtualizar(doTime[novoIdx].id,{ordem:doTime[novoIdx].ordem}),
-    ]);
-  }catch(e){showToast('Erro ao salvar ordem.');}
+    await Promise.all(doTime.map(j=>dbAtualizar(j.id,{time,ordem:j.ordem})));
+  }catch(e){ showToast('Erro ao salvar ordem.'); }
 }
 async function mvTo(id,t){ await moverJogadorTime(id,t); }
 async function rmJog(id){ if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return; const p=G.pelada; try{await dbDeletar(id); p.jogadores=p.jogadores.filter(j=>j.id!==id); p.confirmados=p.confirmados.filter(j=>j.id!==id); renderAdmTimes(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
@@ -1213,6 +1226,17 @@ function ds(e,id){drag=id;e.dataTransfer.effectAllowed='move';}
 function de(){document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));}
 function allowDrop(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
 async function dropTo(e,t){e.preventDefault();e.stopPropagation();document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')){drag=null;return;}if(drag){const id=drag;drag=null;await moverJogadorTime(id,t);}}
+async function dropOnSlot(e,t,targetId){
+  e.preventDefault();
+  e.stopPropagation();
+  document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')){drag=null;return;}
+  if(drag){
+    const id=drag;
+    drag=null;
+    await reordenarJogadorTime(id,t,targetId);
+  }
+}
 
 // ==========================================
 // ADM - FINANCEIRO
