@@ -482,6 +482,7 @@ function _resolverNomeLivreAdm(...candidatos){
 
 // -- Sheet de confirmação de identidade do jogador --
 let _admAddPendente = null;
+let _admNovoJogadorPendente = null;
 function _abrirSheetIdentidade(matches, nomeDigitado, onConfirm){
   _admAddPendente = { nomeDigitado, onConfirm };
   const lista = document.getElementById('id-sheet-lista');
@@ -528,8 +529,44 @@ function fecharIdSheet(e){
   _admAddPendente = null;
 }
 
+function admAddPosSelect(btn){
+  const wrap=document.getElementById('adm-add-pos-flags');
+  if(!wrap) return;
+  wrap.querySelectorAll('.perfil-flag').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function admAddPosValue(){
+  return document.querySelector('#adm-add-pos-flags .perfil-flag.active')?.dataset?.val || '';
+}
+function admCancelarNovoJogador(){
+  _admNovoJogadorPendente = null;
+  const wrap=document.getElementById('adm-add-novo-wrap');
+  if(wrap) wrap.style.display='none';
+  const flags=document.getElementById('adm-add-pos-flags');
+  if(flags) flags.querySelectorAll('.perfil-flag').forEach(b=>b.classList.remove('active'));
+}
+function admAbrirNovoJogadorPosicao(nome, onConfirm){
+  _admNovoJogadorPendente = { nome, onConfirm };
+  const wrap=document.getElementById('adm-add-novo-wrap');
+  if(wrap) wrap.style.display='';
+  const flags=document.getElementById('adm-add-pos-flags');
+  if(flags) flags.querySelectorAll('.perfil-flag').forEach((b,i)=>b.classList.toggle('active', i===0));
+}
+async function admConfirmarNovoJogador(){
+  if(!_admNovoJogadorPendente) return;
+  const pos = admAddPosValue();
+  if(!pos){
+    showToast('Escolha a posição do jogador.');
+    return;
+  }
+  const pendente = _admNovoJogadorPendente;
+  admCancelarNovoJogador();
+  await pendente.onConfirm(pos);
+}
+
 async function admAdd(){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível adicionar jogadores.')) return;
+  if(_admNovoJogadorPendente) admCancelarNovoJogador();
   const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=_resolverNomeLivreAdm(input?.value);
   if(!nome){input.focus();return;}
   const n=normNome(nome);
@@ -542,7 +579,7 @@ async function admAdd(){
   const jogadores = await _buscarJogadoresCadastrados();
   const matches = _encontrarMatchesCadastro(nome, jogadores);
 
-  const _executarAdd = async (nomeUsar, modalidade, jogadorId) => {
+  const _executarAdd = async (nomeUsar, modalidade, jogadorId, posicaoManual=null) => {
     try{
       const nomeFinal = _resolverNomeLivreAdm(nomeUsar, nome, input?.value);
       if(!nomeFinal){
@@ -550,7 +587,7 @@ async function admAdd(){
         input.focus();
         return;
       }
-      const pos = jogadorId ? (jogadores.find(j=>j.id===jogadorId)?.posicao_favorita || null) : null;
+      const pos = jogadorId ? (jogadores.find(j=>j.id===jogadorId)?.posicao_favorita || null) : posicaoManual || null;
       const row = await dbConfirmar(p.id, nomeFinal, churras, vaiParaEspera?'espera':'confirmado', jogadorId, pos);
       // Persiste modalidade correta no banco
       if(modalidade === 'mensalista'){
@@ -587,8 +624,10 @@ async function admAdd(){
     return;
   }
 
-  // Fluxo 3: nenhum match -> avulso direto
-  await _executarAdd(nome, 'avulso', null);
+  // Fluxo 3: nenhum match -> pedir posição para novo jogador
+  admAbrirNovoJogadorPosicao(nome, async (pos) => {
+    await _executarAdd(nome, 'avulso', null, pos);
+  });
 }
 async function togglePago(i){
   const j=G.pelada.confirmados[i];
@@ -1049,12 +1088,6 @@ function bAnivAdm(j,modo='time'){
   if(!(jc && isAniversarianteMes(jc))) return '';
   return '<span class="lineup-crown-mini" title="Aniversariante"><i class="ti ti-crown"></i></span>';
 }
-function posSelectAdm(j,full=false){
-  const vp=j.pos&&['GOL','ZAG','LAT','MEI','ATA'].includes(j.pos)?j.pos:'?';
-  const labels=full?{ '?':'Posição', GOL:'Goleiro', ZAG:'Zagueiro', LAT:'Lateral', MEI:'Meia', ATA:'Atacante'}:{'?':'POS',GOL:'GOL',ZAG:'ZAG',LAT:'LAT',MEI:'MEI',ATA:'ATA'};
-  const opts=['?','GOL','ZAG','LAT','MEI','ATA'].map(v=>`<option value="${v}"${vp===v?' selected':''}>${labels[v]}</option>`).join('');
-  return `<select class="pos-select pos-${vp==='?'?'pending':vp}${full?' pos-select-full':''}" onchange="setPos('${j.id}',this.value)">${opts}</select>`;
-}
 async function renderAdmTimes(){
   const p=G.pelada; if(!p)return;
   if(!G.jogadores || !G.jogadores.length) await _buscarJogadoresCadastrados();
@@ -1084,11 +1117,11 @@ async function renderAdmTimes(){
   }
 }
 function renderAtTeam(cid,list,t,dz){
-  document.getElementById(cid).innerHTML=list.length?list.map((j,i)=>`<div class="team-slot editable"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span><div class="slot-controls">${posSelectAdm(j,false)}<div class="slot-order-btns"><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',-1)" title="Subir" ${i===0?'disabled':''}>↑</button><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',1)" title="Descer" ${i===list.length-1?'disabled':''}>↓</button></div><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
+  document.getElementById(cid).innerHTML=list.length?list.map((j,i)=>`<div class="team-slot editable"><div class="slot-av ${t==='azul'?'b':'r'}">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span><div class="slot-controls"><div class="slot-order-btns"><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',-1)" title="Subir" ${i===0?'disabled':''}>↑</button><button class="btn-order" onclick="moverOrdem('${j.id}','${t}',1)" title="Descer" ${i===list.length-1?'disabled':''}>↓</button></div><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
 }
 function renderAtPool(list){
   const el=document.getElementById('at-pool');
-  el.innerHTML=list.length?list.map(j=>`<div class="pool-item lineup-pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="lineup-pool-main"><span class="lineup-pool-name">${escHtml(j.nome)}</span>${bAnivAdm(j,'pool')}</div>${posSelectAdm(j,false)}<div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
+  el.innerHTML=list.length?list.map(j=>`<div class="pool-item lineup-pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="lineup-pool-main"><span class="lineup-pool-name">${escHtml(j.nome)}</span>${bAnivAdm(j,'pool')}</div><div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
     :'<div class="lineup-empty"><i class="ti ti-check"></i> Todos escalados!</div>';
 }
 function renderAtAll(){
@@ -1096,8 +1129,6 @@ function renderAtAll(){
   document.getElementById('at-all').innerHTML=p.jogadores.length?p.jogadores.map(j=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);margin-bottom:6px;"><div class="pool-av" style="width:26px;height:26px;font-size:10px;">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;font-size:13px;font-weight:500;">${escHtml(j.nome)}</span>${posSelect(j)}<span style="font-size:11px;color:var(--text2);min-width:50px;text-align:right;">${j.time==='pool'?'sem time':j.time==='azul'?'Azul':'Verm.'}</span><button class="btn-sm btn-danger" onclick="rmJog('${j.id}')" style="padding:4px 7px;"><i class="ti ti-trash" style="font-size:12px;"></i></button></div>`).join('')
     :'<div class="empty" style="padding:12px 0;">Nenhum jogador</div>';
 }
-async function setPos(id,pos){ if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar posições.')) return; const p=G.pelada; [p.jogadores,p.confirmados].forEach(arr=>{const j=arr.find(x=>x.id===id);if(j)j.pos=pos;}); renderAdmTimes(); try{await dbAtualizar(id,{posicao:pos});}catch(e){showToast('Erro ao salvar posição.');} }
-
 async function moverJogadorTime(id,time){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')) return;
   const p=G.pelada;
