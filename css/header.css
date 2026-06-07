@@ -155,60 +155,6 @@
   display:none !important;
 }
 
-#s-adm-times > .header.app-brand-header.app-brand-header--times-meta{
-  grid-template-columns:42px minmax(0,1fr) var(--app-header-brand-col-right) !important;
-}
-
-#s-adm-times .app-brand-header--times-meta .app-header-brand-btn{
-  grid-column:1 !important;
-  width:42px !important;
-  justify-self:start !important;
-  grid-template-columns:1fr !important;
-}
-
-#s-adm-times .app-brand-header--times-meta .app-header-brand-btn::before{
-  width:42px !important;
-  height:42px !important;
-  justify-self:center !important;
-}
-
-#s-adm-times .app-brand-header--times-meta .app-header-logo{
-  display:none !important;
-}
-
-#s-adm-times .app-brand-header--times-meta .app-header-dynamic{
-  grid-column:2 !important;
-  position:static !important;
-  transform:none !important;
-  right:auto !important;
-  top:auto !important;
-  display:block !important;
-  min-width:0 !important;
-  text-align:center !important;
-  z-index:1 !important;
-}
-
-#s-adm-times .app-brand-header--times-meta .app-header-dynamic h1{
-  margin:0 !important;
-  font-family:'Barlow Condensed',sans-serif !important;
-  font-size:22px !important;
-  line-height:1 !important;
-  letter-spacing:.05em !important;
-  color:#F5E400 !important;
-  text-transform:uppercase !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-#s-adm-times .app-brand-header--times-meta .app-header-dynamic p{
-  margin:4px 0 0 !important;
-  color:#a8a8a8 !important;
-  font-size:11px !important;
-  line-height:1.25 !important;
-  font-weight:700 !important;
-}
-
 .header .app-header-menu,
 .header .player-menu-btn.app-header-menu,
 .header button[aria-label="Abrir menu do administrador"],
@@ -262,27 +208,6 @@
   .app-header-brand-btn{
     grid-template-columns:var(--app-header-brand-col-left) minmax(0,1fr) !important;
     column-gap:var(--app-header-brand-gap) !important;
-  }
-
-  #s-adm-times > .header.app-brand-header.app-brand-header--times-meta{
-    grid-template-columns:34px minmax(0,1fr) 34px !important;
-  }
-
-  #s-adm-times .app-brand-header--times-meta .app-header-brand-btn{
-    width:34px !important;
-  }
-
-  #s-adm-times .app-brand-header--times-meta .app-header-brand-btn::before{
-    width:34px !important;
-    height:34px !important;
-  }
-
-  #s-adm-times .app-brand-header--times-meta .app-header-dynamic h1{
-    font-size:18px !important;
-  }
-
-  #s-adm-times .app-brand-header--times-meta .app-header-dynamic p{
-    font-size:10px !important;
   }
 
   .header .app-header-menu,
