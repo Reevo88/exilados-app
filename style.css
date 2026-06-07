@@ -5821,16 +5821,6 @@ section[id*="home"] .btn:not(.btn-primary){
 }
 #s-adm-times .ab-blue{background:#214CFF !important;color:#F5E400 !important;}
 #s-adm-times .ab-red{background:#E32222 !important;color:#fff !important;}
-#s-adm-times .btn-order{
-  width:22px !important;
-  height:22px !important;
-  border-radius:7px !important;
-  border:1px solid #343434 !important;
-  background:#050505 !important;
-  color:#a8a8a8 !important;
-  box-shadow:none !important;
-}
-#s-adm-times .btn-order:disabled{opacity:.25;}
 #s-adm-times .btn-rm-time{
   width:27px !important;
   height:27px !important;
@@ -5847,7 +5837,6 @@ section[id*="home"] .btn:not(.btn-primary){
   #s-adm-times .lineup-pool-main{gap:6px;}
   #s-adm-times .lineup-birthday-badge{font-size:8px !important;padding:0 6px !important;}
   #s-adm-times .assign-btn{padding:0 7px !important;font-size:9px !important;}
-  #s-adm-times .pos-select-full{min-width:66px;font-size:9px !important;}
 }
 
 
@@ -5862,55 +5851,42 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-adm-times .team-slot.editable{
   display:grid !important;
   grid-template-columns:30px minmax(0,1fr) !important;
-  grid-template-areas:
-    "avatar name"
-    "controls controls" !important;
+  grid-template-areas:"avatar main" !important;
   align-items:center !important;
-  row-gap:8px !important;
   column-gap:7px !important;
   padding:8px !important;
-  min-height:76px !important;
+  min-height:46px !important;
 }
 #s-adm-times .team-slot.editable .slot-av{grid-area:avatar !important;}
-#s-adm-times .team-slot.editable .slot-name{
-  grid-area:name !important;
-  max-width:100% !important;
-  font-size:12px !important;
-}
-#s-adm-times .team-slot.editable .slot-controls{
-  grid-area:controls !important;
-  width:100% !important;
-  margin-left:0 !important;
-  justify-content:flex-end !important;
-  gap:6px !important;
-  padding-top:6px !important;
-  border-top:1px solid rgba(255,255,255,.07) !important;
-}
-#s-adm-times .team-slot.editable .pos-select{
-  width:50px !important;
-  min-width:50px !important;
-  height:27px !important;
-  text-align:center !important;
-  font-size:9px !important;
-  padding:2px 3px !important;
-}
-#s-adm-times .team-slot.editable .slot-order-btns{
+#s-adm-times .team-slot.editable .slot-main{
+  grid-area:main !important;
+  min-width:0 !important;
   display:flex !important;
-  gap:4px !important;
-  margin-left:auto !important;
+  align-items:center !important;
+  gap:6px !important;
 }
-#s-adm-times .team-slot.editable .btn-order{
-  width:25px !important;
-  height:25px !important;
-  font-size:10px !important;
+#s-adm-times .team-slot.editable .slot-name{
+  max-width:100% !important;
+  min-width:0 !important;
+  font-size:12px !important;
+  flex:1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
 }
 #s-adm-times .team-slot.editable .btn-rm-time{
   width:28px !important;
   height:28px !important;
-  margin-left:0 !important;
+  margin-left:auto !important;
 }
 #s-adm-times .lineup-crown-mini{
   margin-left:3px !important;
+}
+#s-adm-times .team-slot.editable .slot-av.drag-handle{
+  cursor:grab !important;
+}
+#s-adm-times .team-slot.editable .slot-av.drag-handle:active{
+  cursor:grabbing !important;
 }
 #s-adm-conf #adm-add-novo-wrap .perfil-flags{
   margin-top:0 !important;
@@ -5920,12 +5896,10 @@ section[id*="home"] .btn:not(.btn-primary){
 }
 @media (max-width:390px){
   #s-adm-times .team-slot.editable{
-    min-height:72px !important;
+    min-height:44px !important;
     padding:7px !important;
   }
-  #s-adm-times .team-slot.editable .btn-order{width:23px !important;height:23px !important;}
   #s-adm-times .team-slot.editable .btn-rm-time{width:26px !important;height:26px !important;}
-  #s-adm-times .team-slot.editable .pos-select{width:48px !important;min-width:48px !important;}
 }
 
 /* =========================================================
