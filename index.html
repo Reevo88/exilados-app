@@ -8,9 +8,9 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
-<link href="style.css?v=20260601-header-adm-fix-2" rel="stylesheet"/>
-<link href="css/header.css?v=20260601-header-adm-fix-2" rel="stylesheet"/>
-<link href="css/bottom-nav.css?v=20260601-header-adm-fix-2" rel="stylesheet"/>
+<link href="style.css?v=20260606-adm-times-header-fix-1" rel="stylesheet"/>
+<link href="css/header.css?v=20260606-adm-times-header-fix-1" rel="stylesheet"/>
+<link href="css/bottom-nav.css?v=20260606-adm-times-header-fix-1" rel="stylesheet"/>
 <!-- PWA -->
 <link href="/manifest.json" rel="manifest"/>
 <meta content="#000000" name="theme-color"/>
@@ -591,7 +591,7 @@
 </div>
 <!-- A4: TIMES ADM -->
 <div class="screen" id="s-adm-times">
-<div class="header app-brand-header app-brand-header--times-meta"><button aria-label="Voltar ao painel administrativo" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><div class="app-header-dynamic"><h1 id="atimes-nome">TIMES</h1><p id="atimes-meta"></p></div><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="abrirPainelAdministrativo()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do administrador" class="player-menu-btn app-header-menu" onclick="abrirMenu()" title="Menu"><i class="ti ti-menu-2"></i></button><div aria-hidden="true" class="header-dynamic-hidden"><h1 id="atimes-nome">TIMES</h1><p id="atimes-meta"></p></div></div>
 <div class="page-body">
 <div class="notice-soft" id="at-gol-alert"><i class="ti ti-alert-triangle" style="font-size:14px;"></i><span>Verifique os goleiros antes de publicar os times.</span></div>
 <div class="action-row">
@@ -1192,7 +1192,7 @@
 <script src="js/postgame.js"></script>
 <script src="js/voting.js"></script>
 <script src="js/bootstrap.js"></script>
-<script src="js/ui-nav.js?v=20260601-header-adm-fix-2"></script>
+<script src="js/ui-nav.js?v=20260606-adm-times-header-fix-1"></script>
 <!-- Bootstrap PWA -->
 <script>
   (() => {

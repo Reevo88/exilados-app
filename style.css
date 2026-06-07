@@ -5499,8 +5499,6 @@ section[id*="home"] .btn:not(.btn-primary){
 /* =========================================================
    DARK THEME — ESCALAÇÕES ADM NO PADRÃO DA VISÃO JOGADOR
    ========================================================= */
-#s-adm-times .header,
-
 #s-adm-times .brand-logo-img{
   max-height:58px !important;
   max-width:210px !important;
