@@ -519,7 +519,9 @@ function _confirmarIdentidade(idx){
     onConfirm(nomeUsar, j.modalidade || 'avulso', j.id);
   } else {
     const nomeLivre = _resolverNomeLivreAdm(nomeDigitado);
-    onConfirm(nomeLivre, 'avulso', null);
+    admAbrirNovoJogadorPosicao(nomeLivre, async (pos) => {
+      await onConfirm(nomeLivre, 'avulso', null, pos);
+    });
   }
 }
 function fecharIdSheet(e){
@@ -618,8 +620,8 @@ async function admAdd(){
 
   // Fluxo 2: match(es) encontrado(s) mas não exato -> pede confirmação
   if(matches.length > 0){
-    _abrirSheetIdentidade(matches, nome, async (nomeUsar, modalidade, jogadorId) => {
-      await _executarAdd(nomeUsar, modalidade, jogadorId);
+    _abrirSheetIdentidade(matches, nome, async (nomeUsar, modalidade, jogadorId, posicaoManual=null) => {
+      await _executarAdd(nomeUsar, modalidade, jogadorId, posicaoManual);
     });
     return;
   }
