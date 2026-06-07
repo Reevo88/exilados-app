@@ -5881,7 +5881,7 @@ section[id*="home"] .btn:not(.btn-primary){
   grid-area:controls !important;
   width:100% !important;
   margin-left:0 !important;
-  justify-content:space-between !important;
+  justify-content:flex-end !important;
   gap:6px !important;
   padding-top:6px !important;
   border-top:1px solid rgba(255,255,255,.07) !important;
@@ -5911,6 +5911,12 @@ section[id*="home"] .btn:not(.btn-primary){
 }
 #s-adm-times .lineup-crown-mini{
   margin-left:3px !important;
+}
+#s-adm-conf #adm-add-novo-wrap .perfil-flags{
+  margin-top:0 !important;
+}
+#s-adm-conf #adm-add-novo-wrap .perfil-flag{
+  min-width:52px;
 }
 @media (max-width:390px){
   #s-adm-times .team-slot.editable{

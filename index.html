@@ -565,6 +565,20 @@
 <div class="field" style="flex:1;margin:0;"><input autocomplete="off" id="adm-add-nome" onkeydown="if(event.key==='Enter')admAdd();" placeholder="Nome do jogador" type="text"/></div>
 <button class="btn" onclick="admAdd()" style="width:auto;background:var(--blue);color:var(--cream);padding:0 16px;margin:0;"><i class="ti ti-plus"></i></button>
 </div>
+<div id="adm-add-novo-wrap" style="display:none;margin-top:10px;">
+<div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Jogador novo. Escolha a posição para entrar nesta pelada.</div>
+<div class="perfil-flags" id="adm-add-pos-flags">
+<button class="perfil-flag" data-val="GOL" onclick="admAddPosSelect(this)" type="button">GOL</button>
+<button class="perfil-flag" data-val="ZAG" onclick="admAddPosSelect(this)" type="button">ZAG</button>
+<button class="perfil-flag" data-val="LAT" onclick="admAddPosSelect(this)" type="button">LAT</button>
+<button class="perfil-flag" data-val="MEI" onclick="admAddPosSelect(this)" type="button">MEI</button>
+<button class="perfil-flag" data-val="ATA" onclick="admAddPosSelect(this)" type="button">ATA</button>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+<button class="btn btn-outline" onclick="admCancelarNovoJogador()" type="button">Cancelar</button>
+<button class="btn" onclick="admConfirmarNovoJogador()" style="margin:0;" type="button"><i class="ti ti-check"></i> Adicionar</button>
+</div>
+</div>
 <div id="adm-churras-sel" style="display:none;margin-top:8px;">
 <div class="churras-modal-pills">
 <button class="churras-pill active" data-val="jogo" onclick="setAdmChurras('jogo',this)" type="button">Jogo</button>
