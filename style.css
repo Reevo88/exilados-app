@@ -2570,6 +2570,9 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   text-align: right;
   min-width: 118px;
 }
+.perfil-presenca-right .peladeiro-inline-mini-table{
+  justify-self:end;
+}
 .perfil-presenca-jogos {
   font-size: 12px;
   font-weight: 600;
@@ -2588,6 +2591,10 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   .perfil-presenca-data { font-size: 23px; }
   .perfil-presenca-jogos { font-size: 11px; }
   .perfil-presenca-right { min-width: 104px; }
+  .perfil-presenca-right .peladeiro-inline-mini-table{
+    transform:scale(.94);
+    transform-origin:right center;
+  }
 }
 
 
