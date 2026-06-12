@@ -633,6 +633,7 @@ async function _perfilCarregarUltimaPresenca(jogadorId){
   const el=document.getElementById('perfil-ultima-presenca');
   if(!el||!jogadorId) return;
   try{
+    if(typeof carregarStatsPeladeirosPublico==='function') await carregarStatsPeladeirosPublico();
     const j=G.jogadorLogado;
     const aliases=[normNome(j?.nome||''), normNome(j?.apelido||'')].filter(Boolean);
     const peladas=(G.peladas||[]).filter(p=>{
@@ -645,20 +646,37 @@ async function _perfilCarregarUltimaPresenca(jogadorId){
       });
     });
     peladas.sort((a,b)=>new Date(b.data)-new Date(a.data));
-    const anoAtual=new Date().getFullYear();
-    const noAno=peladas.filter(p=>p.data&&new Date(p.data+'T12:00:00').getFullYear()===anoAtual).length;
+    const jogosAnoAtual=typeof peladeiroStat==='function' ? peladeiroStat(j,'jogosAnoAtual') : 0;
+    const vitoriasAnoAtual=typeof peladeiroStat==='function' ? peladeiroStat(j,'vitoriasAnoAtual') : 0;
+    const empatesAnoAtual=typeof peladeiroStat==='function' ? peladeiroStat(j,'empatesAnoAtual') : 0;
+    const derrotasAnoAtual=typeof peladeiroStat==='function' ? peladeiroStat(j,'derrotasAnoAtual') : 0;
+    const aproveitamentoAnoAtual=jogosAnoAtual>0
+      ? Math.round((((vitoriasAnoAtual*3)+empatesAnoAtual)/(jogosAnoAtual*3))*100)
+      : 0;
     if(!peladas.length){ el.classList.add('perfil-presenca-card'); el.innerHTML='<div class="perfil-presenca-empty">Nenhuma presença registrada</div>'; return; }
-    const ultima=peladas[0];
-    const d=new Date(ultima.data+'T12:00:00');
+    const ultimaInfo=typeof peladeiroUltimaPresencaInfo==='function' ? peladeiroUltimaPresencaInfo(j) : null;
+    const ultimaIso=ultimaInfo?.iso || peladas[0]?.data || '';
+    const d=new Date(ultimaIso+'T12:00:00');
     const dataFmt=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}).replace('.','');
     el.classList.add('perfil-presenca-card');
     el.innerHTML=`
       <div class="perfil-presenca-left">
         <div class="perfil-presenca-data">${dataFmt}</div>
-        <div class="perfil-presenca-label">Última presença</div>
+        <div class="perfil-presenca-label">Ultima presenca</div>
       </div>
       <div class="perfil-presenca-right">
-        <div class="perfil-presenca-jogos">${noAno} partida${noAno!==1?'s':''} em ${anoAtual}</div>
+        <div class="peladeiro-inline-mini-table" aria-label="Resumo anual do jogador">
+          <div class="peladeiro-inline-mini-head">J</div>
+          <div class="peladeiro-inline-mini-head">V</div>
+          <div class="peladeiro-inline-mini-head">E</div>
+          <div class="peladeiro-inline-mini-head">D</div>
+          <div class="peladeiro-inline-mini-head">%</div>
+          <div class="peladeiro-inline-mini-val">${escHtml(String(jogosAnoAtual))}</div>
+          <div class="peladeiro-inline-mini-val">${escHtml(String(vitoriasAnoAtual))}</div>
+          <div class="peladeiro-inline-mini-val">${escHtml(String(empatesAnoAtual))}</div>
+          <div class="peladeiro-inline-mini-val">${escHtml(String(derrotasAnoAtual))}</div>
+          <div class="peladeiro-inline-mini-val">${escHtml(String(aproveitamentoAnoAtual))}%</div>
+        </div>
       </div>`;
   }catch(e){ el.textContent='—'; }
 }
