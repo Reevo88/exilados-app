@@ -131,26 +131,42 @@
   transition: color .18s ease, transform .18s ease, opacity .18s ease;
 }
 
-.nav-btn.active,
-.nav-btn.nav-hover {
+.nav-btn.active {
   color: #F5E400;
 }
 
-.nav-btn.active::after,
-.nav-btn.nav-hover::after {
+.nav-btn.active::after {
   display: none;
 }
 
-.nav-btn.active i,
-.nav-btn.nav-hover i {
+.nav-btn.active i {
   transform: translateY(-2px) scale(1.08);
   filter: none;
 }
 
-.nav-btn.active span,
-.nav-btn.nav-hover span {
+.nav-btn.active span {
   transform: translateY(0);
   color: #F5E400;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-btn.nav-hover {
+    color: #F5E400;
+  }
+
+  .nav-btn.nav-hover::after {
+    display: none;
+  }
+
+  .nav-btn.nav-hover i {
+    transform: translateY(-2px) scale(1.08);
+    filter: none;
+  }
+
+  .nav-btn.nav-hover span {
+    transform: translateY(0);
+    color: #F5E400;
+  }
 }
 
 .nav-btn:not(.active):active {
