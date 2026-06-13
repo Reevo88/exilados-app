@@ -2,15 +2,15 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v12-caixa-nav-fix';
+const CACHE_NAME = 'exilados-v13-player-nav-transition-fix';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/style.css?v=20260613-caixa-nav-fix-1',
-  '/css/header.css?v=20260613-caixa-nav-fix-1',
-  '/css/bottom-nav.css?v=20260613-caixa-nav-fix-1',
+  '/style.css?v=20260613-player-nav-transition-fix-1',
+  '/css/header.css?v=20260613-player-nav-transition-fix-1',
+  '/css/bottom-nav.css?v=20260613-player-nav-transition-fix-1',
   '/js/core.js',
   '/js/auth.js',
   '/js/player.js',
