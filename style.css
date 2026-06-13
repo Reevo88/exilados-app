@@ -4229,18 +4229,18 @@ section[id*="home"] .btn:not(.btn-primary){
   border-radius:14px!important;
 }
 .peladeiros-pos-filter{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0, 1fr));
   gap:8px;
   margin:0 0 12px;
-  overflow-x:visible;
   padding-bottom:1px;
+  width:100%;
 }
 .peladeiros-pos-filter button{
-  min-width:56px;
+  width:100%;
+  min-width:0;
   height:36px;
-  padding:0 10px;
+  padding:0 6px;
   border-radius:8px;
   border:1px solid #343434;
   background:#111;
