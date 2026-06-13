@@ -159,7 +159,7 @@ function aplicarResumoCaixaNaTela(saldoId, extratoId, isAdm) {
   if (!cache) return false;
   const prefixo = saldoId.replace('-saldo-val', '');
   atualizarCardSaldoCaixa(prefixo, cache.resumo || calcularResumo(cache.movimentos || []));
-  renderExtrato(cache.movimentos, extratoId, 'todos', isAdm);
+  _renderExtratoFiltrado(cache.movimentos || [], extratoId, isAdm);
   return true;
 }
 
@@ -204,8 +204,7 @@ async function renderCaixaGeral() {
   salvarCacheCaixa(movimentos);
 
   atualizarCardSaldoCaixa('caixa', res);
-
-  renderExtrato(movimentos, 'caixa-extrato', 'todos', true);
+  _renderExtratoFiltrado(movimentos, 'caixa-extrato', true);
 }
 
 // -- RENDER: Caixa Jogador (leitura) ------
@@ -218,8 +217,7 @@ async function renderJCaixa() {
   salvarCacheCaixa(movimentos);
 
   atualizarCardSaldoCaixa('jcaixa', res);
-
-  renderExtrato(movimentos, 'jcaixa-extrato', 'todos', false);
+  _renderExtratoFiltrado(movimentos, 'jcaixa-extrato', false);
 
   const aberta = G.pelada && pelAdaberta(G.pelada);
   ['jcaixa-nav-conf','jcaixa-nav-times'].forEach(id => {
@@ -229,16 +227,21 @@ async function renderJCaixa() {
 }
 
 function redefinirFiltroExtratoInterno() {
-  _filtroState.mes = null;
+  const now = new Date();
+  _filtroState.mes = { ano: now.getFullYear(), mes: now.getMonth() };
   _filtroState.entradas = true;
   _filtroState.saidas = true;
-  _filtroState.ordem = 'desc';
+  _filtroState.ordem = 'asc';
   atualizarResumoFiltroExtrato();
 }
 
 function resumoFiltroExtratoTexto() {
   const partes = [];
-  const semFiltroPadrao = !_filtroState.mes && _filtroState.entradas && _filtroState.saidas && _filtroState.ordem === 'desc';
+  const now = new Date();
+  const filtroPadraoMesAtual = !!_filtroState.mes
+    && _filtroState.mes.ano === now.getFullYear()
+    && _filtroState.mes.mes === now.getMonth();
+  const semFiltroPadrao = filtroPadraoMesAtual && _filtroState.entradas && _filtroState.saidas && _filtroState.ordem === 'asc';
   if(semFiltroPadrao) return 'Sem filtros';
 
   if(_filtroState.mes) partes.push(`${_MESES_PT[_filtroState.mes.mes]} ${_filtroState.mes.ano}`);
@@ -264,6 +267,21 @@ function atualizarResumoFiltroExtrato() {
       el.title = texto;
     }
   });
+}
+
+function resumoFiltroExtratoTexto() {
+  const partes = [];
+  if(_filtroState.mes) partes.push(`${_MESES_PT[_filtroState.mes.mes]} ${_filtroState.mes.ano}`);
+  else partes.push('Todos os periodos');
+
+  if(!(_filtroState.entradas && _filtroState.saidas)) {
+    if(_filtroState.entradas && !_filtroState.saidas) partes.push('Entradas');
+    else if(!_filtroState.entradas && _filtroState.saidas) partes.push('Saidas');
+    else partes.push('Sem lancamentos');
+  }
+
+  partes.push(_filtroState.ordem === 'asc' ? 'Mais antigos' : 'Mais recentes');
+  return partes.join(' • ');
 }
 
 // -- RENDER: Extrato -----------------------
@@ -553,7 +571,7 @@ const _filtroState = {
   mes: null,        // null = todos | { ano, mes } 0-based
   entradas: true,
   saidas: true,
-  ordem: 'desc',
+  ordem: 'asc',
 };
 
 const _MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -595,21 +613,22 @@ function filtroMesNavegar(delta) {
 }
 
 function redefinirFiltroExtrato() {
-  _filtroState.mes = null;
+  const now = new Date();
+  _filtroState.mes = { ano: now.getFullYear(), mes: now.getMonth() };
   _filtroState.entradas = true;
   _filtroState.saidas   = true;
-  _filtroState.ordem    = 'desc';
+  _filtroState.ordem    = 'asc';
   _atualizarLabelMes();
   atualizarResumoFiltroExtrato();
   document.getElementById('filtro-entradas').checked = true;
   document.getElementById('filtro-saidas').checked   = true;
-  document.getElementById('filtro-ordem-rec').checked = true;
+  document.getElementById('filtro-ordem-ant').checked = true;
 }
 
 function aplicarFiltroExtrato() {
   _filtroState.entradas = document.getElementById('filtro-entradas').checked;
   _filtroState.saidas   = document.getElementById('filtro-saidas').checked;
-  _filtroState.ordem    = document.querySelector('input[name="filtro-ordem"]:checked')?.value || 'desc';
+  _filtroState.ordem    = document.querySelector('input[name="filtro-ordem"]:checked')?.value || 'asc';
   document.getElementById('modal-filtro-extrato').style.display = 'none';
   atualizarResumoFiltroExtrato();
 
