@@ -83,6 +83,44 @@ function calcularResumo(movimentos) {
   };
 }
 
+function efeitoNoSaldoMovimento(m) {
+  const v = Number(m?.valor) || 0;
+  return m?.tipo === 'entrada' ? v : -v;
+}
+
+function dataMovimentoDate(m) {
+  const raw = String(m?.data || '').trim();
+  return raw ? new Date(`${raw}T12:00:00`) : null;
+}
+
+function calcularResumoFiltradoComSaldoAnterior(movimentosBase, movimentosFiltrados) {
+  const base = Array.isArray(movimentosBase) ? movimentosBase : [];
+  const filtrados = Array.isArray(movimentosFiltrados) ? movimentosFiltrados : [];
+  const resumo = calcularResumo(filtrados);
+  let saldoAnterior = 0;
+
+  if (filtrados.length) {
+    const idsFiltrados = new Set(filtrados.map(m => String(m?.id || '')));
+    const idxPrimeiro = base.findIndex(m => idsFiltrados.has(String(m?.id || '')));
+    const ate = idxPrimeiro >= 0 ? idxPrimeiro : 0;
+    for (let i = 0; i < ate; i++) saldoAnterior += efeitoNoSaldoMovimento(base[i]);
+  } else if (_filtroState?.mes) {
+    const inicioPeriodo = new Date(_filtroState.mes.ano, _filtroState.mes.mes, 1);
+    base.forEach(m => {
+      const d = dataMovimentoDate(m);
+      if (d && d < inicioPeriodo) saldoAnterior += efeitoNoSaldoMovimento(m);
+    });
+  } else {
+    saldoAnterior = calcularResumo(base).saldo;
+  }
+
+  return {
+    ...resumo,
+    saldo: saldoAnterior + resumo.entradas - resumo.saidas,
+    saldoAnterior,
+  };
+}
+
 // -- Formatar moeda ------------------------
 function fmtMoney(v) {
   return 'R$ ' + Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -143,15 +181,17 @@ function salvarCacheCaixa(movimentos) {
   } catch(e) {}
 }
 
-function atualizarCardSaldoCaixa(prefixo, resumo) {
+function atualizarCardSaldoCaixa(prefixo, resumo, opts={}) {
+  const atualizarHero = opts.hero !== false;
+  const atualizarMini = opts.mini !== false;
   const saldoEl = document.getElementById(prefixo + '-saldo-val');
   const entradasEl = document.getElementById(prefixo + '-entradas-val');
   const saidasEl = document.getElementById(prefixo + '-saidas-val');
   const miniSaldoEl = document.getElementById(prefixo + '-mini-saldo-val');
-  if (saldoEl) saldoEl.textContent = fmtMoney(resumo?.saldo || 0);
-  if (entradasEl) entradasEl.textContent = fmtMoney(resumo?.entradas || 0);
-  if (saidasEl) saidasEl.textContent = fmtMoney(resumo?.saidas || 0);
-  if (miniSaldoEl) miniSaldoEl.textContent = fmtMoney(resumo?.saldo || 0);
+  if (atualizarHero && saldoEl) saldoEl.textContent = fmtMoney(resumo?.saldo || 0);
+  if (atualizarMini && entradasEl) entradasEl.textContent = fmtMoney(resumo?.entradas || 0);
+  if (atualizarMini && saidasEl) saidasEl.textContent = fmtMoney(resumo?.saidas || 0);
+  if (atualizarMini && miniSaldoEl) miniSaldoEl.textContent = fmtMoney(resumo?.saldo || 0);
 }
 
 function aplicarResumoCaixaNaTela(saldoId, extratoId, isAdm) {
@@ -678,6 +718,10 @@ function _renderExtratoFiltrado(movimentos, containerId, isAdm) {
   if(_filtroState.ordem === 'desc') {
     lista = lista.reverse();
   }
+
+  const prefixo = containerId === 'jcaixa-extrato' ? 'jcaixa' : 'caixa';
+  const resumoFiltrado = calcularResumoFiltradoComSaldoAnterior(movimentos, lista);
+  atualizarCardSaldoCaixa(prefixo, resumoFiltrado, { hero:false, mini:true });
 
   renderExtrato(lista, containerId, 'todos', isAdm, movimentos);
 }
