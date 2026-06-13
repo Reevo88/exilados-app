@@ -1475,19 +1475,41 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   letter-spacing: .02em;
 }
 .home-chip-pos {
-  font-size: 9px;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 3px 7px;
-  color: var(--cream);
-  background: rgba(245,228,0,.10);
-  border: 1px solid rgba(245,228,0,.20);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  min-height:28px;
+  height:28px;
+  padding:0 7px;
+  border-radius:8px;
+  color:#fff;
+  background:#111111;
+  border:1px solid #343434;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.035em;
+  line-height:1;
+  text-transform:uppercase;
 }
 .home-chip-pos.pos-GOL,
-.home-chip-pos.pos-ZAG,
+.home-chip-pos.pos-ZAG{
+  background:rgba(191,255,239,.06);
+  color:#BFFFEF;
+  border-color:rgba(191,255,239,.45);
+}
 .home-chip-pos.pos-LAT,
-.home-chip-pos.pos-MEI,
-.home-chip-pos.pos-ATA { background: rgba(245,228,0,.10); color: var(--cream); border-color: rgba(245,228,0,.20); }
+.home-chip-pos.pos-MEI{
+  background:rgba(245,228,0,.06);
+  color:#F5E400;
+  border-color:rgba(245,228,0,.45);
+}
+.home-chip-pos.pos-ATA{
+  background:rgba(255,91,91,.06);
+  color:#FF8A8A;
+  border-color:rgba(255,91,91,.45);
+}
 .home-chip-pos.pos-x   { visibility: hidden; }
 
 /* Caixa */
@@ -4343,24 +4365,44 @@ section[id*="home"] .btn:not(.btn-primary){
   border-radius:999px;
 }
 .peladeiro-chip-pos{
-  background:var(--team-main);
-  border-color:var(--team-main);
-  color:#050505;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  min-height:28px;
+  height:28px;
+  padding:0 7px !important;
+  border-radius:8px !important;
+  background:#111111 !important;
+  color:#fff !important;
+  font-family:'Barlow Condensed',sans-serif !important;
+  font-size:10px !important;
+  font-weight:950 !important;
+  letter-spacing:.035em !important;
+  line-height:1 !important;
+  text-transform:uppercase !important;
 }
-.peladeiro-chip-pos{color:#fff;}
 .peladeiro-card.peladeiro-pos-gol .peladeiro-chip-pos,
-.peladeiro-card.peladeiro-pos-zag .peladeiro-chip-pos,
-.peladeiro-card.peladeiro-pos-mei .peladeiro-chip-pos{
-  background:#185FA5;
-  border-color:#185FA5;
+.peladeiro-card.peladeiro-pos-zag .peladeiro-chip-pos{
+  color:#BFFFEF !important;
+  border-color:rgba(191,255,239,.45) !important;
+  background:rgba(191,255,239,.06) !important;
+}
+.peladeiro-card.peladeiro-pos-mei .peladeiro-chip-pos,
+.peladeiro-card.peladeiro-pos-lat .peladeiro-chip-pos{
+  color:#F5E400 !important;
+  border-color:rgba(245,228,0,.45) !important;
+  background:rgba(245,228,0,.06) !important;
 }
 .peladeiro-card.peladeiro-pos-ata .peladeiro-chip-pos{
-  background:#d92a22;
-  border-color:#d92a22;
+  color:#FF8A8A !important;
+  border-color:rgba(255,91,91,.45) !important;
+  background:rgba(255,91,91,.06) !important;
 }
-.peladeiro-card.peladeiro-pos-lat .peladeiro-chip-pos{
-  background:#B88A12;
-  border-color:#B88A12;
+.peladeiro-card.peladeiro-pos-pos .peladeiro-chip-pos{
+  color:rgba(255,255,255,.58) !important;
+  border-color:#343434 !important;
+  background:#111111 !important;
 }
 .peladeiro-chip-mod i{color:#f5e400;}
 .peladeiro-social-link{color:#dcdcdc;font-size:clamp(9px,2.4vw,12px);}
@@ -6136,10 +6178,23 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-adm-jogadores .jog-badges{ z-index:1; gap:7px; align-items:flex-end; }
 .jog-row-arrow{ color:#bdbdbd; font-size:24px; margin-left:4px; z-index:1; }
 .jog-admin-pill{ display:inline-flex; align-items:center; justify-content:center; min-width:45px; height:24px; padding:0 8px; border-radius:8px; font-size:10px; font-weight:900; text-transform:uppercase; border:1px solid #343434; color:#cfcfcf; background:#111; }
-.jog-admin-pill.pos-gol{ background:rgba(96,165,250,.16); color:#9bc7ff; border-color:#376faa; }
-.jog-admin-pill.pos-zag,.jog-admin-pill.pos-lat{ background:rgba(209,250,229,.10); color:#c9f7e3; border-color:#6da897; }
-.jog-admin-pill.pos-mei{ background:#f9ebd0; color:#111; border-color:#f9ebd0; }
-.jog-admin-pill.pos-ata{ background:rgba(255,100,100,.12); color:#ff9d9d; border-color:#d34848; }
+.jog-admin-pill.pos-gol,
+.jog-admin-pill.pos-zag{
+  background:rgba(191,255,239,.06);
+  color:#BFFFEF;
+  border-color:rgba(191,255,239,.45);
+}
+.jog-admin-pill.pos-lat,
+.jog-admin-pill.pos-mei{
+  background:rgba(245,228,0,.06);
+  color:#F5E400;
+  border-color:rgba(245,228,0,.45);
+}
+.jog-admin-pill.pos-ata{
+  background:rgba(255,91,91,.06);
+  color:#FF8A8A;
+  border-color:rgba(255,91,91,.45);
+}
 .jog-admin-pill.mod-mensalista{ background:rgba(45,212,191,.10); color:#b6fff2; border-color:#2b8c80; text-transform:none; font-size:11px; }
 .jog-admin-pill.mod-avulso{ text-transform:none; color:#d0d0d0; }
 .jog-admin-pill.role-presidente,.jog-admin-pill.role-adm{ color:#ffb4b4; border-color:#d34848; background:rgba(211,72,72,.10); text-transform:none; font-size:11px; }
