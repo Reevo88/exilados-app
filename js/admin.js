@@ -1118,12 +1118,20 @@ async function renderAdmTimes(){
     else alerta.style.display='none';
   }
 }
+function posBadgeLineupAdm(pos, full=false){
+  const raw=String(pos||'').toUpperCase().trim();
+  const map={GOLEIRO:'GOL',GOL:'GOL',ZAGUEIRO:'ZAG',ZAG:'ZAG',LATERAL:'LAT',LAT:'LAT',MEIA:'MEI',MEI:'MEI',ATACANTE:'ATA',ATA:'ATA'};
+  const fullName={GOL:'Goleiro',ZAG:'Zagueiro',LAT:'Lateral',MEI:'Meia',ATA:'Atacante'};
+  const abbr=map[raw] || null;
+  if(!abbr) return `<span class="pos-badge pos-pending">${full?'Posição':'POS'}</span>`;
+  return `<span class="pos-badge pos-${abbr}${full?' pos-badge-full':''}">${full ? fullName[abbr] : abbr}</span>`;
+}
 function renderAtTeam(cid,list,t,dz){
-  document.getElementById(cid).innerHTML=list.length?list.map(j=>`<div class="team-slot editable" ondragover="allowDrop(event)" ondrop="dropOnSlot(event,'${t}','${j.id}')"><div class="slot-av drag-handle ${t==='azul'?'b':'r'}" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para reordenar ou mover">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="slot-main"><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span><button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
+  document.getElementById(cid).innerHTML=list.length?list.map(j=>`<div class="team-slot editable" ondragover="allowDrop(event)" ondrop="dropOnSlot(event,'${t}','${j.id}')"><div class="slot-av drag-handle ${t==='azul'?'b':'r'}" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para reordenar ou mover">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="slot-main"><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span>${posBadgeLineupAdm(j.pos,false)}<button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
 }
 function renderAtPool(list){
   const el=document.getElementById('at-pool');
-  el.innerHTML=list.length?list.map(j=>`<div class="pool-item lineup-pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="lineup-pool-main"><span class="lineup-pool-name">${escHtml(j.nome)}</span>${bAnivAdm(j,'pool')}</div><div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
+  el.innerHTML=list.length?list.map(j=>`<div class="pool-item lineup-pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="lineup-pool-main"><div class="lineup-pool-name-row"><span class="lineup-pool-name">${escHtml(j.nome)}</span>${posBadgeLineupAdm(j.pos,false)}</div>${bAnivAdm(j,'pool')}</div><div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
     :'<div class="lineup-empty"><i class="ti ti-check"></i> Todos escalados!</div>';
 }
 function renderAtAll(){
