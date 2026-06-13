@@ -167,17 +167,6 @@
   pointer-events: none;
 }
 
-#s-adm-fin .bottom-nav .nav-btn.active {
-  background: #F5E400 !important;
-  color: #050505 !important;
-  box-shadow: none !important;
-}
-
-#s-adm-fin .bottom-nav .nav-btn.active i,
-#s-adm-fin .bottom-nav .nav-btn.active span {
-  color: #050505 !important;
-}
-
 #s-adm-jogadores .bottom-nav .nav-btn:last-child {
   color: #F5E400;
 }
