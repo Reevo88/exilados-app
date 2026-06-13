@@ -841,3 +841,37 @@ function abrirModuloAdm(aba){
   }
   admNav(aba);
 }
+
+async function adminBottomNavHome(){
+  abrirPainelAdministrativo();
+}
+
+async function adminBottomNavConf(){
+  if(!G.pelada?.id){
+    renderAdmHome();
+    goTo('s-adm-home');
+    showToast('Selecione uma pelada para continuar.');
+    return;
+  }
+  if(typeof setPeladaAdm === 'function') await setPeladaAdm(G.pelada.id,'conf');
+  else abrirModuloAdm('conf');
+}
+
+async function adminBottomNavTimes(){
+  if(!G.pelada?.id){
+    renderAdmHome();
+    goTo('s-adm-home');
+    showToast('Selecione uma pelada para continuar.');
+    return;
+  }
+  if(typeof setPeladaAdm === 'function') await setPeladaAdm(G.pelada.id,'times');
+  else abrirModuloAdm('times');
+}
+
+async function adminBottomNavCaixa(){
+  abrirModuloAdm('fin');
+}
+
+async function adminBottomNavPeladeiros(){
+  await abrirOpcaoPerfilAdm();
+}

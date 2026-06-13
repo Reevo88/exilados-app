@@ -84,7 +84,7 @@
     if(txt.indexOf('confirma') !== -1 || cls.indexOf('ti-users') !== -1) return 'conf';
     if(txt.indexOf('escala') !== -1 || cls.indexOf('ti-shirt') !== -1) return 'times';
     if(txt.indexOf('caixa') !== -1 || cls.indexOf('ti-cash') !== -1) return 'caixa';
-    if(txt.indexOf('peladeiros') !== -1) return 'peladeiros';
+    if(txt.indexOf('peladeiros') !== -1 || txt.indexOf('exilados') !== -1 || cls.indexOf('ti-user-edit') !== -1) return 'peladeiros';
     if(txt.indexOf('perfil') !== -1 || cls.indexOf('ti-user-circle') !== -1) return 'perfil';
     return null;
   }

@@ -333,6 +333,34 @@ function abrirTelaJogadorPorDestino(destino='conf'){
   goTo('s-j-conf');
 }
 
+async function playerBottomNavHome(){
+  await voltarLista();
+}
+
+async function playerBottomNavConf(){
+  if(G.pelada?.id && pelAdaberta(G.pelada)){
+    await abrirJogador(G.pelada.id,'conf');
+    return;
+  }
+  await abrirPeladaEmAbertoJogador('conf');
+}
+
+async function playerBottomNavTimes(){
+  if(G.pelada?.id && pelAdaberta(G.pelada)){
+    await abrirJogador(G.pelada.id,'times');
+    return;
+  }
+  await abrirPeladaEmAbertoJogador('times');
+}
+
+async function playerBottomNavCaixa(){
+  abrirJCaixa();
+}
+
+async function playerBottomNavPerfil(){
+  await abrirPerfilJogador(true);
+}
+
 function abrirHistorico(){
   goTo('s-j-historico');
   renderJHistorico();

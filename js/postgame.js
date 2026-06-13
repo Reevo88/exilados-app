@@ -382,21 +382,21 @@ function _resumoNavAtualizar() {
   });
 }
 
-function resumoNavConf() {
+function _resumoNavConfAntigo() {
   if(!G.pelada || !pelAdaberta(G.pelada)) {
     showToastDanger('Não há partida aberta no momento. Aguarde o presidente abrir a próxima pelada.');
     return;
   }
   renderJConf(); goTo('s-j-conf');
 }
-function resumoNavTimes() {
+function _resumoNavTimesAntigo() {
   if(!G.pelada || !pelAdaberta(G.pelada)) {
     showToastDanger('Não há partida aberta no momento. Aguarde o presidente abrir a próxima pelada.');
     return;
   }
   renderJTimes(); goTo('s-j-times');
 }
-function resumoNavCaixa() {
+function _resumoNavCaixaAntigo() {
   abrirJCaixa();
 }
 
@@ -775,36 +775,34 @@ async function voltarLista(){
 
 function resumoNavConf() {
   if(resumoEmVisaoAdm()) {
-    abrirModuloAdm('conf');
+    adminBottomNavConf();
     return;
   }
   if(!G.pelada || !pelAdaberta(G.pelada)) {
     showToastDanger('NÃ£o hÃ¡ partida aberta no momento. Aguarde o presidente abrir a prÃ³xima pelada.');
     return;
   }
-  renderJConf();
-  goTo('s-j-conf');
+  playerBottomNavConf();
 }
 
 function resumoNavTimes() {
   if(resumoEmVisaoAdm()) {
-    abrirModuloAdm('times');
+    adminBottomNavTimes();
     return;
   }
   if(!G.pelada || !pelAdaberta(G.pelada)) {
     showToastDanger('NÃ£o hÃ¡ partida aberta no momento. Aguarde o presidente abrir a prÃ³xima pelada.');
     return;
   }
-  renderJTimes();
-  goTo('s-j-times');
+  playerBottomNavTimes();
 }
 
 function resumoNavCaixa() {
   if(resumoEmVisaoAdm()) {
-    abrirModuloAdm('fin');
+    adminBottomNavCaixa();
     return;
   }
-  abrirJCaixa();
+  playerBottomNavCaixa();
 }
 
 
