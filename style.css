@@ -4230,21 +4230,25 @@ section[id*="home"] .btn:not(.btn-primary){
 }
 .peladeiros-pos-filter{
   display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
   gap:8px;
   margin:0 0 12px;
-  overflow-x:auto;
+  overflow-x:visible;
   padding-bottom:1px;
 }
 .peladeiros-pos-filter button{
-  min-width:58px;
-  height:38px;
-  border-radius:999px;
+  min-width:56px;
+  height:36px;
+  padding:0 10px;
+  border-radius:8px;
   border:1px solid #343434;
   background:#111;
   color:#d7d7d7;
   font-family:'Barlow Condensed',sans-serif;
-  font-size:16px;
-  font-weight:800;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:.02em;
   text-transform:uppercase;
   cursor:pointer;
 }
@@ -4669,7 +4673,10 @@ section[id*="home"] .btn:not(.btn-primary){
    O wordmark horizontal ficava minúsculo quando usado no slot quadrado do header.
    Para esta tela, usamos o logo quadrado do app no canto esquerdo. */
 #s-j-peladeiros .header{
-  border:1px solid #343434 !important;
+  border-top:1px solid #343434 !important;
+  border-bottom:1px solid #343434 !important;
+  border-left:none !important;
+  border-right:none !important;
   box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06) !important;
 }
 #s-j-peladeiros .header .peladeiros-header-logo{
