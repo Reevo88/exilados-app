@@ -5726,14 +5726,36 @@ section[id*="home"] .btn:not(.btn-primary){
   align-items:center;
   gap:8px;
 }
+#s-adm-times .lineup-pool-name-row{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex:1;
+}
 #s-adm-times .lineup-pool-name{
   color:#fff !important;
   font-size:14px !important;
   font-weight:900 !important;
+  flex:1;
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
+}
+#s-adm-times .lineup-pool-name-row .pos-badge{
+  flex-shrink:0;
+  min-width:34px;
+  text-align:center;
+  border:1px solid #343434 !important;
+  background:#111111 !important;
+  padding:4px 7px !important;
+  border-radius:8px !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  font-weight:950 !important;
+  font-family:'Barlow Condensed',sans-serif !important;
+  letter-spacing:.04em !important;
 }
 #s-adm-times .lineup-birthday-badge{
   display:inline-flex !important;
