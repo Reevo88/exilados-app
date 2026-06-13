@@ -231,7 +231,7 @@ function redefinirFiltroExtratoInterno() {
   _filtroState.mes = { ano: now.getFullYear(), mes: now.getMonth() };
   _filtroState.entradas = true;
   _filtroState.saidas = true;
-  _filtroState.ordem = 'asc';
+  _filtroState.ordem = 'desc';
   atualizarResumoFiltroExtrato();
 }
 
@@ -574,10 +574,6 @@ function verFinanceiroPelada(id) {
   renderAdmFin(); goTo('s-adm-fin-pelada');
 }
 
-hidratarCaixaCache();
-
-
-
 // ==========================================
 // FILTRO DO EXTRATO
 // ==========================================
@@ -586,7 +582,7 @@ const _filtroState = {
   mes: null,        // null = todos | { ano, mes } 0-based
   entradas: true,
   saidas: true,
-  ordem: 'asc',
+  ordem: 'desc',
 };
 
 const _MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -632,18 +628,18 @@ function redefinirFiltroExtrato() {
   _filtroState.mes = { ano: now.getFullYear(), mes: now.getMonth() };
   _filtroState.entradas = true;
   _filtroState.saidas   = true;
-  _filtroState.ordem    = 'asc';
+  _filtroState.ordem    = 'desc';
   _atualizarLabelMes();
   atualizarResumoFiltroExtrato();
   document.getElementById('filtro-entradas').checked = true;
   document.getElementById('filtro-saidas').checked   = true;
-  document.getElementById('filtro-ordem-ant').checked = true;
+  document.getElementById('filtro-ordem-rec').checked = true;
 }
 
 function aplicarFiltroExtrato() {
   _filtroState.entradas = document.getElementById('filtro-entradas').checked;
   _filtroState.saidas   = document.getElementById('filtro-saidas').checked;
-  _filtroState.ordem    = document.querySelector('input[name="filtro-ordem"]:checked')?.value || 'asc';
+  _filtroState.ordem    = document.querySelector('input[name="filtro-ordem"]:checked')?.value || 'desc';
   document.getElementById('modal-filtro-extrato').style.display = 'none';
   atualizarResumoFiltroExtrato();
 
@@ -685,3 +681,5 @@ function _renderExtratoFiltrado(movimentos, containerId, isAdm) {
 
   renderExtrato(lista, containerId, 'todos', isAdm, movimentos);
 }
+
+hidratarCaixaCache();
