@@ -3750,9 +3750,19 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-j-times .lineup-pool-item .pos-badge-full {
   min-width:0;
   width:auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  height:28px;
   text-align:center;
-  font-size:9px;
-  padding:3px 5px;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.035em;
+  white-space:nowrap;
+  text-transform:uppercase;
+  padding:0 7px;
+  border-radius:8px;
   line-height:1;
 }
 #s-j-times .team-slot .pos-badge {
@@ -5746,19 +5756,27 @@ section[id*="home"] .btn:not(.btn-primary){
   white-space:nowrap;
 }
 #s-adm-times .lineup-pool-name-row .pos-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   flex-shrink:0;
-  min-width:34px;
+  min-width:0;
+  width:auto;
+  min-height:28px;
+  height:28px;
   text-align:center;
   border-width:1px !important;
   border-style:solid !important;
   background:#111111 !important;
-  padding:4px 7px !important;
+  padding:0 7px !important;
   border-radius:8px !important;
   font-size:10px !important;
   line-height:1 !important;
   font-weight:950 !important;
   font-family:'Barlow Condensed',sans-serif !important;
   letter-spacing:.04em !important;
+  white-space:nowrap !important;
+  text-transform:uppercase !important;
   box-shadow:none !important;
   opacity:1 !important;
 }
@@ -5824,18 +5842,18 @@ section[id*="home"] .btn:not(.btn-primary){
 #s-adm-times .pos-GOL,
 #s-adm-times .pos-ZAG{
   color:#BFFFEF !important;
-  border-color:currentColor !important;
+  border-color:rgba(191,255,239,.45) !important;
   background:rgba(191,255,239,.06) !important;
 }
 #s-adm-times .pos-LAT,
 #s-adm-times .pos-MEI{
   color:#F5E400 !important;
-  border-color:currentColor !important;
+  border-color:rgba(245,228,0,.45) !important;
   background:rgba(245,228,0,.06) !important;
 }
 #s-adm-times .pos-ATA{
   color:#FF8A8A !important;
-  border-color:currentColor !important;
+  border-color:rgba(255,91,91,.45) !important;
   background:rgba(255,91,91,.06) !important;
 }
 #s-adm-times .pos-pending{
