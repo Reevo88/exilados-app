@@ -2,15 +2,15 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v14-adm-times-pos-inline';
+const CACHE_NAME = 'exilados-v19-adm-pos-border-currentcolor';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/style.css?v=20260613-adm-times-pos-inline-1',
-  '/css/header.css?v=20260613-adm-times-pos-inline-1',
-  '/css/bottom-nav.css?v=20260613-adm-times-pos-inline-1',
+  '/style.css?v=20260613-adm-pos-border-currentcolor-1',
+  '/css/header.css?v=20260613-adm-pos-border-currentcolor-1',
+  '/css/bottom-nav.css?v=20260613-adm-pos-border-currentcolor-1',
   '/js/core.js',
   '/js/auth.js',
   '/js/player.js',
