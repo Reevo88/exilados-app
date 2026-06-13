@@ -36,10 +36,10 @@
 </div>
 <div class="bottom-nav">
 <button class="nav-btn active"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirJogador(G.peladas[0]?.id)"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirJogador(G.peladas[0]?.id)"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- J1B: PERFIL DO JOGADOR -->
@@ -155,11 +155,11 @@
 </div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn active" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn active" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- J1C: PELADEIROS (SOMENTE LEITURA) -->
@@ -191,11 +191,11 @@
 <div id="peladeiros-lista"></div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- J-HIST: HISTÓRICO DE RESULTADOS -->
@@ -205,11 +205,11 @@
 <div id="j-historico-lista"></div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- J2: CONFIRMAR (JOGADOR) -->
@@ -242,11 +242,11 @@
 <div id="jc-lista"></div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn active" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn active" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- J3: TIMES (JOGADOR) -->
@@ -281,11 +281,11 @@
 </div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn active" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn active" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- ======================================
@@ -353,11 +353,11 @@
 <div class="adm-dashboard-foot"><i class="ti ti-lock"></i> Acesso restrito • Apenas administradores</div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn active" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn active" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- A1: HOME ADM -->
@@ -369,11 +369,11 @@
 <div id="adm-lista-fechadas"></div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- A1B: JOGADORES ADM -->
@@ -493,11 +493,11 @@
 </div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn active" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn active" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- A2: CRIAR PELADA -->
@@ -532,11 +532,11 @@
 </div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- A3: CONFIRMAÇÕES ADM -->
@@ -596,11 +596,11 @@
 <div id="aconf-tab-nao" style="display:none;"><div id="aconf-nao-lista"></div></div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn active" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn active" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- A4: TIMES ADM -->
@@ -648,11 +648,11 @@
 </div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn active" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn active" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- A5: FINANCEIRO (Caixa Geral) -->
@@ -691,11 +691,11 @@
 </div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn active" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn active" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- A5b: FINANCEIRO POR PELADA (antigo) -->
@@ -728,11 +728,11 @@
 </div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn active" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn active" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- J4: CAIXA DO JOGADOR (leitura) -->
@@ -759,11 +759,11 @@
 <div class="readonly-badge" style="margin:0 0 12px 0;"><i class="ti ti-eye" style="font-size:14px;"></i> Modo leitura — apenas visualização</div>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="renderJConf();goTo('s-j-conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="renderJTimes();goTo('s-j-times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn active" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn active" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- MODAL DESPESA -->
@@ -1024,11 +1024,11 @@
 </div>
 <!-- Tab bar -->
 <div class="bottom-nav">
-<button class="nav-btn" onclick="voltarLista()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
 <button class="nav-btn" id="resumo-nav-conf" onclick="resumoNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" id="resumo-nav-times" onclick="resumoNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="resumoNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- ======================================
@@ -1101,11 +1101,11 @@
 <button class="btn fin-wa" onclick="pjVerResumo()" style="margin-bottom:20px;"><i class="ti ti-eye"></i> Abrir Olho no lance</button>
 </div>
 <div class="bottom-nav">
-<button class="nav-btn" onclick="abrirPainelAdministrativo()"><i class="ti ti-home"></i><span>Início</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('conf')"><i class="ti ti-users"></i><span>Confirmações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('times')"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirModuloAdm('fin')"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirOpcaoPerfilAdm()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
+<button class="nav-btn" onclick="adminBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="adminBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="adminBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="adminBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="adminBottomNavPeladeiros()"><i class="ti ti-user-edit"></i><span>Peladeiros</span></button>
 </div>
 </div>
 <!-- ==========================================
@@ -1177,8 +1177,8 @@
 <button class="nav-btn" onclick="fecharVotacao()"><i class="ti ti-home"></i><span>Início</span></button>
 <button class="nav-btn nav-disabled"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn nav-disabled"><i class="ti ti-shirt"></i><span>Escalações</span></button>
-<button class="nav-btn" onclick="abrirJCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="abrirPerfilJogador(true)"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
 </div>
 </div>
 <!-- ======================================
