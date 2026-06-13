@@ -259,7 +259,7 @@ function resumoFiltroExtratoTexto() {
 }
 
 function atualizarResumoFiltroExtrato() {
-  const texto = resumoFiltroExtratoTexto();
+  const texto = resumoFiltroExtratoTextoAtual();
   ['caixa-filtro-resumo','jcaixa-filtro-resumo'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
@@ -267,6 +267,21 @@ function atualizarResumoFiltroExtrato() {
       el.title = texto;
     }
   });
+}
+
+function resumoFiltroExtratoTextoAtual() {
+  const partes = [];
+  if(_filtroState.mes) partes.push(`${_MESES_PT[_filtroState.mes.mes]} ${_filtroState.mes.ano}`);
+  else partes.push('Todos os periodos');
+
+  if(!(_filtroState.entradas && _filtroState.saidas)) {
+    if(_filtroState.entradas && !_filtroState.saidas) partes.push('Entradas');
+    else if(!_filtroState.entradas && _filtroState.saidas) partes.push('Saidas');
+    else partes.push('Sem lancamentos');
+  }
+
+  partes.push(_filtroState.ordem === 'asc' ? 'Mais antigos' : 'Mais recentes');
+  return partes.join(' • ');
 }
 
 function resumoFiltroExtratoTexto() {
