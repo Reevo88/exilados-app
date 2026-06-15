@@ -1448,6 +1448,19 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   object-fit: cover;
   display: block;
 }
+.home-chip-avatar--deferred {
+  position: relative;
+}
+.home-chip-avatar--deferred img {
+  position: absolute;
+  inset: 0;
+}
+.home-chip-avatar-placeholder {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--cream);
+  font-family:'Barlow Condensed',sans-serif;
+}
 .home-chip-initials {
   font-size: 22px;
   font-weight: 800;
