@@ -74,13 +74,15 @@ async function sbInvokeFunction(name, payload={}) {
   return txt ? JSON.parse(txt) : null;
 }
 
-function queueAdminPeladaNotification(event, peladaId, confirmacaoId) {
+function queueAdminPeladaNotification(event, peladaId, confirmacaoId, meta = null) {
   if(!event || !peladaId || !confirmacaoId) return;
-  sbInvokeFunction('notify-admin-pelada-change', {
+  const payload = {
     event,
     pelada_id: peladaId,
     confirmacao_id: confirmacaoId,
-  }).catch(err => console.warn('Falha ao notificar ADMs:', err));
+  };
+  if(meta && typeof meta === 'object') Object.assign(payload, meta);
+  sbInvokeFunction('notify-admin-pelada-change', payload).catch(err => console.warn('Falha ao notificar ADMs:', err));
 }
 
 async function dbCarregarPeladas() {
