@@ -5,6 +5,7 @@
 let _openPeladaSheetRows = [];
 let _openPeladaSheetDestino = 'conf';
 let _homeAssetsPreloaded = false;
+const HOME_CAROUSEL_EAGER_PHOTOS = 4;
 
 function homeResumoLabel(p){
   return (p?.homeResumoDisponivel || !!p?.resultado) ? 'Olho no lance' : 'Ver resumo da pelada';
@@ -26,6 +27,58 @@ function camisaHomeHtml(cor){
   const src = azul ? 'camisa-azul.png?v=2' : 'camisa-vermelha.png?v=2';
   const alt = azul ? 'Camisa do Time Azul' : 'Camisa do Time Vermelho';
   return `<img class="home-shirt-svg" src="${src}" alt="${alt}" loading="eager" decoding="sync" fetchpriority="high" width="28" height="31" />`;
+}
+
+function homeCarouselAvatarHtml(j, apelido, aniv, carregarAgora){
+  if(!j.foto_url){
+    const ini = apelido.slice(0,2);
+    return `<div class="home-chip-avatar home-chip-initials" style="position:relative;">${escHtml(ini)}${aniv}</div>`;
+  }
+  if(carregarAgora){
+    return `<div class="home-chip-avatar" style="position:relative;"><img src="${escHtml(j.foto_url)}" alt="" loading="eager" decoding="async" fetchpriority="low"/>${aniv}</div>`;
+  }
+  const ini = apelido.slice(0,2);
+  return `<div class="home-chip-avatar home-chip-avatar--deferred" style="position:relative;">
+    <span class="home-chip-avatar-placeholder">${escHtml(ini)}</span>
+    <img data-src="${escHtml(j.foto_url)}" alt="" loading="lazy" decoding="async" fetchpriority="low"/>
+    ${aniv}
+  </div>`;
+}
+
+function ativarFotosPendentesHomeCarousel(){
+  const carousel = document.getElementById('home-elenco-carousel');
+  if(!carousel) return;
+  const pendentes = carousel.querySelectorAll('img[data-src]');
+  pendentes.forEach(img => {
+    const src = img.dataset.src;
+    if(!src) return;
+    img.src = src;
+    img.removeAttribute('data-src');
+  });
+}
+
+function prepararLazyCarouselHome(){
+  const wrap = document.querySelector('.home-carousel-wrap');
+  if(!wrap) return;
+  if(wrap._homeCarouselLazyHandler){
+    wrap.removeEventListener('scroll', wrap._homeCarouselLazyHandler);
+    wrap.removeEventListener('pointerdown', wrap._homeCarouselLazyHandler);
+    wrap.removeEventListener('touchstart', wrap._homeCarouselLazyHandler);
+    wrap.removeEventListener('wheel', wrap._homeCarouselLazyHandler);
+  }
+  const carregar = () => {
+    ativarFotosPendentesHomeCarousel();
+    wrap.removeEventListener('scroll', carregar);
+    wrap.removeEventListener('pointerdown', carregar);
+    wrap.removeEventListener('touchstart', carregar);
+    wrap.removeEventListener('wheel', carregar);
+    wrap._homeCarouselLazyHandler = null;
+  };
+  wrap._homeCarouselLazyHandler = carregar;
+  wrap.addEventListener('scroll', carregar, { passive:true, once:true });
+  wrap.addEventListener('pointerdown', carregar, { passive:true, once:true });
+  wrap.addEventListener('touchstart', carregar, { passive:true, once:true });
+  wrap.addEventListener('wheel', carregar, { passive:true, once:true });
 }
 
 // ==========================================
@@ -118,6 +171,7 @@ function renderJLista(){
   const jogAtivos = (G.jogadores||[]).filter(j => j.ativo !== false);
   const chipsFn = () => {
     if(!jogAtivos.length) return '<div style="padding:8px;font-size:12px;color:var(--text2);">Carregando elenco…</div>';
+    let eagerFotos = 0;
     return jogAtivos.map(j => {
       const apelido = (j.apelido||j.nome||'?').toUpperCase();
       const posRaw = (j.posicao_favorita || '').toUpperCase().trim();
@@ -131,13 +185,9 @@ function renderJLista(){
       const pos = posMap[posRaw] || null;
       const posHtml = pos ? `<span class="home-chip-pos pos-${pos}">${pos}</span>` : '<span class="home-chip-pos pos-x" style="visibility:hidden;">—</span>';
       const aniv = isAniversarianteMes(j) ? '<span class="badge-aniv-mini" style="position:absolute;top:0;right:0;font-size:11px;">🎂</span>' : '';
-      let avatarHtml;
-      if(j.foto_url){
-        avatarHtml = `<div class="home-chip-avatar" style="position:relative;"><img src="${escHtml(j.foto_url)}" alt=""/>${aniv}</div>`;
-      } else {
-        const ini = (apelido.slice(0,2));
-        avatarHtml = `<div class="home-chip-avatar home-chip-initials" style="position:relative;">${escHtml(ini)}${aniv}</div>`;
-      }
+      const carregarAgora = !!j.foto_url && eagerFotos < HOME_CAROUSEL_EAGER_PHOTOS;
+      if(carregarAgora) eagerFotos++;
+      const avatarHtml = homeCarouselAvatarHtml(j, apelido, aniv, carregarAgora);
       return `<div class="home-player-chip" onclick="abrirPeladeirosPublico('${escHtml(String(j.id||''))}')">
         ${avatarHtml}
         <span class="home-chip-apelido">${escHtml(apelido)}</span>
@@ -211,6 +261,8 @@ function renderJLista(){
     ${caixaHtml}
   `;
 
+  prepararLazyCarouselHome();
+
   // Votação e resultados dos cards encerrados
   encerradas.forEach(p => {
     _atualizarBotaoVotacaoHome(p);
@@ -227,6 +279,7 @@ function renderJLista(){
         G.jogadores = rows || [];
         const carousel = document.getElementById('home-elenco-carousel');
         if(carousel) carousel.innerHTML = chipsFn();
+        prepararLazyCarouselHome();
       }).catch(()=>{});
   }
 }
