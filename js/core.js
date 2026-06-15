@@ -58,6 +58,31 @@ async function sbFetch(path, opts={}) {
   const txt=await r.text(); return txt?JSON.parse(txt):null;
 }
 
+async function sbInvokeFunction(name, payload={}) {
+  const token = await getSupabaseAccessToken();
+  const r = await fetch(SUPABASE_URL + '/functions/v1/' + name, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  const txt = await r.text();
+  if(!r.ok){ console.error('Function erro:', txt); throw new Error(txt || ('HTTP ' + r.status)); }
+  return txt ? JSON.parse(txt) : null;
+}
+
+function queueAdminPeladaNotification(event, peladaId, confirmacaoId) {
+  if(!event || !peladaId || !confirmacaoId) return;
+  sbInvokeFunction('notify-admin-pelada-change', {
+    event,
+    pelada_id: peladaId,
+    confirmacao_id: confirmacaoId,
+  }).catch(err => console.warn('Falha ao notificar ADMs:', err));
+}
+
 async function dbCarregarPeladas() {
   const rows=await sbFetch('/peladas?order=data.desc');
   G.peladas=rows.map(r=>({
