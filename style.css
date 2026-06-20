@@ -3359,7 +3359,7 @@ section[id*="home"] .btn:not(.btn-primary){
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 .conf-player-row--stacked {
   grid-template-columns: 42px minmax(0,1fr);
@@ -3380,7 +3380,7 @@ section[id*="home"] .btn:not(.btn-primary){
   min-width: 28px;
   height: 28px;
   padding: 0 7px;
-  font-size: 10px;
+  font-size: clamp(8.5px, 2.3vw, 10px);
   font-weight: 950;
   letter-spacing: .035em;
   white-space: nowrap;
@@ -3388,7 +3388,7 @@ section[id*="home"] .btn:not(.btn-primary){
   background: #111111;
 }
 .conf-player-badge i,
-.conf-birthday-badge i { font-size: 13px; }
+.conf-birthday-badge i { font-size: clamp(11px, 3vw, 13px); }
 .conf-player-badge.is-game {
   color: #65D95F;
   border-color: rgba(101,217,95,.34);
