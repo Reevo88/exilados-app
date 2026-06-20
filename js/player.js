@@ -214,14 +214,14 @@ function renderJLista(){
 
     <div class="home-sec">
       <div class="home-sec-header">
-        <span class="home-sec-title">ESTATÍSTICAS DA BOLA</span>
+        <span class="home-sec-title">ESTATÍSTICAS DA PELADA</span>
         <span class="home-sec-link" onclick="abrirRanking()">Ver ranking</span>
       </div>
       <div class="home-ranking-hero">
         <div class="home-ranking-hero-top">
           <div>
             <div class="home-caixa-kicker">Competição</div>
-            <div class="home-caixa-title">Rankings da Pelada</div>
+            <div class="home-caixa-title">Ranking dos Exilados</div>
           </div>
           <div class="home-caixa-main-icon"><i class="ti ti-trophy"></i></div>
         </div>
