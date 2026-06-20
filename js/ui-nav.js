@@ -25,14 +25,22 @@
     if(soft) btn.classList.add('nav-hover');
   }
 
+  // Posiciona o indicador sem animação (na troca de tela)
+  function setIndicatorInstant(nav, btn){
+    nav.classList.add('nav-instant');
+    setIndicator(nav, btn, false);
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ nav.classList.remove('nav-instant'); });
+    });
+  }
+
   function getActiveButton(nav){
     return nav.querySelector('.nav-btn.active:not(.nav-disabled)') || nav.querySelector('.nav-btn:not(.nav-disabled)');
   }
 
   function nearestButtonFromPoint(nav, x, y){
     var buttons = Array.prototype.slice.call(nav.querySelectorAll('.nav-btn:not(.nav-disabled)'));
-    var best = null;
-    var bestDist = Infinity;
+    var best = null, bestDist = Infinity;
     buttons.forEach(function(btn){
       var r = btn.getBoundingClientRect();
       var cx = r.left + r.width / 2;
@@ -55,7 +63,7 @@
       nav.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
     }
-    setIndicator(nav, btn, true);
+    setIndicator(nav, btn, false);
 
     var ring = document.createElement('span');
     ring.className = 'nav-ripple';
@@ -75,27 +83,36 @@
     if(id === 's-adm-times') return 'times';
     if(id === 's-adm-fin' || id === 's-adm-fin-pelada') return 'caixa';
     if(id === 's-adm-jogadores') return 'peladeiros';
-    if(id === 's-j-lista' || id === 's-j-historico') return 'home';
+    if(id === 's-j-lista' || id === 's-j-historico' || id === 's-j-ranking') return 'home';
     if(id === 's-j-conf') return 'conf';
     if(id === 's-j-times') return 'times';
     if(id === 's-j-caixa') return 'caixa';
-    if(id === 's-j-perfil') return 'perfil';
     if(id === 's-j-peladeiros') return 'peladeiros';
-    if(id === 's-j-ranking') return 'home';
     if(id === 's-j-perfil') return null;
     return null;
   }
 
+  // Texto tem prioridade sobre ícone — evita falso-positivo do ti-users no botão Exilados
   function keyForButton(btn){
     var txt = (btn && btn.textContent || '').trim().toLowerCase();
     var icon = btn && btn.querySelector('i');
     var cls = icon ? icon.className : '';
-    if(txt.indexOf('início') !== -1 || txt.indexOf('inÃ­cio') !== -1 || cls.indexOf('ti-home') !== -1) return 'home';
-    if(txt.indexOf('confirma') !== -1 || cls.indexOf('ti-users') !== -1) return 'conf';
-    if(txt.indexOf('escala') !== -1 || cls.indexOf('ti-shirt') !== -1) return 'times';
-    if(txt.indexOf('caixa') !== -1 || cls.indexOf('ti-cash') !== -1) return 'caixa';
-    if(txt.indexOf('peladeiros') !== -1 || txt.indexOf('exilados') !== -1 || cls.indexOf('ti-user-edit') !== -1) return 'peladeiros';
-    if(txt.indexOf('perfil') !== -1 || cls.indexOf('ti-user-circle') !== -1) return 'perfil';
+
+    // Texto primeiro (mais específico)
+    if(txt.indexOf('exilados') !== -1 || txt.indexOf('peladeiros') !== -1) return 'peladeiros';
+    if(txt.indexOf('início') !== -1 || txt.indexOf('inicio') !== -1 || txt.indexOf('iní') !== -1) return 'home';
+    if(txt.indexOf('confirma') !== -1) return 'conf';
+    if(txt.indexOf('escala') !== -1) return 'times';
+    if(txt.indexOf('caixa') !== -1) return 'caixa';
+    if(txt.indexOf('perfil') !== -1) return 'perfil';
+
+    // Ícone como fallback
+    if(cls.indexOf('ti-home') !== -1) return 'home';
+    if(cls.indexOf('ti-shirt') !== -1) return 'times';
+    if(cls.indexOf('ti-cash') !== -1) return 'caixa';
+    if(cls.indexOf('ti-user-edit') !== -1) return 'peladeiros';
+    if(cls.indexOf('ti-user-circle') !== -1) return 'perfil';
+    if(cls.indexOf('ti-users') !== -1) return 'conf';
     return null;
   }
 
@@ -107,15 +124,17 @@
     if(!nav) return;
     nav.querySelectorAll('.nav-btn').forEach(function(btn){ btn.classList.remove('nav-hover'); });
     if(key){
-      nav.querySelectorAll('.nav-btn').forEach(function(btn){ btn.classList.toggle('active', keyForButton(btn) === key); });
+      nav.querySelectorAll('.nav-btn').forEach(function(btn){
+        btn.classList.toggle('active', keyForButton(btn) === key);
+      });
     }
-    requestAnimationFrame(function(){ setIndicator(nav, getActiveButton(nav), false); });
+    requestAnimationFrame(function(){ setIndicatorInstant(nav, getActiveButton(nav)); });
   };
 
   function refreshActiveNavs(){
     navRefreshRaf = 0;
     document.querySelectorAll('.screen.active .bottom-nav').forEach(function(nav){
-      setIndicator(nav, getActiveButton(nav), false);
+      setIndicatorInstant(nav, getActiveButton(nav));
     });
     if(window.syncBottomNavForScreen) window.syncBottomNavForScreen();
   }
@@ -163,7 +182,7 @@
       }, true);
     });
 
-    requestAnimationFrame(function(){ setIndicator(nav, getActiveButton(nav), false); });
+    requestAnimationFrame(function(){ setIndicatorInstant(nav, getActiveButton(nav)); });
   }
 
   function initAllNavs(){
