@@ -6521,15 +6521,13 @@ section[id*="home"] .btn:not(.btn-primary){
   box-shadow:none;
   overflow:hidden;
   isolation:isolate;
-  transform:translateZ(0);
-  -webkit-mask-image:-webkit-radial-gradient(white,black);
 }
 #s-resumo .resumo-placar::before{
   content:"";
   position:absolute;
   inset:0;
   z-index:0;
-  border-radius:22px;
+  border-radius:inherit;
   background:
     linear-gradient(180deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.55) 100%),
     url('placar.jpg') center/cover no-repeat;
@@ -6937,6 +6935,7 @@ section[id*="home"] .btn:not(.btn-primary){
   position:absolute;
   inset:0;
   z-index:0;
+  border-radius:inherit;
   background:
     linear-gradient(180deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.62) 100%),
     url('ranking.jpg') center/cover no-repeat;
