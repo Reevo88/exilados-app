@@ -1301,6 +1301,28 @@ async function renderJConf(){
   if(p.espera.length) html += section('LISTA DE ESPERA','ti-hourglass',p.espera.length,'is-wait',p.espera.map(j=>row(j,'espera')).join(''));
   if(p.naoVao.length) html += section('FORA','ti-circle-minus',p.naoVao.length,'is-out',p.naoVao.map(j=>row(j,'fora')).join(''));
   el.innerHTML=html;
+  fitConfBadges(el);
+}
+
+function fitConfBadges(container) {
+  requestAnimationFrame(function() {
+    (container || document).querySelectorAll('.conf-player-badges').forEach(function(badges) {
+      badges.style.fontSize = '';
+      badges.querySelectorAll('i').forEach(function(i) { i.style.fontSize = ''; });
+      var row = badges.closest('.conf-player-row');
+      if (!row) return;
+      var name = row.querySelector('.conf-player-name');
+      if (!name) return;
+      var size = 10;
+      while (name.scrollWidth > name.clientWidth && size > 7.5) {
+        size -= 0.5;
+        badges.style.fontSize = size + 'px';
+        badges.querySelectorAll('i').forEach(function(icon) {
+          icon.style.fontSize = (size + 3) + 'px';
+        });
+      }
+    });
+  });
 }
 
 // ==========================================

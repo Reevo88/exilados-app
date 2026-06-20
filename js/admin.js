@@ -431,6 +431,7 @@ async function renderAdmConf(){
     return rowAdm(j,i,'espera',actions);
   }).join(''));
   el.innerHTML = htmlAdm;
+  if (window.fitConfBadges) fitConfBadges(el);
   const nao=document.getElementById('aconf-nao-lista');
   const podeExcluirNaoVai = G.perfil === 'full';
   nao.innerHTML = p.naoVao.length
