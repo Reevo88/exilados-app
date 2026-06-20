@@ -167,41 +167,7 @@ function renderJLista(){
     </div>`;
   }).join('') : '<div class="empty" style="padding:12px 0;font-size:13px;">Nenhum resultado ainda</div>';
 
-  // --- 3. ELENCO DE ESTRELAS (carrossel) ---
-  const jogAtivos = (G.jogadores||[]).filter(j => j.ativo !== false);
-  const chipsFn = () => {
-    if(!jogAtivos.length) return '<div style="padding:8px;font-size:12px;color:var(--text2);">Carregando elenco…</div>';
-    let eagerFotos = 0;
-    return jogAtivos.map(j => {
-      const apelido = (j.apelido||j.nome||'?').toUpperCase();
-      const posRaw = (j.posicao_favorita || '').toUpperCase().trim();
-      const posMap = {
-        'GOLEIRO':'GOL','GOL':'GOL',
-        'ZAGUEIRO':'ZAG','ZAG':'ZAG',
-        'LATERAL':'LAT','LAT':'LAT',
-        'MEIA':'MEI','MEI':'MEI',
-        'ATACANTE':'ATA','ATA':'ATA'
-      };
-      const pos = posMap[posRaw] || null;
-      const posHtml = pos ? `<span class="home-chip-pos pos-${pos}">${pos}</span>` : '<span class="home-chip-pos pos-x" style="visibility:hidden;">—</span>';
-      const aniv = isAniversarianteMes(j) ? '<span class="badge-aniv-mini" style="position:absolute;top:0;right:0;font-size:11px;">🎂</span>' : '';
-      const carregarAgora = !!j.foto_url && eagerFotos < HOME_CAROUSEL_EAGER_PHOTOS;
-      if(carregarAgora) eagerFotos++;
-      const avatarHtml = homeCarouselAvatarHtml(j, apelido, aniv, carregarAgora);
-      return `<div class="home-player-chip" onclick="abrirPeladeirosPublico('${escHtml(String(j.id||''))}')">
-        ${avatarHtml}
-        <span class="home-chip-apelido">${escHtml(apelido)}</span>
-        ${posHtml}
-      </div>`;
-    }).join('') +
-    `<div class="home-player-chip home-player-chip--ver-todos" onclick="abrirPeladeirosPublico()">
-      <div class="home-chip-avatar home-chip-ver-todos"><i class="ti ti-chevron-right"></i></div>
-      <span class="home-chip-apelido" style="color:var(--text2);">Ver todos</span>
-      <span style="height:18px;"></span>
-    </div>`;
-  };
-
-  // --- 4. RESUMO DO CAIXA ---
+  // --- 3. RESUMO DO CAIXA ---
   const caixaHtml = `<div class="home-sec home-sec-caixa">
     <div class="home-sec-header">
       <span class="home-sec-title">Resumo do Caixa</span>
@@ -248,20 +214,34 @@ function renderJLista(){
 
     <div class="home-sec">
       <div class="home-sec-header">
-        <span class="home-sec-title">Elenco de Estrelas</span>
-        <span class="home-sec-link" onclick="abrirPeladeirosPublico()">Ver completo</span>
+        <span class="home-sec-title">ESTATÍSTICAS DA BOLA</span>
+        <span class="home-sec-link" onclick="abrirRanking()">Ver ranking</span>
       </div>
-      <div class="home-carousel-wrap">
-        <div class="home-carousel" id="home-elenco-carousel">
-          ${chipsFn()}
+      <div class="home-ranking-hero">
+        <div class="home-ranking-hero-top">
+          <div>
+            <div class="home-caixa-kicker">Competição</div>
+            <div class="home-caixa-title">Rankings da Pelada</div>
+          </div>
+          <div class="home-caixa-main-icon"><i class="ti ti-trophy"></i></div>
+        </div>
+        <div class="home-caixa-grid">
+          <button class="home-caixa-item home-ranking-sub-btn" onclick="abrirRanking('performance')">
+            <div class="home-ranking-sub-icon"><i class="ti ti-chart-bar"></i></div>
+            <div class="home-ranking-sub-title">Performance</div>
+            <div class="home-ranking-sub-desc">Aproveit. × presença</div>
+          </button>
+          <button class="home-caixa-item home-ranking-sub-btn" onclick="abrirRanking('artilharia')">
+            <div class="home-ranking-sub-icon"><i class="ti ti-ball-football"></i></div>
+            <div class="home-ranking-sub-title">Artilharia</div>
+            <div class="home-ranking-sub-desc">Gols na temporada</div>
+          </button>
         </div>
       </div>
     </div>
 
     ${caixaHtml}
   `;
-
-  prepararLazyCarouselHome();
 
   // Votação e resultados dos cards encerrados
   encerradas.forEach(p => {
@@ -272,15 +252,7 @@ function renderJLista(){
   // Caixa: carregar valores reais
   _homeCarregarCaixa();
 
-  // Elenco: se G.jogadores ainda vazio por algum motivo, tenta carregar
-  if(!jogAtivos.length){
-    sbFetch('/jogadores?select=id,nome,apelido,foto_url,posicao_favorita,data_nascimento,ativo&order=apelido.asc')
-      .then(rows => {
-        G.jogadores = rows || [];
-        const carousel = document.getElementById('home-elenco-carousel');
-        if(carousel) carousel.innerHTML = chipsFn();
-        prepararLazyCarouselHome();
-      }).catch(()=>{});
+  if(false){
   }
 }
 
@@ -1589,4 +1561,392 @@ async function renderJTimes(){
   document.getElementById('jt-pool').innerHTML=pool.length
     ?pool.map(j=>`<div class="pool-item lineup-pool-item"><div class="pool-av">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="lineup-pool-main"><span class="lineup-pool-name">${escHtml(j.nome)}</span>${bAnivPool(j)}</div>${posBadgeLineup(j.pos,true)}</div>`).join('')
     :'<div class="lineup-empty"><i class="ti ti-check"></i> Todos escalados!</div>';
+}
+
+// ==========================================
+// RANKING DE PERFORMANCE
+// ==========================================
+let rankingFiltroAtual = {
+  tipo: 'anual',
+  ano: new Date().getFullYear(),
+  mes: new Date().getMonth() + 1,
+};
+let rankingAbaAtual = 'performance';
+let _rankingGolsCache = null;
+
+function _rankingLazyFotos(container) {
+  const imgs = container.querySelectorAll('img[data-rlazy]');
+  if (!imgs.length) return;
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const img = e.target;
+      img.src = img.dataset.rlazy;
+      img.removeAttribute('data-rlazy');
+      img.style.opacity = '0';
+      img.onload  = () => { img.style.transition='opacity .2s'; img.style.opacity='1'; };
+      img.onerror = () => { img.style.opacity='1'; };
+      obs.unobserve(img);
+    });
+  }, { rootMargin: '200px 0px' });
+  imgs.forEach(img => io.observe(img));
+}
+
+function _rankingFotoHtml(jogador, apelido) {
+  if (!jogador.foto_url) return escHtml((jogador.apelido || jogador.nome || '?')[0].toUpperCase());
+  return `<img data-rlazy="${escHtml(jogador.foto_url)}" alt="${escHtml(apelido)}" width="44" height="44" decoding="async" referrerpolicy="no-referrer" style="width:44px;height:44px;object-fit:cover;border-radius:10px;">`;
+}
+
+function setRankingAba(aba) {
+  rankingAbaAtual = aba === 'artilharia' ? 'artilharia' : 'performance';
+  const btnPerf = document.getElementById('ranking-aba-performance');
+  const btnArt  = document.getElementById('ranking-aba-artilharia');
+  if (btnPerf) btnPerf.classList.toggle('active', rankingAbaAtual === 'performance');
+  if (btnArt)  btnArt.classList.toggle('active',  rankingAbaAtual === 'artilharia');
+  renderRanking();
+}
+
+async function _fetchGolsPeriodo(peladaIds) {
+  if (!peladaIds.length) return [];
+  const cacheKey = [...peladaIds].sort().join(',');
+  if (_rankingGolsCache && _rankingGolsCache.key === cacheKey) return _rankingGolsCache.rows;
+  try {
+    const rows = await sbFetch(`/gols_pelada?pelada_id=in.(${peladaIds.join(',')})&select=pelada_id,nome_jogador,quantidade&limit=5000`);
+    _rankingGolsCache = { key: cacheKey, rows: rows || [] };
+    return _rankingGolsCache.rows;
+  } catch(e) { return []; }
+}
+
+function _calcularArtilharia(peladasValidas, golsRows) {
+  const jogadores = Array.isArray(G.jogadores) ? G.jogadores : [];
+
+  // Mapa: nome/apelido normalizado → jogadorIdKey (para casar gols por nome)
+  const aliasToId = {};
+  jogadores.forEach(j => {
+    const idKey = normNome(String(j.id || ''));
+    if (!idKey) return;
+    [normNome(j.nome||''), normNome(j.apelido||'')].filter(Boolean).forEach(a => { aliasToId[a] = idKey; });
+  });
+
+  // Conta jogos e gols por jogadorIdKey
+  const stats = {};
+  jogadores.forEach(jogador => {
+    const jogadorIdKey = normNome(String(jogador?.id || ''));
+    if (!jogadorIdKey) return;
+    const aliases = new Set([normNome(jogador?.nome||''), normNome(jogador?.apelido||'')].filter(Boolean));
+    peladasValidas.forEach(p => {
+      const escalados = Array.isArray(p.jogadores)
+        ? p.jogadores.filter(item => item && (item.time === 'azul' || item.time === 'vermelho'))
+        : [];
+      const found = escalados.find(item => {
+        const itemIdKey = normNome(String(item?.jogador_id||''));
+        if (itemIdKey) return itemIdKey === jogadorIdKey;
+        return aliases.has(normNome(item?.nome||''));
+      });
+      if (!found) return;
+      if (!stats[jogadorIdKey]) stats[jogadorIdKey] = { jogador, gols: 0, jogos: 0 };
+      stats[jogadorIdKey].jogos++;
+    });
+  });
+
+  golsRows.forEach(g => {
+    const idKey = aliasToId[normNome(g.nome_jogador || '')];
+    if (!idKey || !stats[idKey]) return;
+    stats[idKey].gols += Number(g.quantidade) || 0;
+  });
+
+  return Object.values(stats)
+    .filter(s => s.gols > 0)
+    .map(s => ({ ...s, media: s.jogos > 0 ? s.gols / s.jogos : 0 }))
+    .sort((a, b) => b.gols !== a.gols ? b.gols - a.gols : b.media - a.media);
+}
+
+async function abrirRanking(aba) {
+  fecharMenuJogador();
+  G.pelada = null;
+  const agora = new Date();
+  rankingFiltroAtual = { tipo: 'anual', ano: agora.getFullYear(), mes: agora.getMonth() + 1 };
+  rankingAbaAtual = aba || 'performance';
+  _rankingGolsCache = null;
+  goTo('s-j-ranking');
+  setRankingAba('performance');
+  if (!G.jogadores || !G.jogadores.length) {
+    try {
+      G.jogadores = await sbFetch('/jogadores?select=id,nome,apelido,foto_url,posicao_favorita,modalidade,perfil_app,data_nascimento,ativo&order=apelido.asc');
+    } catch(e) {}
+  }
+  await renderRanking();
+}
+
+function setRankingFiltroTipo(tipo) {
+  rankingFiltroAtual.tipo = tipo === 'mensal' ? 'mensal' : 'anual';
+  renderRanking();
+}
+
+function setRankingPeriodo(delta) {
+  const { tipo, ano, mes } = rankingFiltroAtual;
+  if (tipo === 'anual') {
+    rankingFiltroAtual.ano = ano + delta;
+  } else {
+    let novoMes = mes + delta;
+    let novoAno = ano;
+    if (novoMes < 1)  { novoMes = 12; novoAno--; }
+    if (novoMes > 12) { novoMes = 1;  novoAno++; }
+    rankingFiltroAtual.mes = novoMes;
+    rankingFiltroAtual.ano = novoAno;
+  }
+  renderRanking();
+}
+
+function _calcularRanking() {
+  const { tipo, ano, mes } = rankingFiltroAtual;
+  const peladasValidas = (G.peladas || []).filter(p => {
+    if (!peladaEncerrada(p) || encerradaAntesDoJogo(p)) return false;
+    if (!p.data) return false;
+    const d = new Date(`${p.data}T12:00:00`);
+    const pAno = d.getFullYear();
+    const pMes = d.getMonth() + 1;
+    return tipo === 'anual' ? pAno === ano : (pAno === ano && pMes === mes);
+  });
+
+  const totalPeladas = peladasValidas.length;
+  if (totalPeladas === 0) return { ranking: [], totalPeladas: 0, minimoJogos: 0 };
+
+  const minimoJogos = tipo === 'anual' ? Math.max(1, Math.ceil(totalPeladas * 0.10)) : 1;
+
+  // Itera sobre jogadores cadastrados e usa o mesmo matching duplo do perfil:
+  // 1º jogador_id; 2º fallback por nome/apelido (confirmações sem vínculo ainda batem)
+  const jogadores = Array.isArray(G.jogadores) ? G.jogadores : [];
+  const stats = {};
+
+  jogadores.forEach(jogador => {
+    const jogadorIdKey = normNome(String(jogador?.id || ''));
+    if (!jogadorIdKey) return;
+    const aliases = new Set([
+      normNome(jogador?.nome || ''),
+      normNome(jogador?.apelido || ''),
+    ].filter(Boolean));
+
+    peladasValidas.forEach(p => {
+      const escalados = Array.isArray(p.jogadores)
+        ? p.jogadores.filter(item => item && (item.time === 'azul' || item.time === 'vermelho'))
+        : [];
+      const escaladoJogador = escalados.find(item => {
+        const itemIdKey = normNome(String(item?.jogador_id || ''));
+        if (itemIdKey) return itemIdKey === jogadorIdKey;
+        const itemNome = normNome(item?.nome || '');
+        return itemNome ? aliases.has(itemNome) : false;
+      });
+      if (!escaladoJogador) return;
+
+      if (!stats[jogadorIdKey]) stats[jogadorIdKey] = { jogador, jogos: 0, vitorias: 0, empates: 0, derrotas: 0 };
+      stats[jogadorIdKey].jogos++;
+
+      const golsAzul = p.resultado ? Number(p.resultado.gols_azul) : NaN;
+      const golsVermelho = p.resultado ? Number(p.resultado.gols_vermelho) : NaN;
+      if (Number.isFinite(golsAzul) && Number.isFinite(golsVermelho)) {
+        const time = String(escaladoJogador.time || '').toLowerCase();
+        const venceu = (time === 'azul' && golsAzul > golsVermelho) || (time === 'vermelho' && golsVermelho > golsAzul);
+        const empatou = golsAzul === golsVermelho;
+        if (venceu)       stats[jogadorIdKey].vitorias++;
+        else if (empatou) stats[jogadorIdKey].empates++;
+        else              stats[jogadorIdKey].derrotas++;
+      }
+    });
+  });
+
+  const ranking = [];
+  Object.values(stats).forEach(s => {
+    if (s.jogos < minimoJogos) return;
+    const aproveitamento = (s.vitorias * 3 + s.empates) / (s.jogos * 3);
+    const presenca = s.jogos / totalPeladas;
+    const score = aproveitamento * presenca;
+    ranking.push({ jogador: s.jogador, jogos: s.jogos, vitorias: s.vitorias, empates: s.empates, derrotas: s.derrotas, aproveitamento, presenca, score, totalPeladas });
+  });
+
+  ranking.sort((a, b) => {
+    if (Math.abs(b.score - a.score) > 1e-9)                  return b.score - a.score;
+    if (b.jogos !== a.jogos)                                  return b.jogos - a.jogos;
+    if (Math.abs(b.aproveitamento - a.aproveitamento) > 1e-9) return b.aproveitamento - a.aproveitamento;
+    return b.vitorias - a.vitorias;
+  });
+
+  return { ranking, totalPeladas, minimoJogos };
+}
+
+function _rankingPeriodoLabel() {
+  const { tipo, ano, mes } = rankingFiltroAtual;
+  if (tipo === 'anual') return String(ano);
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${meses[mes - 1]}/${ano}`;
+}
+
+async function renderRanking() {
+  // Sincroniza controles
+  const btnMensal = document.getElementById('ranking-btn-mensal');
+  const btnAnual  = document.getElementById('ranking-btn-anual');
+  if (btnMensal) btnMensal.classList.toggle('active', rankingFiltroAtual.tipo === 'mensal');
+  if (btnAnual)  btnAnual.classList.toggle('active',  rankingFiltroAtual.tipo === 'anual');
+  const labelEl = document.getElementById('ranking-periodo-label');
+  if (labelEl) labelEl.textContent = _rankingPeriodoLabel();
+  const btnPerf = document.getElementById('ranking-aba-performance');
+  const btnArt  = document.getElementById('ranking-aba-artilharia');
+  if (btnPerf) btnPerf.classList.toggle('active', rankingAbaAtual === 'performance');
+  if (btnArt)  btnArt.classList.toggle('active',  rankingAbaAtual === 'artilharia');
+
+  const el = document.getElementById('ranking-lista');
+  if (!el) return;
+
+  if (!G.peladas || !G.peladas.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i> Carregando dados...</div>';
+    return;
+  }
+
+  if (rankingAbaAtual === 'artilharia') {
+    await _renderArtilharia(el);
+  } else {
+    _renderPerformance(el);
+  }
+
+  const disc = document.getElementById('ranking-disclaimer');
+  if (disc) {
+    if (rankingAbaAtual === 'artilharia') {
+      disc.innerHTML = `<div class="ranking-disclaimer">
+        <div class="ranking-disclaimer-title"><i class="ti ti-info-circle"></i> Como a artilharia é calculada</div>
+        <div class="ranking-disclaimer-body">
+          <p><strong>Total de gols</strong> = soma de todos os gols marcados pelo atleta nas peladas do período selecionado.</p>
+          <p><strong>Média</strong> = total de gols ÷ jogos disputados no período. Exibida como informação secundária.</p>
+          <p><strong>Critério mensal:</strong> mínimo de 1 jogo no período.<br/><strong>Critério anual:</strong> mínimo de 10% das peladas encerradas no ano.</p>
+          <p><strong>Desempate:</strong> maior média de gols por jogo.</p>
+        </div>
+      </div>`;
+    } else {
+      disc.innerHTML = `<div class="ranking-disclaimer">
+        <div class="ranking-disclaimer-title"><i class="ti ti-info-circle"></i> Como o ranking é calculado</div>
+        <div class="ranking-disclaimer-body">
+          <p><strong>Aproveitamento</strong> = (3×V + E) ÷ (3×J) &mdash; onde V = vitórias, E = empates, J = jogos do atleta no período.</p>
+          <p><strong>Presença</strong> = jogos do atleta ÷ total de peladas do período.</p>
+          <p><strong>Score final</strong> = Aproveitamento × Presença. Quem esteve em 100% das peladas leva o aproveitamento cheio; quem foi em poucas perde proporcionalmente.</p>
+          <p><strong>Critério mensal:</strong> mínimo de 1 jogo no período.<br/><strong>Critério anual:</strong> mínimo de 10% das peladas encerradas no ano.</p>
+          <p><strong>Desempate:</strong> mais jogos → maior aproveitamento → mais vitórias.</p>
+        </div>
+      </div>`;
+    }
+  }
+}
+
+function _renderPerformance(el) {
+  const { ranking, totalPeladas, minimoJogos } = _calcularRanking();
+
+  if (totalPeladas === 0) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-calendar-off"></i> Nenhuma pelada encerrada neste período</div>';
+    return;
+  }
+  if (!ranking.length) {
+    const criterioLabel = rankingFiltroAtual.tipo === 'anual'
+      ? `Critério anual: mínimo ${minimoJogos} jogo${minimoJogos !== 1 ? 's' : ''} (10% de ${totalPeladas})`
+      : 'Critério mensal: mínimo de 1 jogo no período';
+    el.innerHTML = `<div class="empty"><i class="ti ti-users-off"></i> Nenhum atleta elegível<br><span style="font-size:12px;color:var(--text3);margin-top:4px;display:block;">${criterioLabel}</span></div>`;
+    return;
+  }
+
+  const medalhas = ['🥇','🥈','🥉'];
+  el.innerHTML = `
+    <div class="ranking-meta-info">
+      <span>${totalPeladas} pelada${totalPeladas !== 1 ? 's' : ''} no período · ${ranking.length} atleta${ranking.length !== 1 ? 's' : ''}</span>
+      <span>Mín. ${minimoJogos} jogo${minimoJogos !== 1 ? 's' : ''}</span>
+    </div>
+    ${ranking.map((item, i) => {
+      const { jogador, jogos, vitorias, empates, derrotas, aproveitamento, presenca, score } = item;
+      const apelido   = (jogador.apelido || jogador.nome || '?').toUpperCase();
+      const pct       = Math.round(aproveitamento * 100);
+      const presencaPct = Math.round(presenca * 100);
+      const scorePct  = Math.round(score * 100);
+      const pos       = i + 1;
+      const posHtml   = pos <= 3 ? `<div class="ranking-pos ranking-pos--medal">${medalhas[i]}</div>` : `<div class="ranking-pos">${pos}º</div>`;
+      const foto      = _rankingFotoHtml(jogador, apelido);
+      const destaque  = pos <= 3 ? ' ranking-item--destaque' : '';
+      return `<div class="ranking-item${destaque}">
+        ${posHtml}
+        <div class="ranking-avatar">${foto}</div>
+        <div class="ranking-info">
+          <div class="ranking-apelido">${escHtml(apelido)}</div>
+          <div class="ranking-stats-row">
+            <span title="Jogos no período">J:<b>${jogos}</b></span>
+            <span title="Vitórias">V:<b>${vitorias}</b></span>
+            <span title="Empates">E:<b>${empates}</b></span>
+            <span title="Derrotas">D:<b>${derrotas}</b></span>
+            <span title="Aproveitamento">APR:<b>${pct}%</b></span>
+            <span title="Presença no período">PRE:<b>${presencaPct}%</b></span>
+          </div>
+          <div class="ranking-bar-wrap" title="Score ${scorePct}%">
+            <div class="ranking-bar" style="width:${scorePct}%;"></div>
+          </div>
+          <div class="ranking-score-label">Score ${scorePct}%</div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+  _rankingLazyFotos(el);
+}
+
+async function _renderArtilharia(el) {
+  // Descobre peladas do período
+  const { tipo, ano, mes } = rankingFiltroAtual;
+  const peladasValidas = (G.peladas || []).filter(p => {
+    if (!peladaEncerrada(p) || encerradaAntesDoJogo(p) || !p.data) return false;
+    const d    = new Date(`${p.data}T12:00:00`);
+    const pAno = d.getFullYear();
+    const pMes = d.getMonth() + 1;
+    return tipo === 'anual' ? pAno === ano : (pAno === ano && pMes === mes);
+  });
+
+  if (!peladasValidas.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-calendar-off"></i> Nenhuma pelada encerrada neste período</div>';
+    return;
+  }
+
+  el.innerHTML = '<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i> Carregando artilharia...</div>';
+
+  const peladaIds = peladasValidas.map(p => p.id);
+  const golsRows  = await _fetchGolsPeriodo(peladaIds);
+  const artilharia = _calcularArtilharia(peladasValidas, golsRows);
+
+  if (!artilharia.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-ball-football"></i> Nenhum gol registrado neste período</div>';
+    return;
+  }
+
+  const medalhas = ['🥇','🥈','🥉'];
+  el.innerHTML = `
+    <div class="ranking-meta-info">
+      <span>${peladasValidas.length} pelada${peladasValidas.length !== 1 ? 's' : ''} no período</span>
+      <span>Desempate: gols/jogo</span>
+    </div>
+    ${artilharia.map((item, i) => {
+      const { jogador, gols, jogos, media } = item;
+      const apelido  = (jogador.apelido || jogador.nome || '?').toUpperCase();
+      const pos      = i + 1;
+      const posHtml  = pos <= 3 ? `<div class="ranking-pos ranking-pos--medal">${medalhas[i]}</div>` : `<div class="ranking-pos">${pos}º</div>`;
+      const foto     = _rankingFotoHtml(jogador, apelido);
+      const destaque = pos <= 3 ? ' ranking-item--destaque' : '';
+      const barPct   = Math.round((gols / artilharia[0].gols) * 100);
+      return `<div class="ranking-item${destaque}">
+        ${posHtml}
+        <div class="ranking-avatar">${foto}</div>
+        <div class="ranking-info">
+          <div class="ranking-apelido">${escHtml(apelido)}</div>
+          <div class="ranking-stats-row">
+            <span title="Total de gols"><i class="ti ti-ball-football" style="font-size:11px;"></i> <b>${gols}</b> gol${gols !== 1 ? 's' : ''}</span>
+            <span title="Jogos no período">J:<b>${jogos}</b></span>
+            <span title="Média de gols por jogo">Média:<b>${media.toFixed(2)}</b>/jogo</span>
+          </div>
+          <div class="ranking-bar-wrap" title="${gols} gols">
+            <div class="ranking-bar" style="width:${barPct}%;"></div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+  _rankingLazyFotos(el);
 }

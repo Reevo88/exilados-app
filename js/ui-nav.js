@@ -3,6 +3,7 @@
   window.__exiladosUiNavLoaded = true;
 
   var navRefreshRaf = 0;
+  var navMoveRaf = 0;
 
   function setIndicator(nav, btn, soft){
     if(!nav || !btn) return;
@@ -47,6 +48,13 @@
     if(btn.classList.contains('nav-disabled') || btn.disabled) return;
     var nav = btn.closest('.bottom-nav');
     if(navigator.vibrate) navigator.vibrate(8);
+    var key = keyForButton(btn);
+    if(key){
+      nav.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', keyForButton(b) === key); });
+    } else {
+      nav.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
     setIndicator(nav, btn, true);
 
     var ring = document.createElement('span');
@@ -72,7 +80,9 @@
     if(id === 's-j-times') return 'times';
     if(id === 's-j-caixa') return 'caixa';
     if(id === 's-j-perfil') return 'perfil';
-    if(id === 's-j-peladeiros') return 'home';
+    if(id === 's-j-peladeiros') return 'peladeiros';
+    if(id === 's-j-ranking') return 'home';
+    if(id === 's-j-perfil') return null;
     return null;
   }
 
@@ -128,18 +138,24 @@
 
     nav.addEventListener('pointermove', function(e){
       if(e.pointerType && e.pointerType !== 'mouse') return;
-      var btn = nearestButtonFromPoint(nav, e.clientX, e.clientY);
-      if(btn){
-        var r = nav.getBoundingClientRect();
-        var pct = ((e.clientX - r.left) / Math.max(1, r.width));
-        nav.style.setProperty('--nav-tilt', ((pct - .5) * 1.2).toFixed(2) + 'deg');
-        nav.classList.add('nav-touching');
-        setIndicator(nav, btn, true);
-      }
+      if(navMoveRaf) return;
+      var cx = e.clientX, cy = e.clientY;
+      navMoveRaf = requestAnimationFrame(function(){
+        navMoveRaf = 0;
+        var btn = nearestButtonFromPoint(nav, cx, cy);
+        if(btn){
+          var r = nav.getBoundingClientRect();
+          var pct = ((cx - r.left) / Math.max(1, r.width));
+          nav.style.setProperty('--nav-tilt', ((pct - .5) * 1.2).toFixed(2) + 'deg');
+          nav.classList.add('nav-touching');
+          setIndicator(nav, btn, true);
+        }
+      });
     }, {passive:true});
 
     ['pointerleave','blur'].forEach(function(evt){
       nav.addEventListener(evt, function(){
+        if(navMoveRaf){ cancelAnimationFrame(navMoveRaf); navMoveRaf = 0; }
         nav.classList.remove('nav-touching');
         nav.style.setProperty('--nav-tilt', '0deg');
         nav.querySelectorAll('.nav-btn.nav-hover').forEach(function(b){ b.classList.remove('nav-hover'); });

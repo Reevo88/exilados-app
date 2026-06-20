@@ -111,6 +111,7 @@ function nomeExibicaoExilado(){
 function abrirMenuJogador(){
   const title      = document.getElementById('player-menu-title');
   const loginItem  = document.getElementById('player-menu-login');
+  const perfilItem = document.getElementById('player-menu-perfil');
   const sairItem   = document.getElementById('player-menu-sair');
   const adminBack  = document.getElementById('player-menu-admin-back');
   const verJogador = document.getElementById('player-menu-ver-jogador');
@@ -118,6 +119,7 @@ function abrirMenuJogador(){
   if(title) title.textContent = nomeExibicao ? `${saudacaoPorHora()}, Exilado ${nomeExibicao}!` : `${saudacaoPorHora()}, Exilado!`;
   // Login: só quando não autenticado
   if(loginItem)  loginItem.style.display  = !G.usuario ? 'flex' : 'none';
+  if(perfilItem) perfilItem.style.display = G.usuario  ? 'flex' : 'none';
   // Painel Admin: aparece quando admin está na visão jogador
   if(adminBack)  adminBack.style.display  = (G.isAdm && G.appContext==='player') ? 'flex' : 'none';
   // Ver como jogador: aparece quando admin está na visão admin
