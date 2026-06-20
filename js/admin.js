@@ -417,7 +417,8 @@ async function renderAdmConf(){
     return `<div class="conf-player-row adm-conf-row">
       <div class="conf-player-avatar">${escHtml(j.nome[0]||'?').toUpperCase()}</div>
       <div class="conf-player-info"><div class="conf-player-name-line"><span class="conf-player-name">${escHtml(j.nome)}</span>${badgeAnivConf(j)}</div>${pos ? `<div class="conf-player-pos">${pos}</div>` : ''}</div>
-      <div class="conf-player-badges adm-conf-actions">${badgesHtml}${extraActions || `<button class="adm-conf-delete" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash"></i></button>`}</div>
+      <div class="conf-player-badges">${badgesHtml}</div>
+      <div class="adm-conf-actions">${extraActions || `<button class="adm-conf-delete" onclick="remConf(${i})" title="Remover"><i class="ti ti-trash"></i></button>`}</div>
     </div>`;
   };
   const sectionAdm = (title,icon,count,cls,rows) => `<div class="conf-list-section ${cls}"><div class="conf-section-title"><i class="ti ${icon}"></i><span>${title} (${count})</span></div><div class="conf-list-card adm-conf-card">${rows}</div></div>`;

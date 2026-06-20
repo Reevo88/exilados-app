@@ -1306,21 +1306,23 @@ async function renderJConf(){
 
 function fitConfBadges(container) {
   requestAnimationFrame(function() {
-    (container || document).querySelectorAll('.conf-player-badges').forEach(function(badges) {
-      badges.style.fontSize = '';
-      badges.querySelectorAll('i').forEach(function(i) { i.style.fontSize = ''; });
-      var row = badges.closest('.conf-player-row');
-      if (!row) return;
-      var name = row.querySelector('.conf-player-name');
-      if (!name) return;
-      var size = 10;
-      while (name.scrollWidth > name.clientWidth && size > 7.5) {
-        size -= 0.5;
-        badges.style.fontSize = size + 'px';
-        badges.querySelectorAll('i').forEach(function(icon) {
-          icon.style.fontSize = (size + 3) + 'px';
-        });
-      }
+    requestAnimationFrame(function() {
+      (container || document).querySelectorAll('.conf-player-badges').forEach(function(badges) {
+        badges.style.fontSize = '';
+        badges.querySelectorAll('i').forEach(function(i) { i.style.fontSize = ''; });
+        var row = badges.closest('.conf-player-row');
+        if (!row) return;
+        var name = row.querySelector('.conf-player-name');
+        if (!name) return;
+        var size = 10;
+        while (name.scrollWidth > name.clientWidth && size > 7.5) {
+          size -= 0.5;
+          badges.style.fontSize = size + 'px';
+          badges.querySelectorAll('i').forEach(function(icon) {
+            icon.style.fontSize = (size + 3) + 'px';
+          });
+        }
+      });
     });
   });
 }
