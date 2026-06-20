@@ -1308,8 +1308,12 @@ function fitConfBadges(container) {
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
       (container || document).querySelectorAll('.conf-player-badges').forEach(function(badges) {
-        badges.style.fontSize = '';
-        badges.querySelectorAll('i').forEach(function(i) { i.style.fontSize = ''; });
+        var badgeEls = badges.querySelectorAll('.conf-player-badge');
+        badgeEls.forEach(function(b) {
+          b.style.fontSize = '';
+          b.querySelectorAll('i').forEach(function(i) { i.style.fontSize = ''; });
+        });
+        if (!badgeEls.length) return;
         var row = badges.closest('.conf-player-row');
         if (!row) return;
         var name = row.querySelector('.conf-player-name');
@@ -1317,9 +1321,11 @@ function fitConfBadges(container) {
         var size = 10;
         while (name.scrollWidth > name.clientWidth && size > 7.5) {
           size -= 0.5;
-          badges.style.fontSize = size + 'px';
-          badges.querySelectorAll('i').forEach(function(icon) {
-            icon.style.fontSize = (size + 3) + 'px';
+          badgeEls.forEach(function(b) {
+            b.style.fontSize = size + 'px';
+            b.querySelectorAll('i').forEach(function(icon) {
+              icon.style.fontSize = (size + 3) + 'px';
+            });
           });
         }
       });
