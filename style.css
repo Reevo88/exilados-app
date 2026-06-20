@@ -5529,20 +5529,11 @@ section[id*="home"] .btn:not(.btn-primary){
   background:rgba(245,228,0,.07)!important;
 }
 #s-adm-conf .adm-conf-actions{
-  gap:7px!important;
-  flex-wrap:nowrap!important;
-}
-#s-adm-conf .adm-conf-actions--stacked{
-  flex-wrap:wrap!important;
-  justify-content:flex-end!important;
-  margin-top:4px!important;
-}
-#s-adm-conf .conf-player-row.adm-conf-row.conf-player-row--stacked{
-  grid-template-columns:39px minmax(0,1fr)!important;
-  align-items:start!important;
-}
-#s-adm-conf .conf-player-row.adm-conf-row.conf-player-row--stacked .adm-conf-actions{
-  grid-column:2 / 3;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex-shrink:0;
+  flex-wrap:nowrap;
 }
 #s-adm-conf .adm-conf-delete,
 #s-adm-conf .adm-conf-confirm,
@@ -5581,13 +5572,16 @@ section[id*="home"] .btn:not(.btn-primary){
   background:#171717!important;
   padding:16px!important;
 }
+/* Grid de 4 colunas no admin: avatar | nome | badges | ações */
+#s-adm-conf .conf-player-row.adm-conf-row{
+  grid-template-columns:39px minmax(0,1fr) auto auto;
+  gap:8px;
+  align-items:center;
+}
 @media(max-width:390px){
-  #s-adm-conf .conf-player-row.adm-conf-row{grid-template-columns:39px minmax(0,1fr) auto;gap:8px;}
-  #s-adm-conf .conf-player-badge{padding:5px 7px;font-size:9px;}
+  #s-adm-conf .conf-player-badge{padding:0 5px;font-size:9px;}
   #s-adm-conf .adm-conf-delete{width:28px;height:28px;}
   #s-adm-conf .conf-player-name-line .conf-birthday-badge{font-size:8px;padding:3px 6px;}
-  #s-adm-conf .conf-player-row.adm-conf-row.conf-player-row--stacked{grid-template-columns:39px minmax(0,1fr)!important;}
-  #s-adm-conf .conf-player-row.adm-conf-row.conf-player-row--stacked .adm-conf-actions{justify-content:flex-end!important;}
 }
 
 /* =========================================================
