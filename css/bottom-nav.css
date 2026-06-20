@@ -58,6 +58,11 @@
   transition: transform .24s cubic-bezier(.34,1.2,.64,1), width .24s cubic-bezier(.34,1.2,.64,1), opacity .14s ease;
 }
 
+/* Snap sem animação na troca de tela */
+.bottom-nav.nav-instant::before {
+  transition: none !important;
+}
+
 .bottom-nav.nav-touching {
   --nav-float-y: -2px;
   border-color: rgba(255,255,255,.12) !important;
@@ -184,9 +189,6 @@
   pointer-events: none;
 }
 
-#s-adm-jogadores .bottom-nav .nav-btn:last-child {
-  color: #F5E400;
-}
 
 #s-resumo .bottom-nav {
   background: #050505 !important;
