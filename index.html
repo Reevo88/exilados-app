@@ -39,7 +39,7 @@
 <button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- J1B: PERFIL DO JOGADOR -->
@@ -159,7 +159,7 @@
 <button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn active" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- J1C: PELADEIROS (SOMENTE LEITURA) -->
@@ -195,7 +195,37 @@
 <button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
+</div>
+</div>
+<!-- J-RANKING: RANKING DE PERFORMANCE -->
+<div class="screen" id="s-j-ranking">
+<div class="header app-brand-header"><button aria-label="Exilados da Bola" class="app-header-brand-btn" onclick="voltarInicioApp()"><img alt="Exilados da Bola" class="app-header-logo" src="logo-exilados.png"/></button><button aria-label="Abrir menu do jogador" class="player-menu-btn app-header-menu" onclick="abrirMenuJogador()" title="Menu"><i class="ti ti-menu-2"></i></button></div>
+<div class="page-body">
+<div class="card" style="margin-bottom:12px;">
+<div class="ranking-abas">
+<button id="ranking-aba-performance" class="ranking-aba active" onclick="setRankingAba('performance')"><i class="ti ti-chart-bar"></i> Performance</button>
+<button id="ranking-aba-artilharia" class="ranking-aba" onclick="setRankingAba('artilharia')"><i class="ti ti-ball-football"></i> Artilharia</button>
+</div>
+<div class="ranking-filtro-pills">
+<button id="ranking-btn-anual" class="ranking-pill active" onclick="setRankingFiltroTipo('anual')">Anual</button>
+<button id="ranking-btn-mensal" class="ranking-pill" onclick="setRankingFiltroTipo('mensal')">Mensal</button>
+</div>
+<div class="ranking-periodo-nav">
+<button class="ranking-periodo-btn" onclick="setRankingPeriodo(-1)"><i class="ti ti-chevron-left"></i></button>
+<span id="ranking-periodo-label" style="font-size:14px;font-weight:700;color:var(--text);">—</span>
+<button class="ranking-periodo-btn" onclick="setRankingPeriodo(+1)"><i class="ti ti-chevron-right"></i></button>
+</div>
+</div>
+<div id="ranking-lista"></div>
+<div id="ranking-disclaimer"></div>
+</div>
+<div class="bottom-nav">
+<button class="nav-btn" onclick="playerBottomNavHome()"><i class="ti ti-home"></i><span>Início</span></button>
+<button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
+<button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
+<button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- J-HIST: HISTÓRICO DE RESULTADOS -->
@@ -209,7 +239,7 @@
 <button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- J2: CONFIRMAR (JOGADOR) -->
@@ -246,7 +276,7 @@
 <button class="nav-btn active" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- J3: TIMES (JOGADOR) -->
@@ -285,7 +315,7 @@
 <button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn active" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- ======================================
@@ -763,7 +793,7 @@
 <button class="nav-btn" onclick="playerBottomNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" onclick="playerBottomNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn active" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- MODAL DESPESA -->
@@ -831,6 +861,7 @@
 <div class="adm-sheet">
 <div class="adm-sheet-title" id="player-menu-title">Perfil</div>
 <div class="adm-option" id="player-menu-login" onclick="abrirPerfilJogador(true)" style="display:none;"><i class="ti ti-lock-open"></i><div><div class="adm-option-name">Login</div><div class="adm-option-desc">Entrar na sua conta</div></div></div>
+<div class="adm-option" id="player-menu-perfil" onclick="fecharMenuJogador();abrirPerfilJogador(true);" style="display:none;"><i class="ti ti-user-circle"></i><div><div class="adm-option-name">Meu Perfil</div><div class="adm-option-desc">Ver e editar sua conta</div></div></div>
 <div class="adm-option" id="player-menu-admin-back" onclick="voltarPainelAdmin()" style="display:none;"><i class="ti ti-settings"></i><div><div class="adm-option-name">Painel Admin</div><div class="adm-option-desc">Voltar ao painel administrativo</div></div></div>
 <div class="adm-option" id="player-menu-ver-jogador" onclick="entrarModoJogador()" style="display:none;"><i class="ti ti-eye"></i><div><div class="adm-option-name">Ver como jogador</div><div class="adm-option-desc">Visualizar app como peladeiro</div></div></div>
 <div class="adm-option" id="player-menu-sair" onclick="sairJogador()" style="display:none;"><i class="ti ti-logout"></i><div><div class="adm-option-name">Sair</div><div class="adm-option-desc">Encerrar sessão</div></div></div>
@@ -1028,7 +1059,7 @@
 <button class="nav-btn" id="resumo-nav-conf" onclick="resumoNavConf()"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn" id="resumo-nav-times" onclick="resumoNavTimes()"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="resumoNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- ======================================
@@ -1178,7 +1209,7 @@
 <button class="nav-btn nav-disabled"><i class="ti ti-users"></i><span>Confirmações</span></button>
 <button class="nav-btn nav-disabled"><i class="ti ti-shirt"></i><span>Escalações</span></button>
 <button class="nav-btn" onclick="playerBottomNavCaixa()"><i class="ti ti-cash"></i><span>Caixa</span></button>
-<button class="nav-btn" onclick="playerBottomNavPerfil()"><i class="ti ti-user-circle"></i><span>Perfil</span></button>
+<button class="nav-btn" onclick="abrirPeladeirosPublico()"><i class="ti ti-users"></i><span>Exilados</span></button>
 </div>
 </div>
 <!-- ======================================
