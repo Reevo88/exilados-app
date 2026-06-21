@@ -1311,18 +1311,24 @@ function fitConfBadges(container) {
         var badgeEls = badges.querySelectorAll('.conf-player-badge');
         badgeEls.forEach(function(b) {
           b.style.fontSize = '';
+          b.style.padding = '';
           b.querySelectorAll('i').forEach(function(i) { i.style.fontSize = ''; });
         });
+        badges.style.gap = '';
         if (!badgeEls.length) return;
         var row = badges.closest('.conf-player-row');
         if (!row) return;
         var name = row.querySelector('.conf-player-name');
         if (!name) return;
         var size = 10;
-        while (name.scrollWidth > name.clientWidth && size > 6) {
+        while (name.scrollWidth > name.clientWidth && size > 5.5) {
           size -= 0.5;
+          var pad = size <= 8 ? '0 3px' : '0 5px';
+          var gap  = size <= 8 ? '3px'  : '5px';
+          badges.style.gap = gap;
           badgeEls.forEach(function(b) {
             b.style.fontSize = size + 'px';
+            b.style.padding = pad;
             b.querySelectorAll('i').forEach(function(icon) {
               icon.style.fontSize = (size + 3) + 'px';
             });
