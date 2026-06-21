@@ -603,3 +603,13 @@ function switchTabTimes(show,hide,btnOn){
   document.getElementById(show).style.display='block';
   document.getElementById(hide).style.display='none';
 }
+
+function reloadApp(){
+  if('caches' in window){
+    caches.keys().then(function(names){
+      return Promise.all(names.map(function(n){ return caches.delete(n); }));
+    }).then(function(){ window.location.reload(); });
+  } else {
+    window.location.reload();
+  }
+}
