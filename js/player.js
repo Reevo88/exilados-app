@@ -1319,7 +1319,7 @@ function fitConfBadges(container) {
         var name = row.querySelector('.conf-player-name');
         if (!name) return;
         var size = 10;
-        while (name.scrollWidth > name.clientWidth && size > 7.5) {
+        while (name.scrollWidth > name.clientWidth && size > 6) {
           size -= 0.5;
           badgeEls.forEach(function(b) {
             b.style.fontSize = size + 'px';
