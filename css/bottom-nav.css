@@ -18,17 +18,17 @@
   gap: 0;
   padding: 7px 8px 7px;
   border-radius: 20px;
-  background: rgba(5,5,5,.98);
-  border: 1px solid rgba(255,255,255,.12) !important;
-  border-top-color: rgba(255,255,255,.12) !important;
+  background: rgba(8,8,8,.55);
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-top-color: rgba(255,255,255,.14) !important;
   box-shadow:
     0 18px 46px rgba(0,0,0,.54),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
+    inset 0 1px 0 rgba(255,255,255,.10) !important;
   z-index: 140;
   overflow: visible;
   isolation: isolate;
-  backdrop-filter: blur(16px) saturate(1.05);
-  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
   transition: transform .22s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
@@ -191,8 +191,8 @@
 
 
 #s-resumo .bottom-nav {
-  background: #050505 !important;
-  border-top: 1px solid #343434 !important;
+  background: rgba(8,8,8,.55) !important;
+  border-top: 1px solid rgba(255,255,255,.14) !important;
   box-shadow: none !important;
 }
 
@@ -241,6 +241,6 @@
 
 @supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
   .bottom-nav {
-    background: #050505;
+    background: rgba(8,8,8,.92);
   }
 }
