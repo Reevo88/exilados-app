@@ -55,10 +55,17 @@ function renderAdmHome(){
 
   const cardAdm = p => {
     const st=peladaStatusInfo(p);
+    const valorChurrasCard=Number(G.valorChurras||0);
+    const valorJogadorCard=(j)=>{
+      if(modalidadeConfirmacaoEhMensalista(j)||j.isento) return 0;
+      let v=p.valor;
+      if(p.temChurras&&j.churras==='jogo_churras') v+=valorChurrasCard;
+      if(p.temChurras&&j.churras==='churras')      v =valorChurrasCard;
+      return v;
+    };
     const cobraveis=p.confirmados.filter(j=>!modalidadeConfirmacaoEhMensalista(j)&&!j.isento);
-    const pagos=cobraveis.filter(j=>j.pago).length;
-    const arr=pagos*p.valor;
-    const previsto=cobraveis.length*p.valor;
+    const arr=cobraveis.filter(j=>j.pago).reduce((s,j)=>s+valorJogadorCard(j),0);
+    const previsto=cobraveis.reduce((s,j)=>s+valorJogadorCard(j),0);
     const pend=Math.max(previsto-arr,0);
     const confirmadosJogo=totalJogadoresConfirmados(p);
     const vagas=Math.max(p.max-confirmadosJogo,0);
