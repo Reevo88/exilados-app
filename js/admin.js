@@ -207,8 +207,8 @@ function setCpChurras(sim){
   if(btnNao) btnNao.classList.toggle('active',!sim);
 }
 function setAdmChurras(val, btn){
-  document.querySelectorAll('#adm-churras-sel .churras-pill').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+  document.querySelectorAll('#adm-churras-sel .conf-action-btn').forEach(b=>b.classList.remove('selected'));
+  if(btn) btn.classList.add('selected');
 }
 function campoErro(id){
   const el=document.getElementById(id); if(el) el.classList.add('input-error');
@@ -572,7 +572,7 @@ async function admAdd(){
   const n=normNome(nome);
   if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
 
-  const churras = p.temChurras ?(document.querySelector('#adm-churras-sel .churras-pill.active')?.dataset.val || 'jogo') : null;
+  const churras = p.temChurras ?(document.querySelector('#adm-churras-sel .conf-action-btn.selected')?.dataset.val || 'jogo') : null;
   const vaiParaEspera = churras !== 'churras' && peladaLotada(p);
 
   // Busca matches no cadastro de peladeiros
