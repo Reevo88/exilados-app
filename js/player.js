@@ -1333,6 +1333,27 @@ function fitConfBadges(container) {
   });
 }
 
+function fitFinBadges(container) {
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      (container || document).querySelectorAll('.fin-row-actions').forEach(function(actions) {
+        var badgeEls = actions.querySelectorAll('.fin-badge');
+        badgeEls.forEach(function(b) { b.style.fontSize = ''; });
+        if (!badgeEls.length) return;
+        var row = actions.closest('.fin-row');
+        if (!row) return;
+        var name = row.querySelector('.fin-name');
+        if (!name) return;
+        var size = 11;
+        while (name.scrollWidth > name.clientWidth && size > 8) {
+          size -= 0.5;
+          badgeEls.forEach(function(b) { b.style.fontSize = size + 'px'; });
+        }
+      });
+    });
+  });
+}
+
 // ==========================================
 // CONFIRMAÇÃO — lógica central (upsert)
 // ==========================================

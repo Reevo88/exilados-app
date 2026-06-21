@@ -1287,6 +1287,7 @@ function renderAdmFin(){
   document.getElementById('fin-pend').textContent=money(pend);
   document.getElementById('fin-tot').textContent=money(tot);
   document.getElementById('fin-resumo-titulo').textContent=pendentes.length?`${pendentes.length} pendente${pendentes.length===1?'':'s'}`:'Tudo certo por aqui';
+  document.getElementById('fin-resumo-titulo').style.color=pendentes.length?'#F5E400':'';
   document.getElementById('fin-resumo-sub').textContent=`${pagos.length}/${cobraveis.length} avulsos pagos · ${mensalistas.length} mensalista${mensalistas.length===1?'':'s'} · ${isentos.length} isento${isentos.length===1?'':'s'}`;
   document.getElementById('fin-status-pill').textContent=`${perc}% recebido`;
   document.getElementById('fin-status-pill').className='fin-pill'+(pendentes.length?' warn':'');
@@ -1337,6 +1338,7 @@ function renderAdmFin(){
   <div class="fin-section"><div class="section-title">Pagos (${avulsosJogoPagos.length})</div>${pagosHtml}</div>
   <div class="fin-section"><div class="section-title">Mensalistas (${mensalistas.length})</div>${mensHtml}</div>
   ${isentos.length?`<div class="fin-section"><div class="section-title">Isentos (${isentos.length})</div>${isentosHtml}</div>`:''}`;
+  if(window.fitFinBadges) fitFinBadges(el);
 }
 
 async function marcarTodosPagos(){
