@@ -614,10 +614,10 @@
 </div>
 </div>
 <div id="adm-churras-sel" style="display:none;margin-top:8px;">
-<div class="churras-modal-pills">
-<button class="churras-pill active" data-val="jogo" onclick="setAdmChurras('jogo',this)" type="button">Jogo</button>
-<button class="churras-pill" data-val="jogo_churras" onclick="setAdmChurras('jogo_churras',this)" type="button">J + Churras</button>
-<button class="churras-pill" data-val="churras" onclick="setAdmChurras('churras',this)" type="button">Só Churras</button>
+<div class="conf-action-grid" style="grid-template-columns:repeat(3,1fr)">
+<button class="conf-action-btn selected" data-val="jogo" onclick="setAdmChurras('jogo',this)" type="button"><i class="ti ti-shirt"></i><span>JOGO</span></button>
+<button class="conf-action-btn" data-val="jogo_churras" onclick="setAdmChurras('jogo_churras',this)" type="button"><span class="dual-icons"><i class="ti ti-shirt"></i><i class="ti ti-grill"></i></span><span>JOGO + CHURRAS</span></button>
+<button class="conf-action-btn is-bbq" data-val="churras" onclick="setAdmChurras('churras',this)" type="button"><i class="ti ti-grill"></i><span>SÓ CHURRAS</span></button>
 </div>
 </div>
 <div style="font-size:11px;color:var(--text2);margin-top:8px;">O app bloqueia nomes duplicados, mesmo com diferença de maiúsculas, acentos ou espaços.</div>
