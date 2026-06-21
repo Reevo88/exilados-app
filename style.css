@@ -696,9 +696,9 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .peladeiros-total small { margin-top:2px; font-size:10px; font-weight:700; opacity:.78; text-transform:uppercase; }
 .peladeiros-filter-card { padding:12px 14px; margin-bottom:10px; }
 .peladeiro-card {
-  --team-main:#185FA5;
-  --team-dark:#0C447C;
-  --team-accent:#FAC775;
+  --team-main:#F5E400;
+  --team-dark:#111111;
+  --team-accent:#F5E400;
   position:relative;
   aspect-ratio:2.28/1;
   min-height:172px;
@@ -710,10 +710,11 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   margin-bottom:12px;
   margin-inline:auto;
   overflow:hidden;
-  background:#fff;
-  border:1px solid rgba(0,0,0,.12);
+  isolation:isolate;
+  background:#080808;
+  border:1px solid #222;
   border-radius:20px;
-  box-shadow:0 7px 20px rgba(0,0,0,.10);
+  box-shadow:0 7px 20px rgba(0,0,0,.35);
 }
 .peladeiro-card-red {
   --team-main:#c91e16;
@@ -729,23 +730,14 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   content:"";
   position:absolute;
   inset:0;
+  z-index:0;
   pointer-events:none;
+  border-radius:inherit;
   background:
-    radial-gradient(circle at 96% 118%, transparent 0 32px, rgba(0,0,0,.10) 33px, transparent 34px),
-    repeating-linear-gradient(14deg, rgba(0,0,0,.025) 0 1px, transparent 1px 10px);
-  opacity:.55;
+    linear-gradient(90deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.65) 45%, rgba(0,0,0,.25) 100%),
+    url('exilado.jpg') center/cover no-repeat;
 }
-.peladeiro-sash {
-  position:absolute;
-  z-index:1;
-  left:-9%;
-  top:-30%;
-  width:45%;
-  height:165%;
-  transform:skewX(-28deg);
-  background:linear-gradient(90deg, var(--team-dark) 0 44%, var(--team-main) 44% 75%, var(--team-accent) 75% 79%, transparent 79%);
-  box-shadow:inset 16px 0 24px rgba(0,0,0,.18);
-}
+.peladeiro-sash { display:none; }
 .peladeiro-sash::after {
   content:"";
   position:absolute;
@@ -810,7 +802,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   font-weight:800;
   font-style:italic;
   letter-spacing:.015em;
-  color:#070707;
+  color:rgba(255,255,255,.55);
   text-transform:uppercase;
   white-space:nowrap;
   overflow:visible;
@@ -824,12 +816,12 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   font-style:italic;
   letter-spacing:0;
   line-height:.82;
-  color:#030303;
+  color:#ffffff;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   max-width:100%;
-  text-shadow:0 1px 0 rgba(255,255,255,.65);
+  text-shadow:0 2px 6px rgba(0,0,0,.55);
 }
 .peladeiro-name-medium .peladeiro-name { font-size:clamp(27px,7.35vw,42px); }
 .peladeiro-name-long .peladeiro-name { font-size:clamp(23px,6.35vw,36px); }
@@ -848,12 +840,12 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   font-size:clamp(13px,3.45vw,20px);
   line-height:.92;
   font-weight:600;
-  color:#555;
+  color:rgba(255,255,255,.62);
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.peladeiro-sep { color:#111; padding:0 8px; }
+.peladeiro-sep { color:rgba(255,255,255,.28); padding:0 8px; }
 .peladeiro-meta {
   display:flex;
   align-items:center;
@@ -869,9 +861,9 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   gap:6px;
   padding:3px 6px;
   border-radius:11px;
-  border:1px solid rgba(0,0,0,.22);
-  background:#fff;
-  color:#111;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.45);
+  color:rgba(255,255,255,.85);
   font-family:'Inter',sans-serif;
   font-size:clamp(9px,2.35vw,13px);
   line-height:1;
@@ -880,20 +872,15 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 }
 .peladeiro-chip i { font-size:.64em; }
 .peladeiro-chip-pos {
-  border-color:var(--team-accent);
-  background:var(--team-accent);
-  color:var(--team-dark);
-}
-.peladeiro-card-red .peladeiro-chip-pos {
-  background:var(--team-main);
-  border-color:var(--team-main);
-  color:#fff;
+  border-color:#F5E400;
+  background:rgba(245,228,0,.15);
+  color:#F5E400;
 }
 .peladeiro-chip-mod {
-  background:#fff;
-  color:#111;
+  background:rgba(0,0,0,.45);
+  color:rgba(255,255,255,.75);
 }
-.peladeiro-chip-mod i { color:var(--team-main); }
+.peladeiro-chip-mod i { color:#F5E400; }
 .peladeiro-chip-adm {
   border-color:#050505;
   background:#050505;
