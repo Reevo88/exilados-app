@@ -717,14 +717,14 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   box-shadow:0 7px 20px rgba(0,0,0,.35);
 }
 .peladeiro-card-red {
-  --team-main:#c91e16;
-  --team-dark:#171719;
-  --team-accent:#ffffff;
+  --team-main:#F5E400;
+  --team-dark:#111111;
+  --team-accent:#F5E400;
 }
 .peladeiro-card-blue {
-  --team-main:#185FA5;
-  --team-dark:#0C447C;
-  --team-accent:#f5c800;
+  --team-main:#F5E400;
+  --team-dark:#111111;
+  --team-accent:#F5E400;
 }
 .peladeiro-card::before {
   content:"";
@@ -4303,20 +4303,13 @@ section[id*="home"] .btn:not(.btn-primary){
 .peladeiro-card.is-expanded{ border-color:#4a4a4a; }
 .peladeiro-card::before{
   background:
-    radial-gradient(circle at 110% 110%, rgba(255,255,255,.06) 0 90px, transparent 91px),
-    repeating-linear-gradient(14deg, rgba(255,255,255,.025) 0 1px, transparent 1px 10px);
+    linear-gradient(90deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.65) 45%, rgba(0,0,0,.25) 100%),
+    url('exilado.jpg') center/cover no-repeat;
   opacity:1;
 }
-.peladeiro-card-red{--team-main:#d92a22;--team-dark:#211010;--team-accent:#F5E400;}
-.peladeiro-card-blue{--team-main:#185FA5;--team-dark:#07131f;--team-accent:#F5E400;}
-.peladeiro-sash{
-  left:-8%;
-  top:-26%;
-  width:35%;
-  height:160%;
-  background:linear-gradient(90deg,var(--team-dark) 0 34%,var(--team-main) 34% 82%,rgba(255,255,255,.14) 82% 86%,transparent 86%);
-  box-shadow:inset 18px 0 24px rgba(0,0,0,.28);
-}
+.peladeiro-card-red{--team-main:#F5E400;--team-dark:#111111;--team-accent:#F5E400;}
+.peladeiro-card-blue{--team-main:#F5E400;--team-dark:#111111;--team-accent:#F5E400;}
+.peladeiro-sash{ display:none; }
 .peladeiro-avatar{
   left:4%;
   width:25.5%;
@@ -4869,15 +4862,11 @@ section[id*="home"] .btn:not(.btn-primary){
   background-image:linear-gradient(135deg,rgba(5,5,5,.26),rgba(5,5,5,.90)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='320' viewBox='0 0 520 320'%3E%3Crect width='520' height='320' fill='%23111111'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.18' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='300' y='62' width='144' height='190' rx='18'/%3E%3Cpath d='M326 102h92M326 142h28M372 142h28M326 180h28M372 180h28M326 218h74'/%3E%3Cellipse cx='150' cy='202' rx='82' ry='28'/%3E%3Cpath d='M68 202v36c0 16 37 28 82 28s82-12 82-28v-36M68 164v36c0 16 37 28 82 28s82-12 82-28v-36'/%3E%3Cellipse cx='150' cy='164' rx='82' ry='28'/%3E%3C/g%3E%3Cg fill='%23F5E400' fill-opacity='.08'%3E%3Ccircle cx='84' cy='86' r='20'/%3E%3Ccircle cx='132' cy='86' r='20'/%3E%3Ccircle cx='180' cy='86' r='20'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* PELADEIROS — reforço no fundo do card do atleta, preservando as faixas azul/vermelha */
-#s-j-peladeiros .peladeiro-card:after{
-  opacity:.16 !important;
-}
-#s-j-peladeiros .peladeiro-card-blue:after{
-  background-image:linear-gradient(135deg,rgba(5,5,5,.20),rgba(5,5,5,.82)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='260' viewBox='0 0 640 260'%3E%3Crect width='640' height='260' fill='%23111111'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.13' stroke-width='3'%3E%3Cpath d='M30 34h580v192H30z'/%3E%3Cpath d='M320 34v192'/%3E%3Ccircle cx='320' cy='130' r='48'/%3E%3C/g%3E%3Cg stroke='%23006bd6' stroke-opacity='.28' stroke-width='8'%3E%3Cpath d='M0 232L250 0M58 260L336 0'/%3E%3C/g%3E%3C/svg%3E") !important;
-}
+/* PELADEIROS — ::after desativado, background via ::before com exilado.jpg */
+#s-j-peladeiros .peladeiro-card:after,
+#s-j-peladeiros .peladeiro-card-blue:after,
 #s-j-peladeiros .peladeiro-card-red:after{
-  background-image:linear-gradient(135deg,rgba(5,5,5,.20),rgba(5,5,5,.82)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='260' viewBox='0 0 640 260'%3E%3Crect width='640' height='260' fill='%23111111'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.13' stroke-width='3'%3E%3Cpath d='M30 34h580v192H30z'/%3E%3Cpath d='M320 34v192'/%3E%3Ccircle cx='320' cy='130' r='48'/%3E%3C/g%3E%3Cg stroke='%23d92c2c' stroke-opacity='.28' stroke-width='8'%3E%3Cpath d='M0 232L250 0M58 260L336 0'/%3E%3C/g%3E%3C/svg%3E") !important;
+  display:none !important;
 }
 
 
