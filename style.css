@@ -580,7 +580,7 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .fin-person        { flex:1; min-width:0; }
 .fin-name          { font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .fin-meta          { font-size:11px; color:var(--text2); margin-top:2px; }
-.fin-row-actions   { display:flex; gap:5px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.fin-row-actions   { display:flex; gap:5px; align-items:center; flex-wrap:nowrap; justify-content:flex-end; }
 .fin-section       { margin-top:14px; }
 .fin-section:first-child { margin-top:0; }
 
