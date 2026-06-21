@@ -1299,7 +1299,7 @@ function renderAdmFin(){
   if(!p.confirmados.length){el.innerHTML='<div class="empty"><i class="ti ti-cash"></i>Nenhum jogador confirmado</div>';return;}
 
   const modLabel=(j)=>{
-    if(ehMensalista(j)) return 'Mensalista · não entra no rateio avulso';
+    if(ehMensalista(j)) return 'Mensalista · não paga churras';
     if(j.isento)                    return 'Isento desta rodada';
     const v = valorJogador(j);
     const temC = p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras');
