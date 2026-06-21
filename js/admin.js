@@ -1302,8 +1302,7 @@ function renderAdmFin(){
     if(ehMensalista(j)) return 'Mensalista · não paga churras';
     if(j.isento)                    return 'Isento desta rodada';
     const v = valorJogador(j);
-    const temC = p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras');
-    return (temC?'Avulso + churras':'Avulso')+' · '+money(v);
+    return money(v);
   };
   const btnAvulsoLabel=(j)=>{
     if(p.temChurras && (j.churras==='jogo_churras'||j.churras==='churras')) return 'Avulso + churras';
