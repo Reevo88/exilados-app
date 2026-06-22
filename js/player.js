@@ -1514,7 +1514,10 @@ async function jogadorNaoVaiImpl(){
       p.naoVao      = p.naoVao.filter(j=>j.id!==existente.id);
       p.naoVao.push({id:existente.id, nome});
       if(eraConfirmado) await _promoverPrimeiroDaEspera(p);
-      queueAdminPeladaNotification('withdraw', p.id, existente.id, { previous_status: existente.status || null });
+      queueAdminPeladaNotification('withdraw', p.id, existente.id, {
+        previous_status: existente.status || null,
+        had_previous_confirmation: ['confirmado', 'espera'].includes(String(existente.status || '')),
+      });
     } else {
       // Não existe nenhum registro — cria direto como nao_vai
       const rows = await sbFetch('/confirmacoes', {
@@ -1528,7 +1531,10 @@ async function jogadorNaoVaiImpl(){
         }),
       });
       p.naoVao.push({id:rows[0].id, nome});
-      queueAdminPeladaNotification('withdraw', p.id, rows[0].id, { previous_status: 'new' });
+      queueAdminPeladaNotification('withdraw', p.id, rows[0].id, {
+        previous_status: 'new',
+        had_previous_confirmation: false,
+      });
     }
     showToast('Ausência registrada. Até a próxima!');
     renderJConf();
@@ -1555,7 +1561,10 @@ async function jogadorCancelarImpl(){
     p.naoVao      = (p.naoVao||[]).filter(j=>j.id!==existente.id);
     p.naoVao.push({id:existente.id, nome:existente.nome||nome});
     if(eraConf) await _promoverPrimeiroDaEspera(p);
-    queueAdminPeladaNotification('withdraw', p.id, existente.id, { previous_status: existente.status || null });
+    queueAdminPeladaNotification('withdraw', p.id, existente.id, {
+      previous_status: existente.status || null,
+      had_previous_confirmation: ['confirmado', 'espera'].includes(String(existente.status || '')),
+    });
     showToast('Confirmação cancelada');
     renderJConf();
   }catch(e){ showToast('Erro ao cancelar.'); }
