@@ -448,6 +448,7 @@ async function renderAdmConf(){
         return rowAdm(j,i,'fora',actions,{ hideStatusBadge:true });
       }).join(''))
     : '<div class="empty conf-empty"><i class="ti ti-user-x"></i>Nenhuma recusa registrada</div>';
+  if (window.fitConfBadges) fitConfBadges(nao);
 }
 // -- Busca peladeiros cadastrados para lookup de modalidade --
 async function _buscarJogadoresCadastrados(){
