@@ -444,7 +444,7 @@ async function renderAdmConf(){
   const podeExcluirNaoVai = G.perfil === 'full';
   nao.innerHTML = p.naoVao.length
     ? sectionAdm('FORA','ti-circle-minus',p.naoVao.length,'is-out',p.naoVao.map((j,i)=>{
-        const actions = `<button class="adm-conf-confirm" onclick="voltarNaoVai(${i})"><i class="ti ti-user-plus"></i> CONFIRMAR</button>${podeExcluirNaoVai?`<button class="adm-conf-delete" onclick="remNaoVai(${i})" title="Remover"><i class="ti ti-trash"></i></button>`:''}`;
+        const actions = `<button class="adm-conf-confirm adm-conf-delete" onclick="voltarNaoVai(${i})" title="Confirmar"><i class="ti ti-user-plus"></i></button>${podeExcluirNaoVai?`<button class="adm-conf-delete" onclick="remNaoVai(${i})" title="Remover"><i class="ti ti-trash"></i></button>`:''}`;
         return rowAdm(j,i,'fora',actions,{ hideStatusBadge:true });
       }).join(''))
     : '<div class="empty conf-empty"><i class="ti ti-user-x"></i>Nenhuma recusa registrada</div>';
