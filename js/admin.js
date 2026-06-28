@@ -306,6 +306,7 @@ async function criarPelada(){
     nova.id=row.id; G.peladas.push(nova); G.pelada=nova;
     G.editandoPeladaId=null;
     showToast('Pelada criada!');
+    sbInvokeFunction('notify-pelada-aberta', { pelada_id: row.id }).catch(e => console.warn('Notificação pelada:', e));
     renderAdmConf(); goTo('s-adm-conf');
   }catch(e){ console.error('Erro ao criar pelada:', e); showToast('Erro ao criar pelada: '+(e.message||'verifique o Supabase.')); }
   finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
