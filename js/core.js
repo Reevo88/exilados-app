@@ -613,3 +613,50 @@ function reloadApp(){
     window.location.reload();
   }
 }
+
+// ==========================================
+// PUSH NOTIFICATIONS
+// ==========================================
+const VAPID_PUBLIC_KEY = 'BAY4xRKlbU5l1ll6mJtFF20bNbMBpIemElhMBr_R2A-8L_9_Z0vRSOfl4ZQcS15ozB4oWsisNe1fQUDf4br3m7M';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function registrarPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!VAPID_PUBLIC_KEY) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const existente = await reg.pushManager.getSubscription();
+    if (existente) { await salvarSubscription(existente); return; }
+
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
+    await salvarSubscription(sub);
+  } catch(e) { console.warn('Push subscription:', e); }
+}
+
+async function salvarSubscription(sub) {
+  const user = G.usuario;
+  if (!user) return;
+  const json = sub.toJSON();
+  await sbFetch('/push_subscriptions', {
+    method: 'POST',
+    body: JSON.stringify({
+      user_id:  user.id,
+      endpoint: json.endpoint,
+      p256dh:   json.keys.p256dh,
+      auth:     json.keys.auth,
+    }),
+    headers: { 'Prefer': 'resolution=merge-duplicates' },
+  }).catch(() => {});
+}

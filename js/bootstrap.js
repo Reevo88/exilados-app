@@ -67,6 +67,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const pSlug=params.get('p');
   renderJLista();
   if(G.isAdm) renderAdmHome();
+  registrarPush().catch(() => {});
   setInterval(verificarEncerramentoAutomaticoUI, 60 * 1000);
 
   // Verifica encerramento automático quando o usuário volta para a aba/app
