@@ -455,7 +455,8 @@ async function renderAdmConf(){
 async function _buscarJogadoresCadastrados(){
   if(G.jogadores && G.jogadores.length) return G.jogadores;
   try{
-    G.jogadores = await sbFetch('/jogadores_publicos?select=id,nome,apelido,modalidade,posicao_favorita&order=apelido.asc');
+    const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,modalidade,posicao_favorita&order=apelido.asc');
+    G.jogadores = await prepararFotosJogadores(rows || []);
   }catch(e){ G.jogadores = []; }
   return G.jogadores || [];
 }
@@ -987,8 +988,7 @@ async function uploadFotoJogadorAdm(file){
     showToast('Enviando foto...');
     const { error } = await _sbClient.storage.from('jogador-fotos').upload(path,foto,{upsert:false,contentType:contentTypeFotoUpload(foto)});
     if(error) throw error;
-    const { data:pub } = _sbClient.storage.from('jogador-fotos').getPublicUrl(path);
-    document.getElementById('jog-foto').value=pub.publicUrl;
+    document.getElementById('jog-foto').value=await criarUrlAssinadaFoto(path);
     atualizarPreviewJogador();
     showToast('Foto enviada. Salve o jogador para gravar.');
   }catch(e){
@@ -1042,7 +1042,7 @@ async function salvarJogadorAdm(){
     instagram:jogadorInstagram(document.getElementById('jog-instagram').value)||null,
     email:document.getElementById('jog-email').value.trim()||null,
     telefone:formatarTelefone(document.getElementById('jog-telefone').value)||null,
-    foto_url:document.getElementById('jog-foto').value.trim()||null,
+    foto_url:fotoValorPersistencia(document.getElementById('jog-foto').value),
     data_nascimento:dataNascimento,
     posicao_favorita:jogFlagValue('pos')||null,
     modalidade:jogFlagValue('mod','avulso')||'avulso',

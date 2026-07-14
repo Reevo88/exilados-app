@@ -702,8 +702,7 @@ async function uploadFotoPerfil(file){
     showToast('Enviando foto...');
     const { error } = await _sbClient.storage.from('jogador-fotos').upload(path,foto,{upsert:false,contentType:contentTypeFotoUpload(foto)});
     if(error) throw error;
-    const { data:pub } = _sbClient.storage.from('jogador-fotos').getPublicUrl(path);
-    document.getElementById('perfil-foto-url').value=pub.publicUrl;
+    document.getElementById('perfil-foto-url').value=await criarUrlAssinadaFoto(path);
     atualizarPreviewMeuPerfil();
     showToast('Foto enviada! Toque em Salvar perfil.');
   }catch(e){
@@ -747,7 +746,7 @@ async function salvarMeuPerfil(){
     instagram:jogadorInstagram(document.getElementById('perfil-instagram').value)||null,
     telefone:telefoneRaw,
     email:document.getElementById('perfil-email').value.trim()||G.usuario?.email||null,
-    foto_url:document.getElementById('perfil-foto-url').value.trim()||null,
+    foto_url:fotoValorPersistencia(document.getElementById('perfil-foto-url').value),
     data_nascimento:dataNascimento,
     posicao_favorita:posicaoFavorita,
     modalidade:perfilFlagValue('mod','avulso')||'avulso',

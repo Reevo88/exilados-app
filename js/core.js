@@ -155,11 +155,12 @@ async function dbAtualizarPelada(id,fields) {
   await sbFetch('/peladas?id=eq.'+id,{method:'PATCH',body:JSON.stringify(fields),prefer:'return=minimal'});
 }
 async function dbListarJogadores() {
-  return await sbFetch('/jogadores?order=nome.asc');
+  const rows = await sbFetch('/jogadores?order=nome.asc');
+  return await prepararFotosJogadores(rows || []);
 }
 async function dbCarregarJogadoresBase() {
   const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,posicao_favorita,ativo,modalidade,instagram&order=apelido.asc');
-  G.jogadores = rows || [];
+  G.jogadores = await prepararFotosJogadores(rows || []);
   return G.jogadores;
 }
 async function dbAtualizarJogador(id,fields) {
@@ -167,7 +168,7 @@ async function dbAtualizarJogador(id,fields) {
 }
 async function dbCriarJogador(fields) {
   const rows=await sbFetch('/jogadores',{method:'POST',body:JSON.stringify(fields)});
-  return rows[0];
+  return await prepararFotoJogador(rows[0]);
 }
 async function dbExcluirJogador(id) {
   await sbFetch('/jogadores?id=eq.'+encodeURIComponent(id),{method:'DELETE',prefer:'return=minimal'});
@@ -181,15 +182,15 @@ async function dbExcluirVotosDoJogador(nomes=[]) {
 }
 async function dbJogadorPorAuth(userId) {
   const rows=await sbFetch('/jogadores?auth_user_id=eq.'+encodeURIComponent(userId)+'&limit=1');
-  return rows && rows[0] ? rows[0] : null;
+  return rows && rows[0] ? await prepararFotoJogador(rows[0]) : null;
 }
 async function dbJogadorPorEmail(email) {
   const rows=await sbFetch('/jogadores?email=eq.'+encodeURIComponent(email)+'&limit=1');
-  return rows && rows[0] ? rows[0] : null;
+  return rows && rows[0] ? await prepararFotoJogador(rows[0]) : null;
 }
 async function dbJogadorPorId(id) {
   const rows=await sbFetch('/jogadores?id=eq.'+encodeURIComponent(id)+'&limit=1');
-  return rows && rows[0] ? rows[0] : null;
+  return rows && rows[0] ? await prepararFotoJogador(rows[0]) : null;
 }
 
 const POSICOES = ['GOL','ZAG','LAT','MEI','ATA'];
@@ -203,6 +204,67 @@ const _sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     flowType: 'implicit',
   },
 });
+
+const FOTO_ASSINADA_TTL = 3600;
+const _fotoAssinadaCache = new Map();
+
+function extrairFotoStoragePath(value){
+  const raw=String(value||'').trim();
+  if(!raw || raw.startsWith('data:') || raw.startsWith('blob:')) return null;
+  try{
+    const url=new URL(raw);
+    const match=url.pathname.match(/\/storage\/v1\/object\/(?:public|sign|authenticated)\/jogador-fotos\/(.+)$/i);
+    return match ? decodeURIComponent(match[1]) : null;
+  }catch(_){
+    return /^[0-9a-f-]{36}\//i.test(raw) ? raw : null;
+  }
+}
+
+function fotoValorPersistencia(value){
+  return extrairFotoStoragePath(value) || String(value||'').trim() || null;
+}
+
+function fotoAssinadaCacheGet(path){
+  const cached=_fotoAssinadaCache.get(path);
+  if(!cached || cached.expiresAt<=Date.now()){
+    if(cached) _fotoAssinadaCache.delete(path);
+    return null;
+  }
+  return cached.url;
+}
+
+function fotoAssinadaCacheSet(path,url){
+  if(!path || !url) return;
+  _fotoAssinadaCache.set(path,{url,expiresAt:Date.now()+((FOTO_ASSINADA_TTL-60)*1000)});
+}
+
+async function criarUrlAssinadaFoto(path){
+  const storagePath=extrairFotoStoragePath(path) || String(path||'').trim();
+  if(!storagePath) return '';
+  const cached=fotoAssinadaCacheGet(storagePath);
+  if(cached) return cached;
+  const {data,error}=await _sbClient.storage.from('jogador-fotos').createSignedUrl(storagePath,FOTO_ASSINADA_TTL);
+  if(error) throw error;
+  const url=data?.signedUrl||'';
+  fotoAssinadaCacheSet(storagePath,url);
+  return url;
+}
+
+async function prepararFotoJogador(jogador){
+  if(!jogador) return jogador;
+  const path=extrairFotoStoragePath(jogador.foto_url);
+  if(!path) return jogador;
+  try{
+    const url=await criarUrlAssinadaFoto(path);
+    return {...jogador,foto_storage_path:path,foto_url:url||''};
+  }catch(_){
+    return {...jogador,foto_storage_path:path,foto_url:''};
+  }
+}
+
+async function prepararFotosJogadores(rows=[]){
+  return await Promise.all((rows||[]).map(prepararFotoJogador));
+}
 
 // Mapeamento email -> perfil (os emails são criados no painel do Supabase)
 // Formato: adm@exiladosdabola.com / presidente@exiladosdabola.com / escalador@exiladosdabola.com
