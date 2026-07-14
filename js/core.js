@@ -711,7 +711,7 @@ async function salvarSubscription(sub) {
   const user = G.usuario;
   if (!user) return;
   const json = sub.toJSON();
-  await sbFetch('/push_subscriptions', {
+  await sbFetch('/push_subscriptions?on_conflict=endpoint_key', {
     method: 'POST',
     body: JSON.stringify({
       user_id:  user.id,
