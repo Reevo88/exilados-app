@@ -2,7 +2,7 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v30-peladeiros-filter-grid';
+const CACHE_NAME = 'exilados-v31-authenticated-rls';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
@@ -51,6 +51,34 @@ self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+// -- Push: exibe notificação ao receber push do servidor --
+self.addEventListener('push', event => {
+  let data = { title: 'Exilados da Bola', body: 'Nova atualização!', url: '/' };
+  try { if (event.data) data = { ...data, ...event.data.json() }; } catch {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon-192.png',
+      badge: '/favicon.png',
+      data: { url: data.url },
+      vibrate: [200, 100, 200],
+    })
+  );
+});
+
+// -- Clique na notificação: abre o app na URL correta --
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const existing = list.find(c => c.url.includes(self.location.origin));
+      if (existing) return existing.focus();
+      return clients.openWindow(url);
+    })
+  );
 });
 
 // -- Activate: limpa caches antigos --
