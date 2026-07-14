@@ -158,7 +158,7 @@ async function dbListarJogadores() {
   return await sbFetch('/jogadores?order=nome.asc');
 }
 async function dbCarregarJogadoresBase() {
-  const rows = await sbFetch('/jogadores?select=id,nome,apelido,foto_url,posicao_favorita,data_nascimento,ativo,modalidade,perfil_app,email,telefone,instagram,auth_user_id&order=apelido.asc');
+  const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,posicao_favorita,ativo,modalidade,instagram&order=apelido.asc');
   G.jogadores = rows || [];
   return G.jogadores;
 }

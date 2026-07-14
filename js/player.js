@@ -1055,7 +1055,7 @@ async function carregarPeladeirosPublico(){
   const el=document.getElementById('peladeiros-lista');
   if(el) el.innerHTML='<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i>Carregando peladeiros</div>';
   try{
-    G.jogadores=await sbFetch('/jogadores?select=id,nome,apelido,instagram,foto_url,posicao_favorita,modalidade,perfil_app,data_nascimento,ativo,telefone,email&order=apelido.asc');
+    G.jogadores=await sbFetch('/jogadores_publicos?select=id,nome,apelido,instagram,foto_url,posicao_favorita,modalidade,ativo&order=apelido.asc');
     await carregarStatsPeladeirosPublico();
     renderPeladeirosLista();
   }catch(e){
@@ -1735,7 +1735,7 @@ async function abrirRanking(aba) {
   setRankingAba('performance');
   if (!G.jogadores || !G.jogadores.length) {
     try {
-      G.jogadores = await sbFetch('/jogadores?select=id,nome,apelido,foto_url,posicao_favorita,modalidade,perfil_app,data_nascimento,ativo&order=apelido.asc');
+      G.jogadores = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,posicao_favorita,modalidade,ativo&order=apelido.asc');
     } catch(e) {}
   }
   await renderRanking();

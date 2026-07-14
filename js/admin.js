@@ -455,7 +455,7 @@ async function renderAdmConf(){
 async function _buscarJogadoresCadastrados(){
   if(G.jogadores && G.jogadores.length) return G.jogadores;
   try{
-    G.jogadores = await sbFetch('/jogadores?select=id,nome,apelido,modalidade,posicao_favorita,data_nascimento&order=apelido.asc');
+    G.jogadores = await sbFetch('/jogadores_publicos?select=id,nome,apelido,modalidade,posicao_favorita&order=apelido.asc');
   }catch(e){ G.jogadores = []; }
   return G.jogadores || [];
 }

@@ -9,7 +9,8 @@
 // -- DB: Configurações Financeiras --------
 async function dbGetConfig() {
   try {
-    const rows = await sbFetch('/configuracoes_financeiras?order=id.desc&limit=1');
+    const recurso = G.podeGerirJogadores ? 'configuracoes_financeiras' : 'configuracao_app_publica';
+    const rows = await sbFetch('/' + recurso + '?order=id.desc&limit=1');
     return rows && rows.length ? rows[0] : null;
   } catch(e) { return null; }
 }
