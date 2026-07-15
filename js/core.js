@@ -410,7 +410,37 @@ function fotoImgHtml(url, alt='', opts={}){
   return `<img src="${escHtml(src)}" alt="${escHtml(alt)}" loading="${escHtml(loading)}" decoding="${escHtml(decoding)}" fetchpriority="${escHtml(fetchpriority)}" referrerpolicy="no-referrer"${className?` class="${escHtml(className)}"`:''}${width?` width="${width}"`:''}${height?` height="${height}"`:''}${sizes?` sizes="${escHtml(sizes)}"`:''}>`;
 }
 function money(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
-function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast show'; setTimeout(()=>t.classList.remove('show'),2200); }
+let _toastTimer=null;
+function showToast(m){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  const texto=String(m??'').trim();
+  let icon=t.querySelector('.toast-icon');
+  let message=t.querySelector('.toast-message');
+  if(!icon || !message){
+    icon=document.createElement('span');
+    icon.className='toast-icon';
+    icon.setAttribute('aria-hidden','true');
+    icon.textContent='⚡';
+    message=document.createElement('span');
+    message.className='toast-message';
+    t.replaceChildren(icon,message);
+  }
+  message.textContent=texto;
+  t.title=texto;
+  t.className='toast';
+  const tamanho=Array.from(texto).length;
+  if(tamanho>58) t.classList.add('toast--compact');
+  else if(tamanho>40) t.classList.add('toast--medium');
+  // Reinicia a animação e impede um timer antigo de ocultar a mensagem atual.
+  void t.offsetWidth;
+  t.classList.add('show');
+  if(_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{
+    t.classList.remove('show');
+    _toastTimer=null;
+  },2200);
+}
 function showToastDanger(m){ showToast(m); }
 function apenasDigitos(s){ return String(s||'').replace(/\D/g,''); }
 function formatarTelefone(v){
