@@ -88,6 +88,13 @@ function renderJLista(){
   preloadHomeAssets();
   initPlayerHomeBottomNavOverride();
   const el = document.getElementById('j-lista');
+  const homeScreen = document.getElementById('s-j-lista');
+  const visitante = !G.usuario;
+  if(homeScreen) homeScreen.classList.toggle('is-guest', visitante);
+  if(visitante){
+    if(el) el.replaceChildren();
+    return;
+  }
   if(!G.peladas.length){
     el.innerHTML = '<div class="empty"><i class="ti ti-ball-football"></i>Nenhuma partida cadastrada</div>';
     return;

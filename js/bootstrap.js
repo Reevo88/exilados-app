@@ -50,6 +50,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Visitante vê somente o header e o rodapé institucional. Os dados do app
+  // e a navegação inferior passam a existir visualmente apenas após o login.
+  if(!G.usuario){
+    renderJLista();
+    return;
+  }
+
   // Carregar peladas do Supabase
   const jlista=document.getElementById('j-lista');
   jlista.innerHTML='<div class="empty" style="padding:40px 0;"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;font-size:28px;opacity:.5;"></i></div>';
@@ -85,7 +92,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 });
-
 
 
 
