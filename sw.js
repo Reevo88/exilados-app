@@ -2,13 +2,13 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v35-guest-home';
+const CACHE_NAME = 'exilados-v36-login-hero';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/style.css?v=20260715-guest-home-1',
+  '/style.css?v=20260715-login-hero-1',
   '/css/header.css?v=20260613-peladeiros-filter-grid-1',
   '/css/bottom-nav.css?v=20260613-peladeiros-filter-grid-1',
   '/js/core.js?v=20260715-toast-nowrap-1',
@@ -31,6 +31,7 @@ const STATIC_ASSETS = [
   '/icon-192.png',
   '/icon-512.png',
   '/apple-touch-icon.png',
+  '/assets/login-guest-hero.png?v=1',
   'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap',
   'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css',
 ];
