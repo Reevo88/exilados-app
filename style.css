@@ -1069,7 +1069,8 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   position:fixed;
   bottom:90px;
   left:50%;
-  max-width:calc(100vw - 28px);
+  width:max-content;
+  max-width:calc(100vw - 20px);
   transform:translate(-50%, 10px);
   background:linear-gradient(180deg,#171717 0%,#0d0d0d 100%);
   color:var(--white);
@@ -1085,16 +1086,29 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
   opacity:0;
   transition:opacity .18s ease, transform .18s ease;
   pointer-events:none;
-  white-space:normal;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
   text-align:left;
-  overflow-wrap:anywhere;
+  overflow:hidden;
+  box-sizing:border-box;
 }
-.toast::before {
-  content:'⚡';
+.toast-icon {
   color:var(--cream);
-  margin-right:8px;
   font-size:12px;
+  line-height:1;
+  flex:0 0 auto;
 }
+.toast-message {
+  display:block;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.toast.toast--medium { padding-left:13px; padding-right:13px; font-size:12px; gap:6px; }
+.toast.toast--compact { padding:9px 10px; border-left-width:3px; font-size:10.5px; letter-spacing:-.01em; gap:5px; }
 .toast.show { opacity:1; transform:translate(-50%, 0); }
 /* -- PWA UPDATE NOTICE -------------------- */
 .pwa-update { position:fixed; left:14px; right:14px; bottom:86px; z-index:1001; display:flex; align-items:center; justify-content:space-between; gap:12px; max-width:520px; margin:0 auto; padding:12px 12px 12px 14px; border-radius:12px; background:#111; color:#fff; box-shadow:0 10px 30px rgba(0,0,0,.28); font-size:13px; font-weight:700; opacity:0; transform:translateY(18px); pointer-events:none; transition:opacity .2s, transform .2s; }
