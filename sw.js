@@ -2,23 +2,23 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v34-toast-nowrap';
+const CACHE_NAME = 'exilados-v35-guest-home';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/style.css?v=20260715-toast-nowrap-1',
+  '/style.css?v=20260715-guest-home-1',
   '/css/header.css?v=20260613-peladeiros-filter-grid-1',
   '/css/bottom-nav.css?v=20260613-peladeiros-filter-grid-1',
   '/js/core.js?v=20260715-toast-nowrap-1',
   '/js/auth.js',
-  '/js/player.js',
+  '/js/player.js?v=20260715-guest-home-1',
   '/js/admin.js',
   '/js/finance.js',
   '/js/postgame.js',
   '/js/voting.js',
-  '/js/bootstrap.js',
+  '/js/bootstrap.js?v=20260715-guest-home-1',
   '/js/ui-nav.js?v=20260601-header-adm-fix-2',
   '/logo-exilados.png',
   '/boi-mono.png',
