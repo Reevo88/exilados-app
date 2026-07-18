@@ -712,7 +712,21 @@ async function renderResumo(peladaId, pjCache){
       const v0 = videos[0];
       const ytId0 = extrairYoutubeId(v0.video_url);
       const frame0 = document.getElementById('resumo-destaque-player');
-      if(frame0 && ytId0) frame0.src = ytEmbedUrl(ytId0, true);
+      // Carrega thumbnail estática em vez de autoplay — evita reprodução automática indesejada
+      if(frame0 && ytId0) frame0.src = '';
+      if(ytId0) {
+        const wrap = frame0 ? frame0.parentElement : null;
+        if(wrap && !wrap.querySelector('.resumo-destaque-thumb-wrap')) {
+          frame0.style.display = 'none';
+          const tw = document.createElement('div');
+          tw.className = 'resumo-destaque-thumb-wrap resumo-video-thumb-wrap';
+          tw.style.cssText = 'position:relative;cursor:pointer;';
+          tw.innerHTML = `<img src="https://i.ytimg.com/vi/${ytId0}/mqdefault.jpg" alt="" class="resumo-video-thumb" style="width:100%;aspect-ratio:16/9;display:block;object-fit:cover;">
+            <div class="resumo-video-play-btn"><i class="ti ti-player-play-filled"></i></div>`;
+          tw.addEventListener('click', () => abrirVideoPlayer(ytId0, v0.titulo));
+          wrap.insertBefore(tw, frame0);
+        }
+      }
       document.getElementById('resumo-destaque-titulo').textContent = v0.titulo;
     }
     grid.innerHTML = '';
