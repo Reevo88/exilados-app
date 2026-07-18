@@ -77,7 +77,7 @@ function ytEmbedUrl(videoId, autoplay = false) {
     modestbranding:  '1',   // logo mínima do YouTube
     controls:        '1',
     playsinline:     '1',
-    fs:              '0',   // sem botão fullscreen (evita sair do app)
+    fs:              '1',   // habilita botão fullscreen
     iv_load_policy:  '3',   // sem anotações
     disablekb:       '0',
   });
