@@ -703,7 +703,8 @@ async function promoverEspera(i){
   const j=p.espera[i]; if(!j)return;
   if(peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
   try{
-    await dbAtualizar(j.id,{status:'confirmado',time:'pool',posicao:'?'});
+    // A posição escolhida no cadastro deve acompanhar o convidado ao sair da espera.
+    await dbAtualizar(j.id,{status:'confirmado',time:'pool'});
     p.espera.splice(i,1);
     p.confirmados.push(j);
     p.jogadores.push({...j});
@@ -754,8 +755,11 @@ async function voltarNaoVai(i){
   if(peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
   if(p.confirmados.find(j=>normNome(j.nome)===normNome(item.nome))){showToast('Esse nome já está confirmado');return;}
   try{
-    await dbAtualizar(item.id,{status:'confirmado',time:'pool',posicao:'?'});
-    const novo={id:item.id,nome:item.nome,pos:'?',time:'pool',pago:false,modalidade:'avulso',isento:false,ordem:0};
+    // Não apaga a posição original ao reconfirmar o convidado.
+    const rows=await dbAtualizar(item.id,{status:'confirmado',time:'pool'});
+    const row=rows?.[0]||item;
+    const posicao=String(row.posicao||'').toUpperCase();
+    const novo={id:item.id,nome:item.nome,pos:['GOL','ZAG','LAT','MEI','ATA'].includes(posicao)?posicao:'?',time:'pool',pago:false,modalidade:'avulso',isento:false,ordem:0};
     p.confirmados.push(novo); p.jogadores.push({...novo});
     p.naoVao.splice(i,1);
     renderAdmConf(); renderAdmFin(); showToast('Jogador confirmado!');
@@ -1058,7 +1062,8 @@ async function salvarJogadorAdm(){
     fecharFormJogador();
     showToast('Jogador salvo!');
   }catch(e){
-    showToast('Erro ao salvar jogador.');
+    console.error('Erro ao salvar jogador:',e);
+    showToast(e?.message || 'Erro ao salvar jogador.');
   }
 }
 async function excluirJogadorAdm(){
@@ -1206,11 +1211,6 @@ async function reordenarJogadorTime(id,time,targetId=null){
 }
 async function mvTo(id,t){ await moverJogadorTime(id,t); }
 async function rmJog(id){ if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return; const p=G.pelada; try{await dbDeletar(id); p.jogadores=p.jogadores.filter(j=>j.id!==id); p.confirmados=p.confirmados.filter(j=>j.id!==id); renderAdmTimes(); showToast('Removido');}catch(e){showToast('Erro ao remover.');} }
-async function atAdd(){ if(bloquearSeEncerrada('Partida encerrada. Não é possível adicionar jogadores.')) return; const p=G.pelada; const nome=document.getElementById('at-add-nome').value.trim(); if(!nome)return; const pos=document.getElementById('at-add-pos').value; const time=document.getElementById('at-add-time').value;
-  try{ const row=await sbFetch('/confirmacoes',{method:'POST',body:JSON.stringify({pelada_id:p.id,nome,posicao:pos,time,pago:false,modalidade:resolveModalidadeConfirmacao({nome})})}); const novo={id:row[0].id,nome,pos,time,pago:false,modalidade:resolveModalidadeConfirmacao({nome,modalidade:row[0].modalidade})}; p.jogadores.push({...novo}); p.confirmados.push(novo); document.getElementById('at-add-nome').value=''; renderAdmTimes(); showToast('Adicionado!');
-  }catch(e){ showToast('Erro ao adicionar.'); }
-}
-
 async function limparTimes(){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível limpar times.')) return;
   const p=G.pelada; if(!p)return;

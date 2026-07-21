@@ -132,7 +132,10 @@ async function dbCriarPelada(p) {
   return rows[0];
 }
 async function dbConfirmar(peladaId,nome,churras,status='confirmado',jogadorId=null,posicao=null) {
-  const posVal=(posicao&&['GOL','ZAG','LAT','MEI','ATA'].includes(posicao))?posicao:'?';
+  const posVal=String(posicao||'').toUpperCase().trim();
+  if(!['GOL','ZAG','LAT','MEI','ATA'].includes(posVal)){
+    throw new Error('Uma posição válida é obrigatória para confirmar presença.');
+  }
   const body={pelada_id:peladaId,nome,posicao:posVal,time:'pool',pago:false,modalidade:resolveModalidadeConfirmacao({jogador_id:jogadorId,nome}),status};
   if(churras) body.churras=churras;
   if(jogadorId) body.jogador_id=jogadorId;
@@ -140,7 +143,7 @@ async function dbConfirmar(peladaId,nome,churras,status='confirmado',jogadorId=n
   return rows[0];
 }
 async function dbAtualizar(id,fields) {
-  await sbFetch('/confirmacoes?id=eq.'+id,{method:'PATCH',body:JSON.stringify(fields)});
+  return await sbFetch('/confirmacoes?id=eq.'+id,{method:'PATCH',body:JSON.stringify(fields)});
 }
 async function dbDeletar(id) {
   await sbFetch('/confirmacoes?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
