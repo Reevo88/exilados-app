@@ -1139,17 +1139,39 @@ function posBadgeLineupAdm(pos, full=false){
   return `<span class="pos-badge pos-${abbr}${full?' pos-badge-full':''}">${full ? fullName[abbr] : abbr}</span>`;
 }
 function renderAtTeam(cid,list,t,dz){
-  document.getElementById(cid).innerHTML=list.length?list.map(j=>`<div class="team-slot editable" ondragover="allowDrop(event)" ondrop="dropOnSlot(event,'${t}','${j.id}')"><div class="slot-av drag-handle ${t==='azul'?'b':'r'}" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para reordenar ou mover">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="slot-main"><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span>${posBadgeLineupAdm(j.pos,false)}<button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
+  document.getElementById(cid).innerHTML=list.length?list.map(j=>`<div class="team-slot editable" ondragover="allowDrop(event)" ondrop="dropOnSlot(event,'${t}','${j.id}')"><div class="slot-av drag-handle ${t==='azul'?'b':'r'}" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para reordenar ou mover">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="slot-main"><span class="slot-name">${escHtml(j.nome)} ${bAnivAdm(j,'time')}</span>${posicaoEscalacaoValida(j.pos)?posBadgeLineupAdm(j.pos,false):posSelect(j)}<button class="btn-rm-time" onclick="rmTime('${j.id}')" title="Devolver para sem time"><i class="ti ti-trash" style="font-size:13px;"></i></button></div></div>`).join(''):'<div class="lineup-empty"><i class="ti ti-users"></i> Nenhum jogador</div>';
 }
 function renderAtPool(list){
   const el=document.getElementById('at-pool');
-  el.innerHTML=list.length?list.map(j=>`<div class="pool-item lineup-pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="lineup-pool-main"><div class="lineup-pool-name-row"><span class="lineup-pool-name">${escHtml(j.nome)}</span>${posBadgeLineupAdm(j.pos,false)}</div>${bAnivAdm(j,'pool')}</div><div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
+  el.innerHTML=list.length?list.map(j=>`<div class="pool-item lineup-pool-item"><div class="pool-av drag-handle" draggable="true" ondragstart="ds(event,'${j.id}')" ondragend="de()" title="Arraste para o time">${escHtml(j.nome[0]||'?').toUpperCase()}</div><div class="lineup-pool-main"><div class="lineup-pool-name-row"><span class="lineup-pool-name">${escHtml(j.nome)}</span>${posicaoEscalacaoValida(j.pos)?posBadgeLineupAdm(j.pos,false):posSelect(j)}</div>${bAnivAdm(j,'pool')}</div><div class="assign-btns"><button class="assign-btn ab-blue" onclick="moverJogadorTime('${j.id}','azul')">Azul</button><button class="assign-btn ab-red" onclick="moverJogadorTime('${j.id}','vermelho')">Verm.</button></div></div>`).join('')
     :'<div class="lineup-empty"><i class="ti ti-check"></i> Todos escalados!</div>';
 }
 function renderAtAll(){
   const p=G.pelada;
   document.getElementById('at-all').innerHTML=p.jogadores.length?p.jogadores.map(j=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);margin-bottom:6px;"><div class="pool-av" style="width:26px;height:26px;font-size:10px;">${escHtml(j.nome[0]||'?').toUpperCase()}</div><span style="flex:1;font-size:13px;font-weight:500;">${escHtml(j.nome)}</span>${posSelect(j)}<span style="font-size:11px;color:var(--text2);min-width:50px;text-align:right;">${j.time==='pool'?'sem time':j.time==='azul'?'Azul':'Verm.'}</span><button class="btn-sm btn-danger" onclick="rmJog('${j.id}')" style="padding:4px 7px;"><i class="ti ti-trash" style="font-size:12px;"></i></button></div>`).join('')
     :'<div class="empty" style="padding:12px 0;">Nenhum jogador</div>';
+}
+function posicaoEscalacaoValida(pos){
+  return ['GOL','ZAG','LAT','MEI','ATA'].includes(String(pos||'').toUpperCase());
+}
+async function setPos(id,posicao){
+  const pos=String(posicao||'').toUpperCase();
+  if(!posicaoEscalacaoValida(pos)){
+    showToast('Selecione uma posição válida para o jogador.');
+    renderAtAll();
+    return;
+  }
+  const p=G.pelada; if(!p)return;
+  const itens=[...(p.jogadores||[]),...(p.confirmados||[])];
+  const item=itens.find(j=>String(j.id)===String(id));
+  if(!item){ showToast('Jogador não encontrado.'); return; }
+  itens.filter(j=>String(j.id)===String(id)).forEach(j=>j.pos=pos);
+  renderAdmTimes();
+  try{
+    await dbAtualizar(id,{posicao:pos});
+  }catch(e){
+    showToast('Erro ao salvar posição.');
+  }
 }
 async function moverJogadorTime(id,time){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar escalações.')) return;
@@ -1160,6 +1182,12 @@ async function moverJogadorTime(id,time){
     return;
   }
   const timeValido = ['azul','vermelho','pool'].includes(time) ?time : 'pool';
+  const item=p.jogadores.find(j=>String(j.id)===String(id)) || p.confirmados.find(j=>String(j.id)===String(id));
+  if(!item){ showToast('Jogador não encontrado.'); return; }
+  if(!posicaoEscalacaoValida(item.pos)){
+    showToast(`Defina uma posição válida para ${item.nome} antes de alterar o time.`);
+    return;
+  }
   let achou=false;
   [p.jogadores,p.confirmados].forEach(arr=>{
     const j=arr.find(x=>String(x.id)===String(id));
@@ -1172,7 +1200,8 @@ async function moverJogadorTime(id,time){
   if(!achou){ showToast('Jogador não encontrado.'); return; }
   renderAdmTimes();
   try{
-    await dbAtualizar(id,{time:timeValido, ...(timeValido==='pool'?{ordem:0}:{})});
+    const posicao=posicaoEscalacaoValida(item?.pos) ? {posicao:item.pos} : {};
+    await dbAtualizar(id,{time:timeValido, ...(timeValido==='pool'?{ordem:0}:{}), ...posicao});
   }catch(e){
     showToast('Erro ao salvar a alteração do time.');
   }
@@ -1189,6 +1218,11 @@ async function reordenarJogadorTime(id,time,targetId=null){
   const doTime=outros.filter(j=>j.time===time);
   const insertIdx=targetId ? doTime.findIndex(j=>String(j.id)===String(targetId)) : doTime.length;
   const jogadorAtualizado={...jogador,time};
+  const semPosicao=[...doTime,jogadorAtualizado].find(j=>!posicaoEscalacaoValida(j.pos));
+  if(semPosicao){
+    showToast(`Defina uma posição válida para ${semPosicao.nome} antes de escalar.`);
+    return;
+  }
   if(insertIdx<0) doTime.push(jogadorAtualizado);
   else doTime.splice(insertIdx,0,jogadorAtualizado);
   doTime.forEach((j,i)=>{ j.ordem=i; });
@@ -1206,7 +1240,7 @@ async function reordenarJogadorTime(id,time,targetId=null){
   });
   renderAdmTimes();
   try{
-    await Promise.all(doTime.map(j=>dbAtualizar(j.id,{time,ordem:j.ordem})));
+    await Promise.all(doTime.map(j=>dbAtualizar(j.id,{time,ordem:j.ordem,posicao:j.pos})));
   }catch(e){ showToast('Erro ao salvar ordem.'); }
 }
 async function mvTo(id,t){ await moverJogadorTime(id,t); }
