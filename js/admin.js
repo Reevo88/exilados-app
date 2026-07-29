@@ -232,7 +232,7 @@ function configurarFormularioPelada(modo){
   if(btnDup) btnDup.style.display = editando ?'none' : 'flex';
   if(btnDel) btnDel.style.display = editando ?'flex' : 'none';
   if(ajuda) ajuda.textContent = editando
-    ?'Altere os dados principais da pelada. O limite não pode ficar abaixo do número atual de confirmados.'
+    ?'Altere os dados principais da pelada. O limite não pode ficar abaixo do número atual de confirmados para o jogo.'
     : 'Preencha os dados básicos. Quando existir uma pelada anterior, o app reaproveita local, horário, valor e limite para agilizar o cadastro.';
 }
 function prepararNovaPelada(){
@@ -321,10 +321,10 @@ async function editarPelada(){
     return;
   }
   const dados=validarCriarPelada(); if(!dados) return;
-  const confirmados=(p.confirmados||[]).length;
-  if(dados.max < confirmados){
+  const confirmadosJogo=totalJogadoresConfirmados(p);
+  if(dados.max < confirmadosJogo){
     campoErro('cp-max');
-    showToast(`Não é possível reduzir para ${dados.max}. Já existem ${confirmados} confirmados.`);
+    showToast(`Não é possível reduzir para ${dados.max}. Já existem ${confirmadosJogo} confirmados para o jogo.`);
     return;
   }
   const btn=document.getElementById('cp-btn-criar');

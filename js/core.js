@@ -589,7 +589,7 @@ function posSelect(j){ const vp=j.pos&&['GOL','ZAG','LAT','MEI','ATA'].includes(
 function jogadoresConfirmadosPelada(p){
   if(!p) return [];
   const confirmados = p.confirmados || [];
-  return p.temChurras ? confirmados.filter(j=>j.churras!=='churras') : confirmados;
+  return confirmados.filter(j=>j.churras!=='churras');
 }
 function totalJogadoresConfirmados(p){
   return jogadoresConfirmadosPelada(p).length;
