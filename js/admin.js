@@ -639,6 +639,67 @@ async function admAdd(){
     await _executarAdd(nome, 'avulso', null, pos);
   });
 }
+
+// Registra ausência direto pelo campo "Adicionar jogador" (botão "-").
+// Espelha o admAdd: mesmo match no cadastro, mesma associação de jogador_id.
+async function admAddNaoVai(){
+  if(bloquearSeEncerrada('Partida encerrada. Não é possível registrar ausências.')) return;
+  if(_admNovoJogadorPendente) admCancelarNovoJogador();
+  const p=G.pelada; const input=document.getElementById('adm-add-nome'); const nome=_resolverNomeLivreAdm(input?.value);
+  if(!nome){input?.focus();return;}
+  const n=normNome(nome);
+  if(p.confirmados.find(j=>normNome(j.nome)===n)||(p.naoVao||[]).find(j=>normNome(j.nome)===n)||(p.espera||[]).find(j=>normNome(j.nome)===n)){showToast('Esse nome já está na lista');return;}
+
+  const jogadores = await _buscarJogadoresCadastrados();
+  const matches = _encontrarMatchesCadastro(nome, jogadores);
+
+  const _executarNaoVai = async (nomeUsar, modalidade, jogadorId, posicaoManual=null) => {
+    const nomeFinal = _resolverNomeLivreAdm(nomeUsar, nome, input?.value);
+    if(!nomeFinal){ showToast('Informe o nome do jogador.'); input?.focus(); return; }
+    if(!confirm(`Confirmar a ausência de ${nomeFinal} nesta pelada?`)) return;
+    try{
+      const posCad = jogadorId ? (jogadores.find(j=>j.id===jogadorId)?.posicao_favorita || null) : null;
+      const posicao = String(posCad || posicaoManual || '?').toUpperCase();
+      const rows = await sbFetch('/confirmacoes',{
+        method:'POST',
+        body: JSON.stringify({
+          pelada_id: p.id,
+          nome: nomeFinal,
+          jogador_id: jogadorId || null,
+          posicao, time:'pool', pago:false,
+          modalidade: modalidade || resolveModalidadeConfirmacao({jogador_id:jogadorId||null, nome:nomeFinal}),
+          status:'nao_vai',
+        }),
+      });
+      p.naoVao=p.naoVao||[];
+      p.naoVao.push({id:rows[0].id, jogador_id:jogadorId||null, nome:nomeFinal});
+      if(input){ input.value=''; input.focus(); }
+      renderAdmConf(); renderAdmFin();
+      showToast('Ausência registrada!');
+    }catch(e){ showToast('Erro ao registrar ausência.'); }
+  };
+
+  // Fluxo 1: match exato e único -> registra direto com a identidade do cadastro
+  if(matches.length === 1){
+    const j = matches[0];
+    const nomeUsar = _resolverNomeLivreAdm(j.apelido, j.nome, nome);
+    if(normNome(nomeUsar) === n){
+      await _executarNaoVai(nomeUsar, j.modalidade || 'avulso', j.id);
+      return;
+    }
+  }
+
+  // Fluxo 2: match(es) não exato(s) -> pede confirmação de identidade
+  if(matches.length > 0){
+    _abrirSheetIdentidade(matches, nome, async (nomeUsar, modalidade, jogadorId, posicaoManual=null) => {
+      await _executarNaoVai(nomeUsar, modalidade, jogadorId, posicaoManual);
+    });
+    return;
+  }
+
+  // Fluxo 3: nenhum match -> registra como avulso sem vínculo de cadastro
+  await _executarNaoVai(nome, 'avulso', null);
+}
 async function togglePago(i){
   const j=G.pelada.confirmados[i];
   if(modalidadeConfirmacaoEhMensalista(j)){showToast('Mensalista não entra na cobrança avulsa.');return;}

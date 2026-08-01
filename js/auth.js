@@ -759,7 +759,7 @@ async function salvarMeuPerfil(){
     sincronizarJogadorNaListaGlobal(G.jogadorLogado);
     preencherMeuPerfil(G.jogadorLogado);
     showToast('Perfil salvo!');
-  }catch(e){ showToast('Erro ao salvar perfil.'); }
+  }catch(e){ console.error('Erro ao salvar perfil:',e); showToast(e?.message || 'Erro ao salvar perfil.'); }
 }
 
 async function sairJogador(){

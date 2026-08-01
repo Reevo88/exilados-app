@@ -5477,6 +5477,11 @@ section[id*="home"] .btn:not(.btn-primary){
   font-weight:950!important;
 }
 #s-adm-conf .add-player-card .btn i{color:#F5E400!important;}
+#s-adm-conf .add-player-card .btn.adm-add-minus{
+  color:#ff5b5b!important;
+  border:1px solid rgba(255,91,91,.70)!important;
+}
+#s-adm-conf .add-player-card .btn.adm-add-minus i{color:#ff5b5b!important;}
 #s-adm-conf .tabs{
   display:grid!important;
   grid-template-columns:1fr 1fr;

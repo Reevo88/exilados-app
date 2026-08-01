@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
-<link href="style.css?v=20260715-login-hero-1" rel="stylesheet"/>
+<link href="style.css?v=20260801-adm-nao-vai-1" rel="stylesheet"/>
 <link href="css/header.css?v=20260613-peladeiros-filter-grid-1" rel="stylesheet"/>
 <link href="css/bottom-nav.css?v=20260613-peladeiros-filter-grid-1" rel="stylesheet"/>
 <!-- Preload imagens críticas da home -->
@@ -604,8 +604,9 @@
 <div class="card add-player-card">
 <div class="card-title">Adicionar jogador</div>
 <div style="display:flex;gap:8px;align-items:stretch;">
-<div class="field" style="flex:1;margin:0;"><input autocomplete="off" id="adm-add-nome" onkeydown="if(event.key==='Enter')admAdd();" placeholder="Nome do jogador" type="text"/></div>
-<button class="btn" onclick="admAdd()" style="width:auto;background:var(--blue);color:var(--cream);padding:0 16px;margin:0;"><i class="ti ti-plus"></i></button>
+<div class="field" style="flex:1;min-width:0;margin:0;"><input autocomplete="off" id="adm-add-nome" onkeydown="if(event.key==='Enter')admAdd();" placeholder="Nome do jogador" type="text"/></div>
+<button class="btn" onclick="admAdd()" title="Confirmar presença" style="width:auto;flex:0 0 auto;background:var(--blue);color:var(--cream);padding:0 16px;margin:0;"><i class="ti ti-plus"></i></button>
+<button class="btn adm-add-minus" onclick="admAddNaoVai()" title="Registrar ausência" style="width:auto;flex:0 0 auto;padding:0 16px;margin:0;"><i class="ti ti-minus"></i></button>
 </div>
 <div id="adm-add-novo-wrap" style="display:none;margin-top:10px;">
 <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Jogador novo. Escolha a posição para entrar nesta pelada.</div>

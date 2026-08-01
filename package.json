@@ -1,0 +1,16 @@
+{
+  "name": "exiladosapp",
+  "version": "1.0.0",
+  "description": "PWA de gestão de peladas amador. Controla confirmações, escalações, caixa, pós-jogo, ranking de performance e artilharia.",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "sharp": "^0.35.2"
+  }
+}
