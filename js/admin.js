@@ -795,16 +795,21 @@ async function remNaoVai(i){
   if(G.perfil !== 'full'){ showToast('Apenas ADM/Presidente pode excluir.'); return; }
   if(bloquearSeEncerrada('Partida encerrada. Não é possível remover jogadores.')) return;
   const p=G.pelada; p.naoVao=p.naoVao||[]; const j=p.naoVao[i]; if(!j)return;
-  const ok=confirm(`Excluir ${j.nome} da lista de Não vão?`);
-  if(!ok)return;
-  try{
-    await dbDeletar(j.id);
-    p.naoVao.splice(i,1);
-    renderAdmConf();
-    showToast('Removido');
-  }catch(e){
-    showToast('Erro ao remover.');
-  }
+  abrirConfirmSheet(
+    'Excluir da lista',
+    `${j.nome} sairá da lista "Não vão" e ficará sem registro nesta pelada.`,
+    'Excluir',
+    async () => {
+      try{
+        await dbDeletar(j.id);
+        p.naoVao.splice(i,1);
+        renderAdmConf();
+        showToast('Removido');
+      }catch(e){
+        showToast('Erro ao remover.');
+      }
+    }
+  );
 }
 async function moverParaNaoVai(i){
   if(bloquearSeEncerrada('Partida encerrada. Não é possível alterar confirmações.')) return;
@@ -1141,18 +1146,24 @@ async function excluirJogadorAdm(){
   const j=(G.jogadores||[]).find(x=>String(x.id)===String(id));
   const nome=j?.nome||document.getElementById('jog-nome')?.value.trim()||'este jogador';
   const apelido=j?.apelido||document.getElementById('jog-apelido')?.value.trim()||'';
-  if(!confirm(`Excluir ${nome} da base de jogadores? Essa ação não pode ser desfeita.`)) return;
-  showToast('Excluindo jogador...');
-  try{
-    await dbExcluirVotosDoJogador([nome, apelido]);
-    await dbExcluirJogador(id);
-    await carregarJogadoresAdm();
-    fecharFormJogador();
-    showToast('Jogador excluído!');
-  }catch(e){
-    console.error('Erro ao excluir jogador', e);
-    showToast('Erro ao excluir jogador.');
-  }
+  abrirConfirmSheet(
+    'Excluir jogador',
+    `${nome} será removido da base de jogadores, junto com os votos recebidos. Essa ação não pode ser desfeita.`,
+    'Excluir jogador',
+    async () => {
+      showToast('Excluindo jogador...');
+      try{
+        await dbExcluirVotosDoJogador([nome, apelido]);
+        await dbExcluirJogador(id);
+        await carregarJogadoresAdm();
+        fecharFormJogador();
+        showToast('Jogador excluído!');
+      }catch(e){
+        console.error('Erro ao excluir jogador', e);
+        showToast('Erro ao excluir jogador.');
+      }
+    }
+  );
 }
 
 // ==========================================

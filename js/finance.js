@@ -403,6 +403,7 @@ async function filtrarExtrato(tipo, btn) {
 
 // -- Sheet de confirmação genérico ---------
 let _confirmCallback = null;
+let _confirmCancelCallback = null;
 // icone: classe do Tabler para a acao confirmada. Padrao lixeira, pois a
 // maioria das confirmacoes e exclusao; acoes que nao apagam nada passam outro.
 function abrirConfirmSheet(titulo, desc, labelOk, callback, icone = 'ti-trash') {
@@ -412,13 +413,26 @@ function abrirConfirmSheet(titulo, desc, labelOk, callback, icone = 'ti-trash') 
   const ico = document.getElementById('confirm-sheet-ok-icon');
   if (ico) ico.className = 'ti ' + icone;
   _confirmCallback = callback;
-  document.getElementById('confirm-sheet-ok').onclick = () => { fecharConfirmSheet(); callback(); };
+  // Zera o cancelamento antes de fechar: senao confirmarSheet resolveria
+  // false no fechamento e o true do callback chegaria tarde demais.
+  document.getElementById('confirm-sheet-ok').onclick = () => { _confirmCancelCallback = null; fecharConfirmSheet(); callback(); };
   document.getElementById('confirm-sheet').classList.add('open');
 }
 function fecharConfirmSheet(e) {
   if (e && e.target.id !== 'confirm-sheet') return;
   document.getElementById('confirm-sheet').classList.remove('open');
   _confirmCallback = null;
+  const onCancel = _confirmCancelCallback;
+  _confirmCancelCallback = null;
+  if (onCancel) onCancel();
+}
+// Versao em promise, para quem precisa aguardar a resposta no meio de uma
+// funcao async sem mover o resto do fluxo para dentro de um callback.
+function confirmarSheet(titulo, desc, labelOk, icone = 'ti-trash') {
+  return new Promise(resolve => {
+    _confirmCancelCallback = () => resolve(false);
+    abrirConfirmSheet(titulo, desc, labelOk, () => resolve(true), icone);
+  });
 }
 
 // Sobrescreve excluirMovimentoAdm para usar sheet e desmarcar pago na pelada

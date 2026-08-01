@@ -1427,7 +1427,12 @@ async function jogadorVaiImpl(churrasOpt){
         // Modalidade diferente — pede confirmação
         const labelDe = churrasAtual === 'jogo_churras' ? 'Jogo + Churras' : churrasAtual === 'churras' ? 'Só Churras' : 'Jogo';
         const labelPara = churrasVal === 'jogo_churras' ? 'Jogo + Churras' : churrasVal === 'churras' ? 'Só Churras' : churrasVal === null ? 'Jogo' : 'Jogo';
-        const confirmar = confirm(`Você está confirmado como "${labelDe}".\nDeseja mudar para "${labelPara}"?`);
+        const confirmar = await confirmarSheet(
+          'Mudar modalidade',
+          `Você está confirmado como "${labelDe}". Deseja mudar para "${labelPara}"?`,
+          'Mudar para ' + labelPara,
+          'ti-repeat'
+        );
         if(!confirmar){ renderJConf(); return; }
       }
       // Status "nao_vai" ou mudança de modalidade confirmada — atualiza
