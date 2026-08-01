@@ -225,6 +225,18 @@ html, body { height:100%; background:var(--bg); font-family:'Inter',sans-serif; 
 .field-error input, .field-error select { border-color:var(--danger-text); box-shadow:0 0 0 3px rgba(211,51,51,.08); }
 .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
+/* -- Campo de senha com botão de exibir ---- */
+.pw-wrap { position:relative; display:block; }
+.pw-wrap input { padding-right:42px !important; }
+.pw-toggle {
+  position:absolute; top:0; right:0; bottom:0;
+  width:40px; display:flex; align-items:center; justify-content:center;
+  background:none; border:none; padding:0; cursor:pointer;
+  color:var(--text2); font-size:17px; line-height:1;
+}
+.pw-toggle:active { opacity:.6; }
+.pw-toggle i { pointer-events:none; }
+
 /* -- BUTTONS ------------------------------- */
 .btn { width:100%; padding:9px 12px; border:none; border-radius:var(--radius-sm); font-size:15px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .15s,transform .1s; display:flex; align-items:center; justify-content:center; gap:8px; }
 .btn:active    { transform:scale(.98); }

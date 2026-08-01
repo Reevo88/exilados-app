@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
-<link href="style.css?v=20260801-adm-nao-vai-3" rel="stylesheet"/>
+<link href="style.css?v=20260801-pw-toggle-1" rel="stylesheet"/>
 <link href="css/header.css?v=20260613-peladeiros-filter-grid-1" rel="stylesheet"/>
 <link href="css/bottom-nav.css?v=20260613-peladeiros-filter-grid-1" rel="stylesheet"/>
 <!-- Preload imagens críticas da home -->
@@ -62,7 +62,7 @@
 <div class="card" id="perfil-login-card">
 <button class="btn btn-outline" onclick="loginJogadorGoogle()" style="margin-bottom:10px;display:none;"><i class="ti ti-brand-google"></i> Entrar com Google</button>
 <div class="field"><label>E-mail</label><input autocomplete="email" id="perfil-email-login" placeholder="voce@email.com" type="email"/></div>
-<div class="field"><label>Senha</label><input autocomplete="current-password" id="perfil-senha-login" placeholder="mínimo 6 caracteres" type="password"/></div>
+<div class="field"><label>Senha</label><div class="pw-wrap"><input autocomplete="current-password" id="perfil-senha-login" placeholder="mínimo 6 caracteres" type="password"/><button aria-label="Mostrar senha" class="pw-toggle" onclick="togglePw(this)" tabindex="-1" type="button"><i class="ti ti-eye"></i></button></div></div>
 <button class="btn btn-primary" onclick="entrarJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-lock-open"></i> Entrar</button>
 <button class="btn btn-outline" onclick="criarContaJogadorSenha()" style="margin-bottom:8px;"><i class="ti ti-user-plus"></i> Criar conta</button>
 <button id="perfil-btn-esqueci" onclick="recuperarSenhaJogador()" style="width:100%;background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);padding:4px 8px;font-family:'Inter',sans-serif;">Esqueci minha senha</button>
@@ -70,7 +70,7 @@
 <!-- RESET SENHA -->
 <div class="card" id="perfil-reset-card" style="display:none;">
 <div class="card-title">Criar nova senha</div>
-<div class="field"><label>Nova senha</label><input autocomplete="new-password" id="perfil-nova-senha" placeholder="mínimo 6 caracteres" type="password"/></div>
+<div class="field"><label>Nova senha</label><div class="pw-wrap"><input autocomplete="new-password" id="perfil-nova-senha" placeholder="mínimo 6 caracteres" type="password"/><button aria-label="Mostrar senha" class="pw-toggle" onclick="togglePw(this)" tabindex="-1" type="button"><i class="ti ti-eye"></i></button></div></div>
 <button class="btn btn-primary" onclick="salvarNovaSenhaJogador()" style="margin-bottom:8px;"><i class="ti ti-key"></i> Salvar nova senha</button>
 <button class="btn btn-danger" onclick="voltarLoginPerfil()"><i class="ti ti-arrow-left"></i> Voltar para login</button>
 </div>
@@ -340,7 +340,7 @@
 <div class="card login-card">
 <div class="login-greeting" id="login-sauda">Bom dia, Exilado!</div>
 <div class="field no-label"><input autocomplete="off" id="login-input" onkeydown="if(event.key==='Enter')document.getElementById('senha-input').focus();" placeholder="Login ou e-mail" type="text"/></div>
-<div class="field no-label"><input id="senha-input" onkeydown="if(event.key==='Enter')login();" placeholder="Senha" type="password"/></div>
+<div class="field no-label"><div class="pw-wrap"><input id="senha-input" onkeydown="if(event.key==='Enter')login();" placeholder="Senha" type="password"/><button aria-label="Mostrar senha" class="pw-toggle" onclick="togglePw(this)" tabindex="-1" type="button"><i class="ti ti-eye"></i></button></div></div>
 <button class="btn btn-primary" onclick="login()"><i class="ti ti-lock-open"></i> Entrar</button>
 <div style="text-align:center;margin-top:12px;">
 <button id="btn-esqueci" onclick="esqueceuSenha()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);padding:4px 8px;font-family:'Inter',sans-serif;">Esqueci a senha</button>
@@ -1238,7 +1238,7 @@
 <div class="toast" id="toast"></div>
 <!-- Dependências e módulos -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="js/core.js?v=20260715-toast-nowrap-1"></script>
+<script src="js/core.js?v=20260801-pw-toggle-1"></script>
 <script src="js/auth.js"></script>
 <script src="js/player.js?v=20260801-confirm-sheet-2"></script>
 <script src="js/admin.js?v=20260801-confirm-sheet-2"></script>

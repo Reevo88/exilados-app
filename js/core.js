@@ -755,3 +755,20 @@ async function salvarSubscription(sub) {
     headers: { 'Prefer': 'resolution=merge-duplicates' },
   }).catch(() => {});
 }
+
+// ==========================================
+// CAMPO DE SENHA - MOSTRAR/OCULTAR
+// ==========================================
+function togglePw(btn) {
+  const input = btn.parentElement?.querySelector('input');
+  if (!input) return;
+  const mostrando = input.type === 'text';
+  input.type = mostrando ? 'password' : 'text';
+  const icone = btn.querySelector('i');
+  if (icone) icone.className = mostrando ? 'ti ti-eye' : 'ti ti-eye-off';
+  btn.setAttribute('aria-label', mostrando ? 'Mostrar senha' : 'Ocultar senha');
+  // Devolve o foco sem perder a posição do cursor
+  const pos = input.value.length;
+  input.focus();
+  try { input.setSelectionRange(pos, pos); } catch (e) {}
+}
