@@ -1,0 +1,9 @@
+supabase/
+scripts/
+node_modules/
+README.md
+package.json
+package-lock.json
+wrangler.jsonc
+.gitignore
+.assetsignore
