@@ -2,13 +2,13 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v37-adm-nao-vai';
+const CACHE_NAME = 'exilados-v38-adm-nao-vai';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/style.css?v=20260801-adm-nao-vai-1',
+  '/style.css?v=20260801-adm-nao-vai-2',
   '/css/header.css?v=20260613-peladeiros-filter-grid-1',
   '/css/bottom-nav.css?v=20260613-peladeiros-filter-grid-1',
   '/js/core.js?v=20260715-toast-nowrap-1',
