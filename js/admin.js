@@ -455,7 +455,7 @@ async function renderAdmConf(){
 async function _buscarJogadoresCadastrados(){
   if(G.jogadores && G.jogadores.length) return G.jogadores;
   try{
-    const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,modalidade,posicao_favorita&order=apelido.asc');
+    const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,modalidade,posicao_favorita,data_nascimento&order=apelido.asc');
     G.jogadores = await prepararFotosJogadores(rows || []);
   }catch(e){ G.jogadores = []; }
   return G.jogadores || [];

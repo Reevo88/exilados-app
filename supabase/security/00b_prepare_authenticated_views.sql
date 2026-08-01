@@ -14,7 +14,8 @@ select
   foto_url,
   posicao_favorita,
   modalidade,
-  ativo
+  ativo,
+  data_nascimento
 from public.jogadores;
 
 revoke all on table public.jogadores_publicos from public, anon;

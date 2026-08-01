@@ -106,7 +106,7 @@ Aplicar `01_strict_owner_rls.sql` muda deliberadamente o produto:
 - usuários autenticados continuam vendo peladas, confirmações, placares, gols, vídeos, estatísticas e ranking;
 - `escalador` conserva leitura e atualização global somente de confirmações;
 - financeiro fica restrito a `adm`/`presidente`, exceto `valor_churras`, exposto por uma view autenticada de coluna única;
-- dados completos de `jogadores` ficam restritos ao próprio jogador/ADM; listagens usam `jogadores_publicos`, sem e-mail, telefone, `auth_user_id`, `perfil_app` ou data de nascimento;
+- dados completos de `jogadores` ficam restritos ao próprio jogador/ADM; listagens usam `jogadores_publicos`, sem e-mail, telefone, `auth_user_id` ou `perfil_app`. `data_nascimento` é exposto por decisão de produto (coroa de aniversariante do mês e idade nos cards de peladeiro);
 - Edge Functions com `service_role` continuam capazes de ignorar RLS;
 - fotos deixam de ser públicas após `02_storage_hardening.sql`; o frontend deve trocar `getPublicUrl()` por URLs assinadas.
 

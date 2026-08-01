@@ -162,7 +162,7 @@ async function dbListarJogadores() {
   return await prepararFotosJogadores(rows || []);
 }
 async function dbCarregarJogadoresBase() {
-  const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,posicao_favorita,ativo,modalidade,instagram&order=apelido.asc');
+  const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,posicao_favorita,ativo,modalidade,instagram,data_nascimento&order=apelido.asc');
   G.jogadores = await prepararFotosJogadores(rows || []);
   return G.jogadores;
 }

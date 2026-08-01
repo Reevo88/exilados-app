@@ -509,6 +509,8 @@ $$;
 -- Projeções compartilhadas deliberadamente limitadas a campos não sensíveis.
 -- As views executam como o proprietário somente para atravessar o RLS da tabela-base;
 -- não aceitam parâmetros e não expõem e-mail, telefone, auth_user_id ou perfil_app.
+-- `data_nascimento` é exposto por decisão de produto: alimenta a coroa de
+-- aniversariante do mês e a idade nos cards de peladeiro.
 create or replace view public.jogadores_publicos
 with (security_barrier = true)
 as
@@ -520,7 +522,8 @@ select
   foto_url,
   posicao_favorita,
   modalidade,
-  ativo
+  ativo,
+  data_nascimento
 from public.jogadores;
 
 revoke all on table public.jogadores_publicos from public, anon;

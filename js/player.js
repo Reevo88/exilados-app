@@ -1062,7 +1062,7 @@ async function carregarPeladeirosPublico(){
   const el=document.getElementById('peladeiros-lista');
   if(el) el.innerHTML='<div class="empty"><i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block;"></i>Carregando peladeiros</div>';
   try{
-    const rows=await sbFetch('/jogadores_publicos?select=id,nome,apelido,instagram,foto_url,posicao_favorita,modalidade,ativo&order=apelido.asc');
+    const rows=await sbFetch('/jogadores_publicos?select=id,nome,apelido,instagram,foto_url,posicao_favorita,modalidade,ativo,data_nascimento&order=apelido.asc');
     G.jogadores=await prepararFotosJogadores(rows||[]);
     await carregarStatsPeladeirosPublico();
     renderPeladeirosLista();
@@ -1748,7 +1748,7 @@ async function abrirRanking(aba) {
   setRankingAba('performance');
   if (!G.jogadores || !G.jogadores.length) {
     try {
-      const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,posicao_favorita,modalidade,ativo&order=apelido.asc');
+      const rows = await sbFetch('/jogadores_publicos?select=id,nome,apelido,foto_url,posicao_favorita,modalidade,ativo,data_nascimento&order=apelido.asc');
       G.jogadores = await prepararFotosJogadores(rows || []);
     } catch(e) {}
   }
