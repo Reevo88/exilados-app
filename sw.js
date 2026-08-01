@@ -2,7 +2,7 @@
 // EXILADOS DA BOLA - Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'exilados-v39-adm-nao-vai';
+const CACHE_NAME = 'exilados-v40-confirm-sheet';
 
 // Arquivos que ficam no cache para funcionar offline
 const STATIC_ASSETS = [
@@ -14,8 +14,8 @@ const STATIC_ASSETS = [
   '/js/core.js?v=20260715-toast-nowrap-1',
   '/js/auth.js',
   '/js/player.js?v=20260715-guest-home-1',
-  '/js/admin.js',
-  '/js/finance.js',
+  '/js/admin.js?v=20260801-confirm-sheet-1',
+  '/js/finance.js?v=20260801-confirm-sheet-1',
   '/js/postgame.js',
   '/js/voting.js',
   '/js/bootstrap.js?v=20260715-guest-home-1',

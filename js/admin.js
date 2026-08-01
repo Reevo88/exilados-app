@@ -656,27 +656,34 @@ async function admAddNaoVai(){
   const _executarNaoVai = async (nomeUsar, modalidade, jogadorId, posicaoManual=null) => {
     const nomeFinal = _resolverNomeLivreAdm(nomeUsar, nome, input?.value);
     if(!nomeFinal){ showToast('Informe o nome do jogador.'); input?.focus(); return; }
-    if(!confirm(`Confirmar a ausência de ${nomeFinal} nesta pelada?`)) return;
-    try{
-      const posCad = jogadorId ? (jogadores.find(j=>j.id===jogadorId)?.posicao_favorita || null) : null;
-      const posicao = String(posCad || posicaoManual || '?').toUpperCase();
-      const rows = await sbFetch('/confirmacoes',{
-        method:'POST',
-        body: JSON.stringify({
-          pelada_id: p.id,
-          nome: nomeFinal,
-          jogador_id: jogadorId || null,
-          posicao, time:'pool', pago:false,
-          modalidade: modalidade || resolveModalidadeConfirmacao({jogador_id:jogadorId||null, nome:nomeFinal}),
-          status:'nao_vai',
-        }),
-      });
-      p.naoVao=p.naoVao||[];
-      p.naoVao.push({id:rows[0].id, jogador_id:jogadorId||null, nome:nomeFinal});
-      if(input){ input.value=''; input.focus(); }
-      renderAdmConf(); renderAdmFin();
-      showToast('Ausência registrada!');
-    }catch(e){ showToast('Erro ao registrar ausência.'); }
+    abrirConfirmSheet(
+      'Confirmar ausência',
+      `${nomeFinal} entrará na lista "Não vão" desta pelada.`,
+      'Confirmar ausência',
+      async () => {
+        try{
+          const posCad = jogadorId ? (jogadores.find(j=>j.id===jogadorId)?.posicao_favorita || null) : null;
+          const posicao = String(posCad || posicaoManual || '?').toUpperCase();
+          const rows = await sbFetch('/confirmacoes',{
+            method:'POST',
+            body: JSON.stringify({
+              pelada_id: p.id,
+              nome: nomeFinal,
+              jogador_id: jogadorId || null,
+              posicao, time:'pool', pago:false,
+              modalidade: modalidade || resolveModalidadeConfirmacao({jogador_id:jogadorId||null, nome:nomeFinal}),
+              status:'nao_vai',
+            }),
+          });
+          p.naoVao=p.naoVao||[];
+          p.naoVao.push({id:rows[0].id, jogador_id:jogadorId||null, nome:nomeFinal});
+          if(input){ input.value=''; input.focus(); }
+          renderAdmConf(); renderAdmFin();
+          showToast('Ausência registrada!');
+        }catch(e){ showToast('Erro ao registrar ausência.'); }
+      },
+      'ti-user-minus'
+    );
   };
 
   // Fluxo 1: match exato e único -> registra direto com a identidade do cadastro

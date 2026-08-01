@@ -403,10 +403,14 @@ async function filtrarExtrato(tipo, btn) {
 
 // -- Sheet de confirmação genérico ---------
 let _confirmCallback = null;
-function abrirConfirmSheet(titulo, desc, labelOk, callback) {
+// icone: classe do Tabler para a acao confirmada. Padrao lixeira, pois a
+// maioria das confirmacoes e exclusao; acoes que nao apagam nada passam outro.
+function abrirConfirmSheet(titulo, desc, labelOk, callback, icone = 'ti-trash') {
   document.getElementById('confirm-sheet-title').textContent = titulo;
   document.getElementById('confirm-sheet-desc').textContent = desc;
   document.getElementById('confirm-sheet-ok-label').textContent = labelOk;
+  const ico = document.getElementById('confirm-sheet-ok-icon');
+  if (ico) ico.className = 'ti ' + icone;
   _confirmCallback = callback;
   document.getElementById('confirm-sheet-ok').onclick = () => { fecharConfirmSheet(); callback(); };
   document.getElementById('confirm-sheet').classList.add('open');
