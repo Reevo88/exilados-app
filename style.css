@@ -6047,9 +6047,13 @@ section[id*="home"] .btn:not(.btn-primary){
 }
 #s-adm-conf #adm-add-novo-wrap .perfil-flags{
   margin-top:0 !important;
+  justify-content:center;
+  flex-wrap:nowrap;
 }
 #s-adm-conf #adm-add-novo-wrap .perfil-flag{
-  min-width:52px;
+  flex:1 1 0;
+  min-width:0;
+  text-align:center;
 }
 @media (max-width:390px){
   #s-adm-times .team-slot.editable{
