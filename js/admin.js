@@ -676,7 +676,13 @@ async function admAddNaoVai(){
             }),
           });
           p.naoVao=p.naoVao||[];
-          p.naoVao.push({id:rows[0].id, jogador_id:jogadorId||null, nome:nomeFinal});
+          p.naoVao.push({
+            id:rows[0].id,
+            jogador_id:jogadorId||null,
+            nome:nomeFinal,
+            posicao,
+            modalidade:modalidade||'avulso',
+          });
           if(input){ input.value=''; input.focus(); }
           renderAdmConf(); renderAdmFin();
           showToast('Ausência registrada!');
@@ -818,7 +824,14 @@ async function moverParaNaoVai(i){
     await dbAtualizar(j.id,{status:'nao_vai',pago:false,time:'pool'});
     p.confirmados.splice(i,1);
     p.jogadores=p.jogadores.filter(jg=>jg.id!==j.id);
-    p.naoVao.push({id:j.id, nome:j.nome});
+    p.naoVao.push({
+      id:j.id,
+      jogador_id:j.jogador_id||null,
+      nome:j.nome,
+      posicao:j.pos||j.posicao||null,
+      modalidade:j.modalidade||null,
+      churras:j.churras||null,
+    });
     renderAdmConf(); renderAdmFin(); showToast('Movido para Não vão');
   }catch(e){ showToast('Erro ao mover jogador.'); }
 }
@@ -827,16 +840,54 @@ async function voltarNaoVai(i){
   const p=G.pelada; p.naoVao=p.naoVao||[]; const item=p.naoVao[i]; if(!item)return;
   if(peladaLotada(p)){showToast('Pelada lotada para jogo!');return;}
   if(p.confirmados.find(j=>normNome(j.nome)===normNome(item.nome))){showToast('Esse nome já está confirmado');return;}
-  try{
-    // Não apaga a posição original ao reconfirmar o convidado.
-    const rows=await dbAtualizar(item.id,{status:'confirmado',time:'pool'});
-    const row=rows?.[0]||item;
-    const posicao=String(row.posicao||'').toUpperCase();
-    const novo={id:item.id,nome:item.nome,pos:['GOL','ZAG','LAT','MEI','ATA'].includes(posicao)?posicao:'?',time:'pool',pago:false,modalidade:'avulso',isento:false,ordem:0};
-    p.confirmados.push(novo); p.jogadores.push({...novo});
-    p.naoVao.splice(i,1);
-    renderAdmConf(); renderAdmFin(); showToast('Jogador confirmado!');
-  }catch(e){ showToast('Erro ao confirmar jogador.'); }
+  await _buscarJogadoresCadastrados();
+  const jogadorCad=findJogadorCadastroPorConfirmacao(item);
+  const posicao=posicaoConfirmacaoValida(item.posicao,item.pos,jogadorCad?.posicao_favorita,jogadorCad?.posicao);
+
+  const confirmarComPosicao=async (posEscolhida) => {
+    const posFinal=posicaoConfirmacaoValida(posEscolhida);
+    if(!posFinal){showToast('Escolha a posição do jogador.');return;}
+    try{
+      const jogadorId=item.jogador_id||jogadorCad?.id||null;
+      const modalidade=resolveModalidadeConfirmacao({...item,jogador_id:jogadorId},jogadorCad);
+      const rows=await dbAtualizar(item.id,{
+        status:'confirmado',
+        posicao:posFinal,
+        jogador_id:jogadorId,
+        modalidade,
+        pago:false,
+        time:'pool',
+      });
+      const row=rows?.[0]||item;
+      const novo={
+        id:item.id,
+        jogador_id:jogadorId,
+        nome:row.nome||item.nome,
+        pos:posFinal,
+        time:'pool',
+        pago:false,
+        modalidade,
+        isento:row.isento||false,
+        ordem:row.ordem||0,
+        churras:row.churras||item.churras||null,
+      };
+      p.confirmados.push(novo);
+      if(novo.churras!=='churras') p.jogadores.push({...novo});
+      p.naoVao.splice(i,1);
+      renderAdmConf(); renderAdmFin(); renderAdmHome();
+      showToast('Jogador confirmado!');
+    }catch(e){
+      console.error('Erro ao confirmar jogador que estava fora:',e);
+      showToast('Erro ao confirmar jogador.');
+    }
+  };
+
+  if(!posicao){
+    admAbrirNovoJogadorPosicao(item.nome, confirmarComPosicao);
+    showToast('Escolha a posição para confirmar.');
+    return;
+  }
+  await confirmarComPosicao(posicao);
 }
 function compartilharWhatsAppPelada(id){
   const p=G.peladas.find(x=>String(x.id)===String(id)); if(!p)return;

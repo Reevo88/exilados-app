@@ -1437,9 +1437,20 @@ async function jogadorVaiImpl(churrasOpt){
       }
       // Status "nao_vai" ou mudança de modalidade confirmada — atualiza
       const novoStatus = vaiParaEspera ? 'espera' : 'confirmado';
+      const posicao=posicaoConfirmacaoValida(
+        existente.posicao,
+        existente.pos,
+        G.jogadorLogado?.posicao_favorita,
+        G.jogadorLogado?.posicao
+      );
+      if(!posicao){
+        showToast('Defina sua posição no perfil antes de confirmar.');
+        return;
+      }
       await dbAtualizar(existente.id, {
         status: novoStatus,
         nome: nome,
+        posicao,
         churras: churrasVal,
         jogador_id: G.jogadorLogado?.id || existente.jogador_id || null,
         modalidade: resolveModalidadeConfirmacao({ ...existente, jogador_id: G.jogadorLogado?.id || existente.jogador_id || null, nome }),
@@ -1456,7 +1467,7 @@ async function jogadorVaiImpl(churrasOpt){
       const atualizado = {
         id: existente.id,
         jogador_id: G.jogadorLogado?.id || null,
-        nome, pos: existente.posicao || existente.pos || '?',
+        nome, pos: posicao,
         time: novoStatus === 'confirmado' ? (existente.time || 'pool') : 'pool',
         pago: existente.pago || false,
         modalidade: resolveModalidadeConfirmacao({ ...existente, jogador_id: G.jogadorLogado?.id || existente.jogador_id || null, nome }),
@@ -1525,7 +1536,14 @@ async function jogadorNaoVaiImpl(){
       p.jogadores   = p.jogadores.filter(j=>j.id!==existente.id);
       p.espera      = p.espera.filter(j=>j.id!==existente.id);
       p.naoVao      = p.naoVao.filter(j=>j.id!==existente.id);
-      p.naoVao.push({id:existente.id, nome});
+      p.naoVao.push({
+        id:existente.id,
+        jogador_id:G.jogadorLogado?.id||existente.jogador_id||null,
+        nome,
+        posicao:existente.posicao||existente.pos||G.jogadorLogado?.posicao_favorita||null,
+        modalidade:existente.modalidade||null,
+        churras:existente.churras||null,
+      });
       if(eraConfirmado) await _promoverPrimeiroDaEspera(p);
       queueAdminPeladaNotification('withdraw', p.id, existente.id, {
         previous_status: existente.status || null,
@@ -1538,12 +1556,18 @@ async function jogadorNaoVaiImpl(){
         body: JSON.stringify({
           pelada_id: p.id, nome,
           jogador_id: G.jogadorLogado?.id || null,
-          posicao:'?', time:'pool', pago:false,
+          posicao:G.jogadorLogado?.posicao_favorita||'?', time:'pool', pago:false,
           modalidade: resolveModalidadeConfirmacao({ jogador_id: G.jogadorLogado?.id || null, nome }),
           status:'nao_vai',
         }),
       });
-      p.naoVao.push({id:rows[0].id, nome});
+      p.naoVao.push({
+        id:rows[0].id,
+        jogador_id:G.jogadorLogado?.id||null,
+        nome,
+        posicao:G.jogadorLogado?.posicao_favorita||null,
+        modalidade:resolveModalidadeConfirmacao({ jogador_id:G.jogadorLogado?.id||null, nome }),
+      });
       queueAdminPeladaNotification('withdraw', p.id, rows[0].id, {
         previous_status: 'new',
         had_previous_confirmation: false,
@@ -1572,7 +1596,14 @@ async function jogadorCancelarImpl(){
     p.jogadores   = p.jogadores.filter(j=>j.id!==existente.id);
     p.espera      = p.espera.filter(j=>j.id!==existente.id);
     p.naoVao      = (p.naoVao||[]).filter(j=>j.id!==existente.id);
-    p.naoVao.push({id:existente.id, nome:existente.nome||nome});
+    p.naoVao.push({
+      id:existente.id,
+      jogador_id:G.jogadorLogado?.id||existente.jogador_id||null,
+      nome:existente.nome||nome,
+      posicao:existente.posicao||existente.pos||G.jogadorLogado?.posicao_favorita||null,
+      modalidade:existente.modalidade||null,
+      churras:existente.churras||null,
+    });
     if(eraConf) await _promoverPrimeiroDaEspera(p);
     queueAdminPeladaNotification('withdraw', p.id, existente.id, {
       previous_status: existente.status || null,

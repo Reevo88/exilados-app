@@ -111,7 +111,14 @@ async function dbCarregarPeladas() {
     confs.forEach(c=>{
       const p=G.peladas.find(x=>x.id===c.pelada_id); if(!p)return;
       if(c.status==='nao_vai'){
-        p.naoVao.push({id:c.id, nome:c.nome});
+        p.naoVao.push({
+          id:c.id,
+          jogador_id:c.jogador_id||null,
+          nome:c.nome,
+          posicao:c.posicao||null,
+          modalidade:c.modalidade||null,
+          churras:c.churras||null,
+        });
         return;
       }
       const _posConf=(c.posicao&&['GOL','ZAG','LAT','MEI','ATA'].includes(c.posicao))?c.posicao:'?';
@@ -379,6 +386,13 @@ function admNav(aba){
 function fmtData(d){ if(!d)return'—'; return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}); }
 function slug(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
 function normNome(s){ return (s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' '); }
+function posicaoConfirmacaoValida(...valores){
+  for(const valor of valores){
+    const pos=String(valor||'').toUpperCase().trim();
+    if(['GOL','ZAG','LAT','MEI','ATA'].includes(pos)) return pos;
+  }
+  return null;
+}
 function findJogadorCadastroPorConfirmacao(conf){
   return (G.jogadores||[]).find(jj=>
     (conf?.jogador_id && String(jj.id)===String(conf.jogador_id)) ||
